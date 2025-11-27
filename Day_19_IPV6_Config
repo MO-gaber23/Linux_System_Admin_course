@@ -1,0 +1,38 @@
+..........................................40.40-Day-19_IPV6_Config.............................................................
+
+
+we have to set the ipv6 manualy in our machine :
+
+                                                                                                                                                                                                                                           
+┌──(root㉿kali)-[/home/mo]
+└─# nmcli connection modify mo ipv6.address '2001::11:1/64'      
+
+
+and we must down and up the connection
+
+──(root㉿kali)-[/home/mo]
+└─# nmcli connection down mo       
+
+
+──(root㉿kali)-[/home/mo]
+└─# nmcli connection up mo       
+
+
+
+┌──(root㉿kali)-[/home/mo]
+└─# nmcli connection show mo     
+
+IP6.ADDRESS[2]:                         2001::11:1/64
+
+
+
+
+-----------------------
+
+to ping in ipv6 we will use :
+
+ping6 ip of the machine
+
+-----
+
+

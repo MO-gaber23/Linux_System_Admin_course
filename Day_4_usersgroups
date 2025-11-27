@@ -1,0 +1,205 @@
+
+# to add new user use 
+[command : useradd user name]
+
+
+# to display user id :
+[command : id username ]
+
+
+# to add new group use :
+[ command : groupadd groupname ]
+
+# to make the primary group for a new user : in creating the new userd 
+- use the option -g groupname  with command useradd
+[ command: useradd -g  groupname  username ]
+
+
+
+#  to edit with the group that the user in :
+
+we can make the secondry group of the user with :
+
+[ command : usermod -G "secondrygroupname" "username" ]
+
+NOTE: 
+-  this command will always change the secondry group not make the user in two secondry groups in the same time
+
+
+
+# to make user in two or more secondry groups : use option -a 
+
+[ command: usermod -a -G secondrygroupname username ]
+
+
+
+# to change the primary group for user has an primary group;
+
+[ command : usermod -g primarygroupName userName ]
+
+
+
+NOTE :
+
+-G for secondry group change 
+
+-g for primary group change
+
+-------------------------------------------------------------
+
+/etc/shadow :is the file containing the users passwrds hash :
+medo:$y$j9T$UdAuHEKOTd29XeDsiZcrx1$/yaTpfGo1ZByVcRWi8/QrAWSQhxbyWocIGOTOOFcN47:19765:0:99999:7:::
+
+
+/etc/passwd :is the file containing the users information as :
+Gaber:x:1009:1009:normal user gaber:/home/gaber:/bin/sh
+
+/etc/group  :file of groups informations :
+adm:x:4:Gaber
+
+
+/etc/gshadow :file of groups passwrds hashed
+Gaber:!::
+
+
+
+
+
+# to delet userd :
+
+[ command: userdel username ]
+
+NOTE :  when deleting user its fils directories stel in dosent deleted
+
+but the primary grop the system has created will be removed with the user .: so the primary group will be deleted if it's user if was deleted
+
+
+
+# to delet user with its files use : option -r
+[ command : userdel -r "userName" ]
+
+but not delet the secondry  group
+
+-----------------------
+
+# to delet secondrygroups :
+
+[ command: groupdel groupName ]
+
+this command will delet the secondry groups only
+
+-------------------  
+# you can select an id for the user you will creat :
+
+[ command : useradd -u 1005 username ]
+
+
+# to comment that user you added:
+
+[ command: useradd  -c"this is user for fucking" yaya ]
+
+00000000000000000000000000000000000000000000
+
+# to make an home dir for the new user :
+
+[ command: useradd  -md /home/yaya yaya ]
+
+0000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+# to determin its shell :
+
+[ command: command: useradd  -s /bin/bash yaya ]
+
+0000000000000000000000000000000000000000000000000
+
+# to switch between users :
+
+[ command: su - username ]
+..................................................
+
+# to change groupname  :
+
+[ command: groupmod -n  "newname" "oldname" ]
+
+0000000000000000000000000000000000000000000000
+
+# to avoid shifting in group id whne adding new group to have tha same id as well as the user us option : -r with the command:
+
+
+[ command : groupadd -r groupname ]
+
+1111111111111111111111111111111111111111111111111111111
+
+
+# to change avtive group of any file use command:
+
+[ command : chgrp "newgroupname" "filename" ]
+
+
+like :
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# ls -lah ubunto
+-rw-r--r-- 1 root root 2.7K Mar 18  2024 ubunto
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# chgrp -R medo ubunto
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# ls -lah ubunto
+-rw-r--r-- 1 root medo 2.7K Mar 18  2024 ubunto
+
+0000000000000000000000000000000000000000000000000000
+
+# to change primary group for the user temprorly use:
+
+[ command: newgrp groupname ]
+
+any file i will creat now will be in the new owner group
+to return to the last prim grp enter exit
+
+00000000000000000000000000000000000000000000000000000000000
+
+# to list all groups use :
+
+[ command : groups ]
+
+.....................................................
+
+
+# to luch command in another user without exit the current user use opthion -c :
+
+
+[ command: su - usernam -c command ]
+
+................................................
+
+ sudo is to give an specific group of users limited root privileges
+
+
+to give the access to sudo by users we use file in kali linux :/etc/sudoers
+
+
+to write in files sodoers use visudo to chech syntax
+
+NOTE: look evry user have its permission to do some commands :
+
+# to give user permssion to use sudo with command he cant do befor use visudo and write in the cmnd alias :
+
+ Cmnd_Alias USER = " the file of the command like /sbin/useradd "
+
+and in user privilege specification :
+username ALL=USER
+ 
+now that user can add new users 
+
+
+NOTE : in Redhat to make user can be like root add it to the group named " wheel"
+
+wheel:x:10:mo,gaper
+
+
+-NOTE : if we removed an group or user then create new one with the same id it will take the same permission on the file created with deleted group or user
+
+-NOTE : if we tried to create user with the same name of existing group it will fail to create it and we must make it with explecit us by making that group is it's praimery group
+[command : usermod -g ali ali]

@@ -1,0 +1,448 @@
+
+...............searching and locating files and Dirs...................................
+
+
+we can search about commands :
+
+command:
+
+whatis command name 
+
+to know what command do 
+
+┌──(mo㉿kali)-[~]
+└─$ whatis man
+man (1)              - an interface to the system reference manuals
+man (7)              - macros to format man pages
+                                                     
+
+
+command 
+whereis command name 
+
+is to finde where is the binary file of that command
+ 
+
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# whereis cat
+cat: /usr/bin/cat /usr/share/man/man1/cat.1.gz
+
+
+
+
+...............................................................................
+
+command :
+
+locate filename
+
+its an command to search about files in the file system it scane all files you have to find the path to searched file
+
+is debend on the file system have ubdateed his database to know about new files created inthe system
+
+
+note :you have to ubdate your system befor using command locate:
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# locate etc
+/var/lib/plocate/plocate.db: No such file or directory
+
+
+
+to ubdate the database of the system we have command 
+
+updatedb
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# updatedb &
+[1] 94
+
+
+note locate debend on database stored in filesystem
+................................................................................
+
+
+we have command work in realtime :
+
+with find we can search with file name in some path 
+like:
+ 
+find path -name filename
+
+this command will search for files named network only
+.................
+we can search with the ownr of the file 
+
+or with permmession or any thing else
+.......................
+
+
+note : linux is case sensetive so we have to write the right name of file we search for 
+
+to ignore case sensetive in find command :
+
+use option -iname : insensativename
+
+find / -iname day
+
+......................................................................................
+
+to search about file startwith any word and end with something like numbers and else
+
+
+command:
+
+find path -name word*
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# find / -name network*
+/mnt/d/$RECYCLE.BIN/S-1-5-21-3633968145-159048475-415373463-1001/$RO0OKE6/networks 1.docx
+/mnt/d/1_Programs/Arduino/libraries/arduino-esp32-master/tools/sdk/include/asio/asio/ip/impl/network_v4.hpp
+/mnt/d/1_Programs/Arduino/libraries/arduino-esp32-master/tools/sdk/include/asio/asio/ip/impl/network_v6.hpp
+/mnt/d/1_Programs/Arduino/libraries/arduino-esp32-master/tools/sdk/include/asio/asio/ip/network_v4.hpp
+/mnt/d/1_Programs/Arduino/libraries/arduino-esp32-master/tools/sdk/include/asio/asio/ip/network_v6.hpp
+
+
+
+
+
+...................................................................
+
+note : if we have not determined the path command find will search in the working dir
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# find -iname day*
+./Linux_Admin_cource/Day3
+./Linux_Admin_cource/Day_4_usersgroups
+./Linux_Admin_cource/Day_5_basic_permission
+./Linux_Admin_cource/Day_12_searching_And_locating_files_dirs
+./Linux_Admin_cource/Day_6_redirection
+./Linux_Admin_cource/Day_7_Inodes_Understanding
+./Linux_Admin_cource/Day_5_basic_permission.save
+./Linux_Admin_cource/Day_8_inodes_cont
+./Linux_Admin_cource/Day_6_perm_cont
+./Day_7_Inodes_Understanding
+
+
+
+....................................................
+to search with permmissions use optin perm:
+
+find path -perm filename
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# find /etc/ -perm  755
+/etc/
+/etc/chromium
+/etc/network
+/etc/network/if-down.d
+/etc/network/if-down.d/resolved
+/etc/network/if-up.d
+/etc/network/if-up.d/resolved
+/etc/network/if-up.d/ethtool
+/etc/network/if-post-down.d
+/etc/network/if-post-down.d/wireless-tools
+/etc/network/if-pre-up.d
+/etc/network/if-pre-up.d/ethtool
+/etc/network/if-pre-up.d/wireless-tools
+/etc/network/interfaces.d
+/etc/udev
+/etc/udev/rules.d
+
+
+
+note :in permissions we use numerical method
+
+ls -ld /etc/scl/perfixes
+drwxr-xr-x. 2 root root 6 Mar 9 2015 /etc/scl/prefixes
+option -d to list directory
+
+............................................................................................
+
+we can seach with inode number :
+
+by useing option -inum
+
+
+┌──(root㉿ENGMohamedGaber)-[/home]
+└─# find /home -inum 36951
+/home/medo/ubunto
+
+
+
+.......................................................
+
+to touch file with space in its name but it in ""
+
+or use \
+
+touch "mo elarapy"
+
+touch mo\ gaber
+
+....................................................
+
+to copy outbut into dir 
+
+find /etc/ -iname network -exec cp {} work/ \;
+
+...................................................................................................................................................................................
+
+
+
+to search content of file :
+
+command:
+
+grep txte filepath
+
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# grep root /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+
+
+
+to find any word insensativly use option -i
+
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# grep -i gaber /etc/passwd
+Gaber:x:1009:1009:normal user 
+gaber:/home/gaber:/bin/sh
+
+...................
+
+to come with the lines without an word use option -v :inverse
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# grep -v gaber /etc/passwd
+
+
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin
+_apt:x:42:65534::/nonexistent:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+systemd-network:x:998:998:systemd Network Management:/:/usr/sbin/nologin
+messagebus:x:100:102::/nonexistent:/usr/sbin/nologin
+tcpdump:x:101:105::/nonexistent:/usr/sbin/nologin
+sshd:x:102:65534::/run/sshd:/usr/sbin/nologin
+medo:x:1000:1000:,,,:/home/medo:/bin/bash
+
+.......................................
+to number the line contain my word use option -n
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# grep -i -n gaber /etc/passwd
+24:Gaber:x:1009:1009:normal user gaber:/home/gaber:/bin/sh
+
+..........................................................
+to serch in more than one file in one dir use option -R
+
+
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# grep -i -n -R "root" /etc/
+
+
+
+
+/etc/shadow-:1:root:*:19696:0:99999:7:::
+
+/etc/passwd-:1:root:x:0:0:root:/root:/bin/bash
+/etc/sudo_logsrvd.conf:171:#iolog_user = root
+/etc/rcS.d/S01networking:52:    if ! chown root:netdev "$RUN_DIR" ; then
+/etc/rcS.d/S01networking:68:    log_warning_msg "not deconfiguring network interfaces: iSCSI root is mounted."
+/etc/rcS.d/S01kmod:6:# Should-Start:      checkroot
+/etc/gshadow-:1:root:*::
+grep: /etc/vconsole.conf: No such file or directory
+/etc/rc5.d/S01sudo:31:                  chown root:root /run/sudo /run/sudo/ts
+/etc/gshadow:1:root:*::
+/etc/mime.types:698:application/vnd.cyan.dean.root+xml
+/etc/mime.types:742:application/vnd.dvb.notif-aggregate-root+xml
+/etc/rc3.d/S01sudo:31:                  chown root:root /run/sudo /run/sudo/ts
+/etc/deluser.conf:31:# Default: NO_DEL_PATHS="^/bin\$ ^/boot\$ ^/dev\$ ^/etc\$ ^/initrd ^/lib ^/lost+found\$ ^/media\$ ^/mnt\$ ^/opt\$ ^/proc\$ ^/root\$ ^/run\$ ^/sbin\$ ^/srv\$ ^/sys\$ ^/tmp\$ ^/usr\$ ^/var\$ ^/vmlinu"
+/etc/deluser.conf:32:#NO_DEL_PATHS="^/bin\$ ^/boot\$ ^/dev\$ ^/etc\$ ^/initrd ^/lib ^/lost+found\$ ^/media\$ ^/mnt\$ ^/opt\$ ^/proc\$ ^/root\$ ^/run\$ ^/sbin\$ ^/srv\$ ^/sys\$ ^/tmp\$ ^/usr\$ ^/var\$ ^/vmlinu"
+/etc/cron.d/e2scrub_all:1:30 3 * * 0 root test -e /run/systemd/system || SERVICE_MODE=1 /usr/lib/x86_64-linux-gnu/e2fsprogs/e2scrub_all_cron
+/etc/cron.d/e2scrub_all:2:10 3 * * * root test -e /run/systemd/system || SERVICE_MODE=1 /sbin/e2scrub_all -A -r
+/etc/nanorc:224:## In root's .nanorc you might want to use:
+/etc/xattr.conf:19:xfsroot.*                   skip             # xfs specific; obsolete
+.....................................................
+
+to list the file names contain my word use option -l with option -R
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# grep -i -n -l -R "root" /etc/
+/etc/shadow-
+/etc/passwd-
+/etc/sudo_logsrvd.conf
+/etc/rcS.d/S01networking
+/etc/rcS.d/S01kmod
+/etc/gshadow-
+
+
+
+...........................................
+
+in file passwd ther are lines contains users names and another information
+
+to cut that names from lines use command :
+
+cut with the delimiters to chose the names only
+
+cut (1)              - remove sections from each line of files and show it to us
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# cut --fields 1 --delimiter : /etc/passwd = cut -f 1 -d : /etc/passwd
+
+root
+daemon
+bin
+sys
+sync
+games
+man
+lp
+mail
+news
+uucp
+proxy
+www-data
+backup
+list
+irc
+_apt
+nobody
+systemd-network
+messagebus
+tcpdump
+sshd
+medo
+Gaber
+
+here the command takes the first fields (colums) to the delimiters (end) :
+
+
+
+i can come with ids in fiels three 
+
+─(root㉿ENGMohamedGaber)-[/home/medo]
+└─# cut --fields 3 --delimiter : /etc/passwd
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+13
+33
+.........................
+namse and ids
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# cut --fields 1,3 --delimiter : /etc/passwd
+root:0
+daemon:1
+bin:2
+sys:3
+sync:4
+games:5
+man:6
+lp:7
+mail:8
+news:9
+uucp:10
+proxy:13
+
+......................................
+from field one to field 4 
+
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# cut --fields 1-4 --delimiter : /etc/passwd
+root:x:0:0
+daemon:x:1:1
+bin:x:2:2
+sys:x:3:3
+sync:x:4:65534
+games:x:5:60
+man:x:6:12
+lp:x:7:7
+mail:x:8:8
+news:x:9:9
+uucp:x:10:10
+proxy:x:13:13
+www-data:x:33:33
+backup:x:34:34
+list:x:38:38
+irc:x:39:39
+_apt:x:42:65534
+.......................................................
+in cutting ids to sort it with numerical use piplins to command sort with option --numeric
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# cut --fields 3 --delimiter : /etc/passwd | sort -n
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+13
+33
+...............................................................
+
+to overcome the repetition of words we must sort the outputs and redirect it to command uniq
+that work to comber between words and the next one of it if thay the same it come with one of it only
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# cut --fields 7 --delimiter : /etc/passwd | sort |uniq
+/bin/bash
+/bin/sh
+/bin/sync
+/usr/sbin/nologin
+
+without uniq
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# cut --fields 7 --delimiter : /etc/passwd | sort
+/bin/bash
+/bin/bash
+/bin/sh
+/bin/sync
+/usr/sbin/nologin
+/usr/sbin/nologin
+/usr/sbin/nologin
+/usr/sbin/nologin
+/usr/sbin/nologin
+/usr/sbin/nologin
+/usr/sbin/nologin
+/usr/sbin/nologin
+/usr/sbin/nologin
+/usr/sbin/nologin
+/usr/sbin/nologin

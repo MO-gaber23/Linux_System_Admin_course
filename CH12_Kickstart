@@ -1,0 +1,221 @@
+
+# Kickstart is an service used to automate the installation of redhat linux operating system
+
+
+
+- we can automate the installation by writing all the configrations that the ( Anaconda ) needs to complete the installation
+
+
+- the configrations include ( disk partitioning , network interface , package selection , etc )
+
+
+- the installation performed without user interaction By referenced the text file
+
+
+- to reference the kikstart file text we publishe it on the media or location reachable by the server then make anaconda go and read all its settings anf configs from the kikstart text file.
+
+
+- the kikstart wrote by spacified syntax
+
+-------------------------------------------------------------------
+
+# Kikstart File Commands:
+
+- INstalltion Commands:
+
+  * to Define the installation soure : command [ url ] will specifies the URL pointing on the installation media.
+
+[ command : url --url="http://classroom.example.com/content/rhel8.0/x86_64/dvd/"]
+
+
+
+  * to specify where to finde additional packages for installation 
+
+[ repo --name="appstream" --baseurl=http://classroom.example.com/content/rhel8.0/x86_64/dvd/AppStream/]
+
+   NOTE : this option must point to a valid yum repository.
+
+
+  * command vnc : Allow the graphical installation to be viewed remotely over VNC
+
+[ vnc --password=redhat ]
+
+----------------------------------------
+
+# Partitioning Commands
+
+
+- Define the devices and partitioning scheme to be used.
+
+  • Command  [ clearpart ] : Removes partitions from the system prior to creation of new partitions.
+  
+   By default, no partitions are removed.
+[ clearpart --all --drives=sda,sdb —initlabel ]
+
+
+  • part: Specifies the size, format, and name of a partition.
+  
+[ part /home --fstvpe=ext4 --label=homes --size=4096 --maxsize=8192 —grow ]
+
+
+   * Command autopart: Automatically creates a root partition, a swap partition, and an appropriate boot partition for the architecture
+         
+       On large enough drives, this also creates a ( /home )partition.
+
+[ autopart ]
+
+
+
+
+   • Command : ignoredisk : Controls Anaconda's access to disks attached to the system.
+[ ignoredisk --drives=sdc ]
+
+
+   • bootloader: Defines where to install the bootloader.
+
+[ bootloader --location=mbr --boot-drive=sda ]
+
+   • volgroup, logvol: Creates LVM volume groups and logical volumes.
+1- create partition .
+[ part pv.01 --size=8192 ]
+
+2- create volume group from that partition
+[ volgroup myvg pv.01 ]
+
+3- create logical volume partition from the volume group
+[ logvol / --vgname=myvg --fstype=xfs --size=2048 --name=rootvol --grow ]
+
+[ logvol /var --vgname=myug --fstype=xfs --size=4096 --name=varvol ]
+
+--------------------------------
+
+# Network Commands
+
+- Define the network features used by the host.
+
+   • network: Configures network information for target system. Activates network devices in installer environment.
+
+[ network --device=ethO --bootproto=dhcp ]
+
+  • firewall: Defines the firewall configuration for the target system.
+
+[ firewall --enabled --service=ssh.http ]
+
+
+--------------------------------
+
+# Location and Security Commands
+
+-Configure settings related to security, language, and regions.
+
+• lang: Sets the language to use during installation and the default language of the installed system. Required.
+[ lang en_US.UTF-8 ]
+
+• firewall: Defines the firewall configuration for the target system.
+[firewall --enabled --service=ssh,http]
+
+• keyboard: Sets the system keyboard type. Required.
+[keyboard --uckeymap=us --xlayouts="]
+
+
+-----------------------------------------------
+
+# Location and Security Commands
+
+- Configure settings related to security, language, and regions.
+
+* Command : timezone: Defines the timezone, NTP servers, and whether the hardware clock uses UTC.
+
+[ timezone --utc --ntpservers=time.example.com Africa/Cairo ]
+
+• rootpw: Defines the initial root password.
+
+[ rootpw --plaintext redhat ]
+
+• selinux: Sets the SELinux mode for the installed system.
+
+[ selinux —enforcing ]
+
+---------------------------------------------------
+
+# Location and Security Commands
+
+- Configure settings related to security, language, and regions.
+
+• Command : services: Modifies the default set of services to run under the default systemd target.
+
+[ services --disabled=network,iptabIes,ip6tables --enabled=NetworkManager,firewalld ]
+
+• group, user: Create a local group or user on the system.
+
+[ group --name=admins --gid=10001]
+
+[ user --name=jdoe --gecos="John Doe" --groups=admins --password=changeme —plaintext ]
+
+
+---------------------------------------------------------------
+
+# to check the configrations we wrote in the kickstart file we have an tool : pykickstart
+
+1- install the pykickstart tool
+
+[ command : yum install pykickstart ]
+
+- to use the tool to check the file :
+
+[ command : ksvalidator kickstart-file-path ]
+
+# ksvalidator is a utility that checks for syntax errors in a Kickstart file. It ensures that
+# keywords and options are properly used, but it does not validate that URL paths,
+# individual packages,or groups, nor any part of %post or %pre scripts will succeed.
+# For instance, if the firewall -- disabled directive is misspelled, ksvalidator could
+# produce one of the following errors: yum install pykickstart.
+
+---------------------------------------------------------------------
+
+# we must put the kickstart file into reachable place like ftp,nfs,http server or cd-room ,or hard driv
+
+------------
+
+# to make the installation read the file kikstart 
+
+- at the installation processe when it ask to install or test or troubleshoot img 
+
+  1- interrupt the process using ( tab ) bouton on the keyboard.
+
+  2- add the line ( inst.ks= path to the file )
+
+it would like :
+
+* inst.ks=http:/server/dir/file
+* inst.ks=nfs:server:/dir/file
+• inst.ks=hd:device:/dir/file
+* inst.ks=cdrom:device
+ 
+-----------------------------------------
+
+# to bublish the kickstart file with http-server :
+
+- we will but the kickstart file into the root decument of the http server ( /var/www/html/ )
+
+- make the http-server to be allowed to reached 
+
+- set the right selinux context to the file , allow the access by the configrations of the http-server , make the right permissions for the others
+
+- give the others read permissions 
+
+--------------------------------------------------
+
+# to publishe with ftp-server 
+
+- install and start the vsftp.serves
+
+- allow the ananoumus from the config file from ( /etc/vsftp/vsftpd.conf )
+
+- copy the ks-fitle  into ( /var/ftp/pub/ )
+
+- enable the ftp frm the firewall
+
+------------------------------------------------------
+
+

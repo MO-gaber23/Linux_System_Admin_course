@@ -1,0 +1,297 @@
+.....................69.69-Day-38 NFS_Server............................................
+
+
+NFS : Network File transfare or sharing system
+
+- used to share files between linux/unix operating systems
+
+- we have another protocole to share files between linux and windows called ( smb )
+ 
+
+#install the nfs-pakages ( nfs-utils )
+
+ 
+[ yum install nfs-utils ]
+
+-NOTE : this packages will be installed on the server and the client
+
+# start and enable the service 
+
+[ systemctl start --now nfs-utils ]
+---------------------------------------------------------------------
+
+# nfs is an server witch the clients connnect with to access the data;
+
+
+
+- nfs has no port to listen on but it has another serves named ( portmap ) : wich discover avilable ports to make nfs and nis listen with
+
+
+- the client know the port that server listen on by service ( rpc bind remmote prosedior school )  
+
+so the client sends rpc-bind request to the server to know the port maped with the server and make client connect with server by that port
+
+- so the nfs server have its port randomly so we can't control that port with fierwall as the port changes every time
+
+rpc listen on port 111
+----------------------------------------------------------------------
+# to configur the nfs-server we have the file ( /etc/export )
+
+
+- we write the file we want to share and the permisison and to whom we will share that file 
+
+
+# the form in writing in the conf-file is
+
+[ the shared file-path ] [ the shared-netowrk-ip ( the network we will share files with )  ] [ permitions ]
+
+
+- NOTE : the shared-network maybe ( ip-for an subnet) or ( ip of user ) or ( domain name ) or ( host-name)
+
+
+# NOTE : we must not restart the service after setting the configurations into the file ( /etc/exports ) 
+
+
+- so we have another method to do that by command :
+
+[ exportfs -r ]
+
+- this command work like realoading the service with the new configrations.
+
+#################################
+
+# in the client to see wither the server can be reached or not :
+
+[ command : showmount -e server-ip ]
+
+- if it failed to communicat with it maybe the fierwall dont allow the port of nfs so we will allow it by :
+
+[ command : firewall-cmd --add-service=rpc-bind --permanent ]
+
+[ command : firewall-cmd --add-service=nfs ]
+[root@server ~]# firewall-cmd --add-service=rpc-bind --permanent
+success
+
+
+-NOTE : rpc-bind is not one service it work for looking for ports that nfs can communicat and mount shard files throghout  
+
+so if we found that the client can't reach the server that will be because of the firewall dont allow ( mountd.service's port )
+
+[ command : firewall-cmd --add-service=mountd --permanent ]
+
+
+------------------------------------------------------------
+
+# now we configured to share file ( /home/mo/bash ) with all of the subnet on (192.168.233.0/24) and with permitions (read writ) to all members
+
+
+[root@client ~]# showmount -e 192.168.233.16
+Export list for 192.168.233.16:
+/home/mo/bash (everyone)
+
+-------------------------------------
+# now all we have to do is to mount the shared file by nfs on the client-machine
+
+
+[ command : mount -t nfs server-ip:shard-file-path mount-point-path ]
+
+
+[root@client ~]# mount -t nfs 192.168.233.16:/home/mo/bash/ /mnt/
+
+
+[root@client ~]# df -h
+Filesystem                    Size  Used Avail Use% Mounted on
+devtmpfs                      4.0M     0  4.0M   0% /dev
+tmpfs                         872M  169M  704M  20% /dev/shm
+tmpfs                         349M  8.9M  340M   3% /run
+/dev/mapper/rhel-root          17G  8.7G  8.3G  52% /
+/dev/sda1                     960M  412M  549M  43% /boot
+/dev/sr0                       11G   11G     0 100% /run/media/mo/RHEL-9-4-0-BaseOS-x86_64
+tmpfs                         175M   36K  175M   1% /run/user/0
+tmpfs                         175M  100K  175M   1% /run/user/1000
+192.168.233.16:/home/mo/bash   17G  9.4G  7.7G  56% /mnt <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+- now the shared file mounted and we can access it 
+
+-----------------------
+
+
+[root@client srv]# touch ls.sh
+touch: cannot touch 'ls.sh': Read-only file system
+
+# from that we see that i have no permition to touch file on that directory but i make it shared with read writ but SELINUX deny me to write on that dir or the ACL 
+
+or with mounted permition but its (rw)
+
+- if we see the permitions on the dir on the server we will find that the others have no perm to write so we will give it perm to write
+
+
+
+----------------------------
+ 
+# NOTE : if the root is who make the shared file on the server and the root on client is who connect and read and write on the shared file ::: the system dosnt see and treat the root client like the root on the server it treat him as ( nfsnobody ) to avoid have the same privlage like the root of the server by default;
+
+
+-NOTE : to connect like root on the nfs-shared file we must add (rw,no_root_squash) to the config file 
+
+
+-------------------------------------------
+
+# to add that into file (/etc/fstab) to make it monted permenantly on booting the system
+
+
+1- mount it into mounted point 
+
+[ mount -t nfs ip:file-path mountpoint-path ]
+
+[root@client data]# mount -t nfs 192.168.233.16:/home/mo/shared_file /home/mo/data/
+
+2- open file (/etc.mtab)
+
+3- copy the line till permission rw
+
+192.168.233.16:/home/mo/shared_file /home/mo/data nfs4 rw
+
+4- put thim into file fstab
+
+like : 192.168.233.16:/home/mo/shared_file /home/mo/data nfs defaults 0 0  
+
+
+
+---------------------------------
+
+# NOTE : if the server not responds or not working or any thing prevint the client to mount the shared file from nfs-server
+
+- so the client will fail in booting and problems will happends as it exist in the (fstab) file as it dont know that the shared file is network-file-system
+
+- to tell the fstab that its network file system we must add option [_netdev] after defaults
+
+so it will be like :
+
+[ 192.168.233.16:/home/mo/shared_file /home/mo/data nfs defaults ,_netdev 0 0]
+
+to avoid any problem in booting if the server not avilable
+
+-so now that option tell him to skip mounting the nfs file share if any problem faced it.
+
+-this option must be added with nfs and iscsi too
+----------------------------------
+
+# we can unexport all  using option -ua
+
+[ command : exportfs -ua ]
+
+
+[root@server /]# exportfs -ua
+
+  - now we unset configration of the file ( /etc/export )
+
+[root@server /]# exportfs
+
+  - so if we tried to mount any file from the server on the client now it will be denied
+
+ 
+[root@client ~]# mount -t nfs 192.168.233.16:/home/mo/data /srv/
+mount.nfs: access denied by server while mounting 192.168.233.16:/home/mo/data 
+
+  - NOTE : if we do command ( exportfs -f ) it will read the file exprts again ang then we can attached with 
+
+# to see all defaulte apllied options we can write on the file ( /etc/exports )
+
+[ command : exportfs -v ]
+
+
+[root@server /]# exportfs -v
+/home/mo/data   192.168.233.159(sync,wdelay,hide,no_subtree_check,sec=sys,ro,secure,root_squash,no_all_squash)
+/home/mo/data   192.168.233.0/24(sync,wdelay,hide,no_subtree_check,sec=sys,ro,secure,root_squash,no_all_squash)
+/data           192.168.233.0/24(sync,wdelay,hide,no_subtree_check,sec=sys,ro,secure,root_squash,no_all_squash)
+/home/mo/data   <world>(sync,wdelay,hide,no_subtree_check,sec=sys,ro,secure,root_squash,no_all_squash)
+/data           <world>(sync,wdelay,hide,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash) <<<< the options on the rounded bracets is the options we can use with sharing files
+
+
+ # to see more information about the options :
+
+[ command : man 5 exportfs ]
+
+
+----------------------------------------------------------------------------------------------------
+
+ 
+# Mounting NFS Shares with the Automounter
+The automounter is a service (autofs) that automatically mounts NFS shares "on-demand,"
+and will automatically unmount NFS shares when they are no longer being used.
+
+# Automounter Benefits
+
+• Users do not need to have root privileges to run the mount and umount commands.
+
+• NFS shares configured in the automounter are available to all users on the machine, subject to access permissions.
+
+• NFS shares are not permanently connected like entries in /etc/fstab, freeing network and system resources.
+
+• The automounter is configured on the client side; no server-side configuration is required.
+
+-------------------------------------------------------------------------
+
+# Steps for Automounting NAS Using Autofs
+
+1. Install the autofs package.
+
+-Ensure Autofs is installed on your RHEL 9 system
+   [user@host~] dnf install autofs
+
+
+2. Add a master map file to /etc/auto.master.d. 
+  
+  This file identifies the base directory used for mount points and identifies the mapping file used for creating the automounts.
+
+   - so any file we create on the dir ( /etc/auto.master.d ) must be ( .autofs )
+
+
+[user@host~] vim /etc/auto.master.d/demo.autofs
+
+-Add the master map entry, in this case, for indirectly mapped mounts:
+
+/shares /etc/auto.demo
+
+  ⬇️          map file
+ base
+ directory
+
+
+ 3. Create the mapping files. Each mapping file identifies the mount point, mount options, and source location to mount for a set of automounts.
+
+[user@host~] vim /etc/auto.demo
+
+-The mapping file-naming convention is /etc/auto.name, where name reflects the content of the map
+
+               work -rw,sync serverb:/shares/work
+
+4- Start and enable the automounter service.
+
+-Use systemctl to start and enable the autofs service.
+
+[user@host sudo systemctl enable —now autofs
+
+---------------------------
+
+# Direct Maps
+
+- Direct maps are used to map an NFS share to an existing absolute path mount point.
+- To use directly mapped mount points, the master map file might appear as follows:
+         
+                   /- /etc/auto.direct
+
+- All direct map entries use /- as the base directory. In this case, the mapping file that contains the mount details is /etc/auto.direct.
+
+- The content for the /etc/auto.direct file might appear as follows:
+           
+             /mnt/docs -rw,sync serverb:/shares/docs
+
+- The mount point (or key) is always an absolute path. The rest of the mapping file uses the same structure.
+
+- In this example the /mnt directory exists, and it is not managed by autofs. The full directory
+
+               /mnt/docs will be created and removed automatically by the autofs service.
+

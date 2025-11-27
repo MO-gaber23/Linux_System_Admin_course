@@ -1,0 +1,247 @@
+in the system we have processing that have 
+
+_input 
+
+_output
+
+_errors
+
+like entering ls command:
+
+_the input is ls command 
+
+_the out put is the list of files 
+
+_└─# ls
+bashrc  find.txt  help.txt            ubunto
+file1   fluxion   Linux_Admin_cource
+
+
+ther is no error hir but now we can find the error 
+when butting that command:
+
+└─# ls -l file22
+ls: cannot access 'file22': No such file or directory
+
+
+
+so we can say that if the command is true we get the output if not true we get error
+
+.............................................................
+redirection proceess is to redirect the output of any process run in the system or its output error
+:save the output/error in file 
+
+ so we act the 
+input by number 0
+
+output : 1
+
+error : 2
+
+_that number called : descriptor 
+
+
+to deal with redirection of input use <
+to deal with redirection of output use >
+
+command:
+
+ ls -lah 1>ls.txt = ls -lah >ls.txt without the descriptor
+
+this command will take the output of the command ls -lah and save it in the file ls.txt
+
+
+ command: ls fill22 2>error.txt
+her the error will be redirected into file named error.txt
+
+000000000000000000000000000000000000000000000000000000000000000000000000
+
+command: ls -lah fill4 find.txt >output.txt 2>error.txt
+
+this command will redirect the output in file and error in other file
+
+0000000000000000000000000000
+
+ note if we use the same file to redirct output or error it will override the file so the bast output or error will be deleted and the new will wrote
+
+to avoide overriding use double  >>
+
+
+command: ls -lah fil ubento.txt >>output.txt 2>>error.txt
+
+this command will abbend the file content with the new output and error
+
+.....................................................................
+
+
+ command : cat file.txt
+
+cat command will take its inbut from the file its equal to :cat <file.txt
+
+command : cat <<mo>> file
+
+here we say to the command to take strings from user until u arrive to word mo u will put it in the file named file
+like:
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# cat <<finish>> ls.txt
+> fkvsfvmskfmksmvks
+> sfvjsfv
+> sfvjfvns
+> sfvwrfvsd
+> svwsvswv
+> vwvwsvw
+> finish
+
+
+└─# cat ls.txt
+total 72K
+drwx------  7 medo medo 4.0K Apr 16 10:50 .
+drwxr-xr-x  4 root root 4.0K Mar 20 18:54 ..
+-rw-------  1 medo medo 1.4K Apr 13 10:23 .bash_history
+-rw-r--r--  1 medo medo  220 Feb 12 07:36 .bash_logout
+-rw-r--r--  1 medo medo 5.5K Mar 29 16:47 .bashrc
+-rw-r--r--  1 medo medo 3.5K Feb 12 07:36 .bashrc.original
+drwxr-xr-x  3 medo medo 4.0K Feb 12 07:36 .config
+-rw-r--r--  1 root root    0 Apr 15 11:53 find.txt
+drwxrwxrwx 13 root root 4.0K Feb 17 17:04 fluxion
+-rw-rwxrwx  1 medo medo 2.4K Mar 10 22:16 help.txt
+drwxr-xr-x  3 medo medo 4.0K Feb 12 07:36 .java
+drwxr-xr-x  2 root root 4.0K Apr 16 09:15 Linux_Admin_cource
+drwxr-xr-x  3 medo medo 4.0K Feb 21 21:38 .local
+-rw-r--r--  1 root root    0 Apr 16 10:53 ls.txt
+-rw-r--r--  1 medo medo  807 Feb 12 07:36 .profile
+-rw-r--r--  1 medo medo    0 Feb 12 07:37 .sudo_as_admin_successful
+-rw-r--r--  1 root root 2.7K Mar 18 19:26 ubunto
+-rw-r--r--  1 medo medo  11K Feb 12 07:36 .zshrc
+fkvsfvmskfmksmvks
+sfvjsfv
+sfvjfvns
+sfvwrfvsd
+svwsvswv
+vwvwsvw
+
+note if we use <dd> this will override the file
+
+note we can but file name between the < filename> to redirect the content of that file to the next file
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# cat <ls.txt>file2
+
+that will redirect the content of file named ls.txt into file named file2
+000000000000000000000000000000000
+to nkow the type of file use command : file filename
+
+like :file file2
+ASCII text
+
+the file type debend on the file content not the extention like windwos do
+0000000000000000000000000000000000000000000000000
+command :
+
+ls fillll file2 >>myresult 2>>myresult 
+
+equal to 
+
+ls fillll 2&>>myresult
+
+this command will but both the output and error in the same file
+ 
+0000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+to make the output apper in the moinitor too:
+
+we use the pip : | that will take input from command to output of command
+
+
+less command to show file content page by page.
+like more command
+
+ls -lR / | less
+
+here we will take the output of command ls -lR / 
+to be input of command less
+ 
+
+
+.0................................................................................................
+
+
+command :
+
+
+ls | tee result.txt
+
+this command will show the output of ls in the mointor and redirectt the output into file named result.txt
+
+
+| take copy of the out put to save in buffer and redirect iit with our needs
+
+
+ls | tee -a result.txt 
+
+the opthion -a to append in the file not override it
+
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+command :
+
+w 
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# w
+ 11:25:22 up 34 min,  0 user,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+
+
+to know who is the login user and from he loggedin
+
+
+command :who like w
+
+...................................
+
+command : 
+
+whatis commandname
+
+its a command to tell whatis the other commands do
+
+
+............................................................................................
+
+command : 
+
+whareis commandname
+
+to tell us where the binary file of any command
+and its man pages
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo]
+└─# whereis ls
+ls: /usr/bin/ls /usr/share/man/man1/ls.1.gz
+
+
+
+
+..............................
+last
+
+for  logins info
+from file var/log/wtmp
+.........................................
+
+lastlog
+
+for last logins only info
+
+...................................................
+
+
+
+
+
+
+
+
+

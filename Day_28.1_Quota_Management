@@ -1,0 +1,357 @@
+......................................................58.58-Day-28_Quota_Management................................................................................
+
+# quota: is to assigne space from the # storage for the user
+
+-so if i have user named alli the Quota give him space to use in the storage 
+
+
+-NOTE: Quota isn't concerned by the 
+speed that of the storage space assigned 
+to user
+
+
+#NOTE: to WORK WITH Quota
+
+[ we must tell the file system in the 
+mounting process : that we will use the 
+Quota ]
+
+and 
+
+[enable the Quota]
+
+- tell the kernal to start Quota in that file system and work with Quota
+ 
+----------------------
+
+# How Quota know the used space by user 
+
+-it debend on data base of user 
+
+information in this data base we will 
+
+find space he use that data base created 
+
+in enabling Quota in mounting file 
+
+system
+
+
+-if ther is file system created but not use Quota and not Enabled
+
+so in enabling the Quota in that file system 
+
+we must creat the Quota Data base manually.
+
+
+
+-if Quota was on and you tuned it off 
+
+now if users wrote new data Qouta will not know about that data
+
+# so in that case  we must recreate Quota
+
+
+----------------------------------------------
+
+NOTE: to list process open file or use it :
+
+[command : lsof path of file]
+
+------------------------------------------------
+
+
+#in mounting with options use [-o option]
+
+-to mount with Quota [ -o usrQuota,grpquota ]
+
+
+[root@fedora sudo]# mount -o usrquota,grpquota /dev/data/user1-lv /data/
+
+sdb           8:16   0    5G  0 disk
+└─data-user1--lv
+            253:0    0    8G  0 lvm  /data
+sdc           8:32   0    5G  0 disk
+└─data-user1--lv
+            253:0    0    8G  0 lvm  /data
+
+------------------------------------------------------------
+
+#note: we can apply Quota on ( users and groups )
+
+so if it assigned 50G to group then all members will write 50G so if some one write 50G no one else can write any thing
+
+------------------------------------------------------------------
+
+# to make it permenent in the system writ it to mount in the file ( /etc/fstab )
+
+/dev/data/user1-lv  /data  ext4     defaults,usrquota,grpquota  0 0
+
+
+-we note that in perm-section we wrote that use user quota and group quota
+
+and : mount -a to check
+--------------------------------------------------------------------------
+
+we must check the quota :
+
+[command: quotacheck -cvug mountpoint]
+
+
+[root@fedora sudo]# quotacheck -cvug /data/ 
+quotacheck: Your kernel probably supports ext4 quota feature but you are 
+using external quota files.
+
+ Please switch your filesystem to use ext4 quota feature as external quota files on ext4 are 
+deprecated.
+
+ quotacheck: Scanning /dev/mapper/data-user1--lv [/data] done quotacheck: Cannot stat old user quota file 
+
+/data/aquota.user: No such file or directory. Usage will not be subtracted. quotacheck: Cannot stat old group quota file 
+/data/aquota.group: No such file or directory. Usage will not be subtracted. quotacheck: Cannot stat old user quota file 
+/data/aquota.user: No such file or directory. Usage will not be subtracted. quotacheck: Cannot stat old group quota file 
+/data/aquota.group: No such file or directory. Usage will not be subtracted. quotacheck: Checked 3 directories and 0 
+files quotacheck: Old file not found. quotacheck: Old file not found.
+
+
+# now we will start quota with 
+
+[command : quotaon mount point]
+
+
+
+
+[root@fedora sudo]# ls /data/
+aquota.group  aquota.user  lost+found
+
+[root@fedora sudo]# quotaon /data/
+
+
+now quota in on
+
+
+
+----------------------------------------------------------------------------------------------------------
+
+# Quota implementation
+
+1- per Size 
+so we can determine the size of soace he can write data on
+
+2- per number of files
+so we can determin the number of files that user can write data on
+
+NOTE: we assigne number of files that user can create as we have ( inode number ) that is limited
+
+
+
+# we can implement limits to the user as :
+
+softlimets : it limit user from 
+consuming all of the storage if he reach 
+to 90% as exampl by worrning the user 
+but he can move up on it
+
+
+
+
+hardlimits : limit user from consuming all storage he cant move up on it
+
+
+----------------------------------------------------------------------------------------------------------------------
+-to edit quota for user :
+
+
+[command : edquota -u user-name]
+
+  GNU nano 6.0                                                                /tmp//EdP.ag4A6Sz                                                                 Modified  Disk quotas for user ben-batota (uid 1001):
+  Filesystem                   blocks       soft       hard     inodes     soft     hard
+  /dev/mapper/data-user1--lv          0       10000      2000          0        0        0
+
+
+
+
+^G Help          ^O Write Out     ^W Where Is      ^K Cut           ^T Execute       ^C Location      M-U Undo         M-A Set Mark     M-] To Bracket   M-Q Previous
+^X Exit          ^R Read File     ^\ Replace       ^U Paste         ^J Justify       ^/ Go To Line    M-E Redo         M-6 Copy         ^Q Where Was     M-W Next
+
+
+
+-NOTE : the command edquota will appear 
+the only file systems that quota applyed 
+and enabled on
+
+
+-NOTE : we must edit on the soft limits 
+and hard limits
+
+
+the frist soft/hard limits is for 
+(size limits) by Mega
+
+
+the second soft/hard limits is for 
+(files limits )
+
+ 
+
+---------------------------------------------------------
+
+
+to see info about Quota:
+
+[command : repquota -a] 
+
+
+
+
+*** Report for user quotas on device /dev/mapper/data-user1--lv
+Block grace time: 7days; Inode grace time: 7days
+                        Block limits                File limits
+User            used    soft    hard  grace    used  soft  hard  grace
+----------------------------------------------------------------------
+root      --      20       0       0              2     0     0
+
+
+
+# we note that user ben-batota is not her as he didn't write any data 
+ 
+
+[root@fedora sudo]# repquota -a
+*** Report for user quotas on device /dev/mapper/data-user1--lv
+Block grace time: 7days; Inode grace time: 7days
+                        Block limits                File limits
+User            used    soft    hard  grace    used  soft  hard  grace
+----------------------------------------------------------------------
+root      --      20       0       0              2     0     0
+ben-batota --       0   10000    2000              1     0     0
+
+
+# now user ben-batota appered as it writ some data and take inode 
+
+-he use zro blocks
+
+
+
+[ben-batota@fedora data]$ dd if=/dev/zero of=bigfile b
+s=1M count=50
+dd: error writing 'bigfile': Disk quota exceeded
+2+0 records in
+1+0 records out
+2048000 bytes (2.0 MB, 2.0 MiB) copied, 0.0115552 s, 177 MB/s
+
+
+[root@fedora sudo]# repquota -a
+*** Report for user quotas on device /dev/mapper/data-user1--lv
+Block grace time: 7days; Inode grace time: 7days
+                        Block limits                File limits
+User            used    soft    hard  grace    used  soft  hard  grace
+----------------------------------------------------------------------
+root      --      20       0       0              2     0     0
+ben-batota --    2000   10000   20000              2     0     0
+
+
+#if we write more data Quota will warrning us as we exceed the limits
+
+
+[ben-batota@fedora data]$ dd if=/dev/zero of=bigfile bs=1M count=70
+dd: error writing 'bigfile': Disk quota exceeded
+20+0 records in
+19+0 records out
+20480000 bytes (20 MB, 20 MiB) copied, 0.162373 s, 126 MB/s
+
+-------------
+
+[root@fedora sudo]# repquota -a
+
+*** Report for user quotas on device /dev/mapper/data-user1--lv
+Block grace time: 7days; Inode grace time: 7days
+                        Block limits                File limits
+User            used    soft    hard  grace    used  soft  hard  grace
+----------------------------------------------------------------------
+root      --      20       0       0              2     0     0
+ben-batota +-   20000   10000   20000  6days       2     0     0
+
+
+
+- we note that the frist minus of user ben-batota turned into plus that mean we 
+reach the block limits
+
+----------------------------------------------------
+
+
+# to edite quota with group
+
+[command :edquota -g groupname]
+
+  GNU nano 6.0                         /tmp//EdP.aRQCz83                                   Disk quotas for group ben (gid 1002):
+  Filesystem                   blocks       soft       hard     inodes     soft     hard
+  /dev/mapper/data-user1--lv          0      20000      40000          0        8       10
+
+
+                                     [ Read 3 lines ]
+^G Help        ^O Write Out   ^W Where Is    ^K Cut         ^T Execute     ^C Location
+^X Exit        ^R Read File   ^\ Replace     ^U Paste       ^J Justify     ^/ Go To Line
+
+
+-----------------------------------------------------------------
+[root@fedora sudo]# quota -u ben-batota
+
+
+Disk quotas for user ben-batota (uid 1001):
+     Filesystem  blocks   quota   limit   grace   files   quota   limit   grace
+/dev/mapper/data-user1--lv
+                  20000*  10000   20000   6days       2       0       0
+
+---------------------------------------------------
+
+# grace priod : let me some time to remove some data as reache soft limit
+
+if that time run it will deal with you like reaching hard limits
+
+[to edit grace priod command : edquota -t ]
+
+
+  GNU nano 6.0                         /tmp//EdP.aXgcHml                                   Grace period before enforcing soft limits for users:
+Time units may be: days, hours, minutes, or seconds
+  Filesystem             Block grace period     Inode grace period
+  /dev/mapper/data-user1--lv                  7days                  7day
+
+                                     [ Read 4 lines ]
+^G Help        ^O Write Out   ^W Where Is    ^K Cut         ^T Execute     ^C Location
+^X Exit        ^R Read File   ^\ Replace     ^U Paste       ^J Justify     ^/ Go To Line   
+
+# we can make it for blocks and inodes
+#here it will apply changes to the root
+
+
+[to apply editing quota on users command : edquota -T username]
+
+  GNU nano 6.0                         /tmp//EdP.aclK0RT                                   Times to enforce softlimit for user ben-batota (uid 1001):
+Time units may be: days, hours, minutes, or seconds
+  Filesystem                         block grace               inode grace
+  /dev/mapper/data-user1--lv          601641seconds                  unset
+
+                                     [ Read 4 lines ]
+^G Help        ^O Write Out   ^W Where Is    ^K Cut         ^T Execute     ^C Location
+^X Exit        ^R Read File   ^\ Replace     ^U Paste       ^J Justify     ^/ Go To Line   
+
+ 
+------------------------------------------------------------------------------------------------------
+
+#to stop quota : quotaoff
+-----------------------------------
+
+# to update quota :
+
+[command: quotacheck -vug Qouta mount point]
+
+
+we must updat quota after start it if it enabled but off
+
+  
+
+
+
+
+
+

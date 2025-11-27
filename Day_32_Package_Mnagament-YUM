@@ -1,0 +1,394 @@
+.................................................63.63-Day-32 Package_Mnagament-YUM...............................................
+
+- in the past to exchange any app it wasnot 
+easy as we must exchang its combiled file ( 
+binary ) and the operating system it will 
+run on must be have the same files 
+configrations and liberary and the compiler
+
+so the developers managed all of this by 
+making package managers to can have our 
+apps with all it need
+
+
+and now if that app was debendant on any 
+another service it will be installed and 
+ran too
+
+
+# the package debendancy : is to have some package debend on another package or more than one package
+
+
+in installing app :
+
+1- compile it into binaries
+
+2- move binaries into /bin or /sbin ,config-files into-> /etc and so
+
+
+# -the more harder is removing that app as 
+# how we will remove all this files from 
+# deffirent pathes
+
+
+
+khazook is if we have to apps the two is debendent on each other so if we removed one the other will corrupt and wont work
+
+
+# NOTE : the package manager befor installation will see the dependencies of the app if it exist it will start install if not wont install
+
+
+[NOTE: the package manager befor removing any app it will check debendencies if it exist it will not remove that app ]
+
+
+
+
+NOTE : package manager didn't solve all 
+problems 
+
+but yum solve all this problems 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+[yum concept]
+
+: it's to have an server called ( yum  
+: server ) contain all backage any one  needs 
+
+and have users named ( yum clinets ) 
+
+
+- so if any yum client want to install an app it will ask the yum server if the app package is exist on it or not 
+
+so if that app exist in yum server it will responds to the client that it exists and tell client about the debendensies of that app 
+
+
+- yum server has an ( meta data )   information about the packages it has , this meta data stored in xml files
+
+
+- so the yum server will resbonds with all meta data it has and tell us about the packages it has 
+
+
+so if the wanted app debend on another packages we will know from the meta data in xml files and tell yum server to send us all this packages  that we need
+
+
+------------------------------------
+
+# NOTE : yum use rpm(redhat package manager ) as backend 
+
+- so yum is not Atern to the rpm 
+
+- yum use meta data to know all packages we need and use rpm to install it
+
+-------------------------------------------------------
+
+# to search about packages with yum
+
+[command : yum search package-name]
+
+[root@redhat ~]# yum search vim
+Updating Subscription Management repositories.
+Unable to read consumer identity
+
+This system is not registered with an entitlement server. You can use "rhc" or "subscription-manager" to register.
+
+========= Name & Summary Matched: vim ==========
+vim-common.x86_64 : The common files needed by
+     ...: any version of the VIM editor
+vim-enhanced.x86_64 : A version of the VIM
+     ...: editor which includes recent
+     ...: enhancements
+vim-filesystem.noarch : VIM filesystem layout
+vim-minimal.x86_64 : A minimal version of the
+                   : VIM editor
+
+- NOTE : in the frist time we use search it will download all meta-data in the xml files that conntain the package all info 
+
+and redownload it if server maked any updates
+
+-------------------------
+
+# to install any app
+
+[yum install app-name]
+
+[root@redhat /]#  yum install vim-enhanced
+
+-NOTE: it will install the debendensies fristly then install vim
+----------------
+
+# to list yum servers we can download from them
+
+[ command : yum repolist ]
+
+
+[root@redhat ~]# yum repolist
+Updating Subscription Management repositories.
+
+This system is registered with an entitlement server, but is not receiving updates. You can use subscription-manager to assign subscriptions.
+
+repo id                          repo name
+docker-ce-stable                 Docker CE Stable - x86_64
+rhel-9-for-x86_64-appstream-rpms Red Hat Enterprise Linux 9 for x86_64 - AppStream (RPMs)
+rhel-9-for-x86_64-baseos-rpms    Red Hat Enterprise Linux 9 for x86_64 - BaseOS (RPMs)
+
+
+
+---------------------------------------
+
+the configruation file that the system can know our reposetory servers by :
+
+
+[ /etc/yum.repos.d/redhat.repo ]
+
+in this file we can find the url of the wep servers ( yum-servers ) we call to download from it
+
+- NOTE : that web server host the rpm + meta data xml files
+
+
+like that:
+
+[base]name—rehl-Sreleasever  - Base
+
+mirrorlist=http : //mirrorlist.centos.org/?release=$releas&arch=$basearch&repo=os&infra=$in
+#baseurl=http : //mirror.centos.org/centos/$releasever/os/Sbasearch/J
+gpgcheck=l
+gpgkey=fi le : ///etc/pki/rpm-gpg/RPM-GPG-KEY-Cent0S-7
+
+---------------------------------------------
+
+# to remove any app 
+
+[ command : yum remove app-name ]
+
+- it will remove only the app not remove its debendencies  
+-----------------------------------------
+
+# to show info about app we have 
+
+[ command : yum info app-name]
+
+
+[root@redhat]yum info sshd 
+
+
+---------------------------------------------------
+
+
+# the developers make groups to compine related packages so it ease to download thim automaticaly 
+
+
+[ to list the group of packaes we can dounload : yum grouplist ]
+
+[root@redhat /]# yum grouplist
+
+Maybe run: yum groups mark convert (see man yum)
+Loading mirror speeds from cached hostfile
+* base: ftp.hosteurope.de
+* extras: ftp.hosteurope.de
+* updates: ftp.hosteurope.de
+Available Environment Groups:
+Minimal Install
+Compute Node
+Infrastructure Server
+File and Print Server
+Basic Web Server
+Virtualization Host
+Server with GUI
+GNOME Desktop
+KDE Plasma Workspaces
+Development and Creative Worksta ion
+Available Groups:
+Compatibility Libraries
+Console Internet Tools
+Development Tools
+Graphical Administration Tools
+Legacy UNIX Compatibility
+Scientific Support
+Security Tools
+Smart Card Support
+System Administration Tools
+System Management
+Done
+
+# so we can install a group of packages insted of install that packages one by one
+
+[ command: yum groupinstall "group-name"]
+
+
+[root@redhat /]# yum groupinstall "Basic Web Server"
+
+----------------------------------------------------------
+
+# to update some packages 
+
+[ command : yum update package-name]
+
+- NOTE : if we writ that without the package name it will try to update all the system 
+
+[root@redhat /]# yum updte tzdata
+
+
+----------------------------------------
+# if we have conf-file and we want to know what packages it work with 
+
+
+[ command : yum provides path-file ]
+
+
+[root@localhost yum provides /etc/sysctl . conf
+Failed to set locale, defaulting to C
+Loaded plugins: fastestmirror
+Loading mirror speeds from cached hostfile
+* base: ftp.hosteurope.de
+* extras: ftp.hosteurope.de
+* updates: ftp.hosteurope.de
+initscripts-9.49.37-1. e17. x86—64
+Repo
+Matched from:
+Fi 1 ename
+base
+/etc/sysctl. conf
+initscripts-9.49.37-1. e17. x86_64
+The inittab file and the /etc/init.d scripts
+The inittab file and the /etc/init.d scripts
+Repo
+Matched from:
+Fi I ename
+@anaconda
+/etc/sysctl. conf
+
+
+
+--------------------------------------
+
+# to clean yum if we know about pakcage exist but meta data dont tell about it 
+
+[ command : yum clean (metadata , headers, packages, dbcach,plugins,expire-cach ) ]
+
+
+we can clean all by ( yum clean all )
+
+
+------------------------------------------------
+# to keep packages if we remove an app with command : yum remove app-name
+
+
+- we must enter the yum conf-file and edit the variable keepcache=1
+
+
+so we will find the rpm-files in ( /var/cache/yum/ )
+
+
+- so if we wanted to reinstall that app its packages and debendencies will still in the system
+
+
+[ if we use command : yum clean packages  ]
+
+->it will remove all packeges we have in the (cache)
+
+to save space of storage
+
+--------------------------------------------------------------------------------------
+
+
+# in transaction with yum will be saved in the file ( /var/log/yum.log )
+
+
+so any instlation removal any thing we do it will be saved
+
+
+and we can use another command to list all transaction :
+
+[command: yum history ]
+
+[root@redhat ~]# yum history
+
+ID     | Command line             | Date and time    | Action(s)      | Altered
+-------------------------------------------------------------------------------
+     1 |                          | 2024-07-03 15:10 | Install        | 1199 EE
+
+
+
+
+
+
+-----------------------------
+
+# to list the dependencies of any target :
+
+[ command : systemctl list-dependencies target-name.target ]
+
+
+[root@server ~]# systemctl list-depen
+dencies graphical.target
+graphical.target
+● ├─accounts-daemon.service
+● ├─gdm.service
+○ ├─nvmefc-boot-connections.service
+● ├─power-profiles-daemon.service
+● ├─rtkit-daemon.service
+● ├─switcheroo-control.service
+○ ├─systemd-update-utmp-runlevel.ser>
+● ├─udisks2.service
+● ├─upower.service
+● └─multi-user.target
+●   ├─atd.service
+●   ├─auditd.service
+●   ├─avahi-daemon.service
+●   ├─certmonger.service
+●   ├─chronyd.service
+●   ├─crond.service
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 

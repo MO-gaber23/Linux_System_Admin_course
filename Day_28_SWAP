@@ -1,0 +1,236 @@
+..............................57.57-Day-28_SWAP..............................
+
+# Introducing SWAP Space Concepts :
+- A swap space is an area of a disk under the control of the Linux kernel memory management subsystem.
+
+- The kernel uses swap space to supplement the system RAM by holding inactive pages of memory.
+
+- The combined system RAM plus swap space is called virtual memory.
+
+- When the memory usage on a system exceeds a defined limit, the kernel searches through RAM looking for idle memory pages assigned to processes. 
+
+- The kernel writes the idle pages to the swap area and reassigns the RAM pages to other processes. If a program requires access to a page on disk, the kernel locates another idle page of memory, writes it to disk, then recalls the needed page from the swap area.
+
+- Because swap areas reside on disk, swap is slow when compared with RAM.
+
+- While it is used to augment system RAM, you should not consider swap space as a sustainable solution for insufficient RAM for your workload.
+
+# SWAP : is to make some space in the disk for system to use like ram so can open applications on it 
+
+-----------------------------------
+
+# Sizing the SWAP Space
+Administrators should size the swap space based on the memory workload on the system.
+
+Application vendors sometimes provide recommendations on that subject. The following table
+
+provides some guidance based on the total amount of physical memory:
+
+
+
+RAM                SWAP SPACE
+
+2 GiB or less      Twice the RAM
+
+Between 2 GiB and g GiB   Same as RAM
+
+Between 8 GiB and 64 GiB   At least 4 GiB
+
+More than 64 GiB         At least 4 GiB
+
+
+----------------------------------------------------------
+
+
+# to see the ram usage and info
+
+[command : free -h]
+
+
+[root@fedora sudo]# free -h
+               total        used        free      shared  buff/cache   available
+Mem:           1.9Gi       387Mi       1.0Gi       1.0Mi       493Mi       1.3Gi
+Swap:          1.9Gi          0B       1.9Gi
+
+
+
+# note : dir /proc/ contains files of info about evry thing
+
+
+
+# NOTE: we can do swap in partition or file
+
+1- create aany partion or LV 
+
+
+[root@fedora sudo]# lvcreate --size 5G --name Swap Sw
+ap-vg
+  Logical volume "Swap" created.
+
+2- make file system on it from type of (swap)
+
+[ mkswap path of partion or lvm ]
+
+
+[root@fedora sudo]# mkswap /dev/Swap-vg/Swap
+
+Setting up swapspace version 1, size = 5 GiB (5368705024 bytes)
+
+no label, UUID=c3423b7b-d2f3-4277-b8c1-9c169b102c0e
+
+
+3- activate that to work as swap 
+
+[command : swapon path of the swap partiton / lv]
+
+
+[root@fedora sudo]# swapon /dev/Swap-vg/Swap
+
+
+
+# to make it start every time in rebooting 
+# machin but it into fstab file (/etc/fstab)
+
+path : /dev/Swap-vg/Swap     mountpoint :swap   file-system : swap   defaultes
+
+-NOTE : to now that it will work with no errors : 
+
+[ command : mount -a ]
+
+
+-------------------------------------------------------------
+
+- to off partithon from being swap : 
+
+[command:swapoff path]
+
+and remove it from file ( fstab )
+
+
+so now we can resize the volume 
+----------------------------------------------------------------------------
+
+-------------------------------------------
+# Making SWAP Partition with command parted :
+
+[ 1- frist of all create partition with type ( linux-swap ) ]
+
+[root@host] parted /dev/vdb
+
+(parted) mkpart
+
+Partition name? []? Swap1
+
+File system type? [ext2]? linux-swap <<<<<<<<<<<<<<<<<<<<<<<< the most important section
+
+Start? IOOIMB
+
+End? 1257MB
+
+(parted) print
+
+(parted) quit
+
+[root@host~] udevadm settle
+
+[ 2- Formatting the Device ]
+
+[root@host~] mkswap /dev/sdb2
+
+[ 3- Activating a SWAP Space ]
+
+[root@host swapon /dev/vdb2
+
+-----------------------------------------------------------------------------
+
+# to make swap file  :
+
+[command : mkswap path for the swapfile]
+
+
+but frist we must allocte the file with the needed space by :
+
+[command : dd inputfile= dev/zero outputfile=     blocksize=   countofblocks]
+
+
+[root@fedora sudo]# dd if=/dev/zero 
+of=/root/myswap bs=1M coun t=2048
+
+
+2048+0 records in
+2048+0 records out
+2147483648 bytes (2.1 GB, 2.0 GiB) copied, 128.933 s, 16.7 MB/s
+
+: in that command we tell to allocat file with number 
+: of blocks 2048 each block is one mega so it will be 
+: 2Gb file in path /root/myswap
+and it is filled by zeros
+
+
+
+# now we will make that file for swap :
+
+
+[root@fedora sudo]# mkswap /root/myswap
+
+mkswap: /root/myswap: insecure permissions 0644, fix 
+with: chmod 0600 /root/myswap
+
+Setting up swapspace version 1, size = 2 GiB 
+(2147479552 bytes)
+
+no label, UUID=dcdec7f5-7f5f-4f8a-9110-05e4d41cc5b3
+
+
+# NOTE: we use this method if we have no partition 
+# free and we have no LVM so we use that instd of 
+# resizing partition that may couse any damadge
+
+
+
+
+
+NOTE: that Swap is an critical file to use so we have to set permession to keep it save as it can be contain critical data info from apps we run and it run in the swap
+
+so we must never let others access that file
+
+swapoff /root/myswap
+
+chmod 600 /root/myswap
+
+
+
+--------------------------------------------------------------
+
+# SWAP File :
+
+1- create the file-partition
+
+dd if=/dev/random of=/swap_file bs=l M count-1024
+
+fallocate -l IG /swap_file
+
+2- formate the device
+
+mkswap /swap_file (Format the device)
+
+3- Avtivate the swap space
+
+swapon /swap_file (Activate a swap space)
+
+swapon -a (activate all swap spaces listed in the /etc/fstab file)
+
+
+vi /etc/fstab (Persistently activate swap space)
+
+systemctl daemon-reload
+
+free -m (show the swap file system)
+
+swapoff /swap_file (deactivate a swap space)
+
+
+
+
+
+

@@ -1,0 +1,734 @@
+...............................................62.62-Day-31 Access Control Lists.....................................
+
+- here we want to make some files on some partition allowed to mo and to user1 to edit it 
+
+
+so to do that we will add write permission to the other 
+
+
+here is the problem that all the others now can write in this file but we want an spacifice user its user1 only
+
+
+-NOTE : if we are user1 and create some files this files we be owned by that user ind its primary group 
+
+now we create file1 and its ownd by user1 and primary group user1
+-rw-r--r--. 1 user1 user1 0 Jul  8 15:15 file1
+                     ⬆️
+if we changed the primary group to group ( devs ) 
+
+-rw-r--r--. 1 user1 devs 0 Jul  8 15:15 file1
+-rw-r--r--. 1 user1 devs 0 Jul  8 15:22 file2
+
+now if any usr from group devs can write on the files of user1
+
+-----------------------
+
+each user has one primary group but can be in mulible secondry groups 
+
+# to add user in another secondry group 
+
+[ command : usermod -a -G sec-group user-name ]
+
+user1 in sec-group dcadmins and we will add him into nwadmins
+
+
+[root@redhat ~]# usermod -a -G  nwadmin
+s user1
+[root@redhat ~]# id user1
+uid=1001(user1) gid=1004(devs) groups=1004(devs),1003(dcadmins),1006(nwadmins
+
+
+-------------------------
+
+[root@redhat ~]# mkdir /work
+[root@redhat ~]# ls /
+afs   etc    media  root  sys  work
+bin   home   mnt    run   tmp
+boot  lib    opt    sbin  usr
+dev   lib64  proc   srv   var
+[root@redhat ~]# chmod a+w /work/
+[root@redhat ~]# su - user1
+[user1@redhat ~]$ cd /work/
+[user1@redhat work]$ ls
+[user1@redhat work]$ touch file
+[user1@redhat work]$ ls -lh
+
+total 0
+
+-rw-r--r--. 1 user1 devs 0 Jul  8 15:35 file
+
+----
+
+now if we create user2 and tryed to write in file : ( /work/file ) by him it can't write any thing
+
+as the file ( /work/file ) is owned to user1 and group devs and user2 is not in that group
+
+[user2@redhat work]$ echo test file2 >>
+file
+-bash: file: Permission denied
+
+-------------------
+- now to give the permission to user2 to write in file ( /work/file  ) only and without adding him into the group ( devs )
+
+we will use access control list 
+
+
+# NOTE : to use access control list the file system must support it 
+
+
+as we know that file system cntrol all of files permisions and the inoodes it have so the file system is who allow the access control list to be or not 
+
+
+
+if the file system is ( xfs ) it will support it
+
+
+
+[root@redhat ~]# blkid
+/dev/mapper/rhel-root: UUID="22ed4ab7-7318-4532-af95-2858d3a90bb3" TYPE="xfs"←←←←←←←←←←←←←←←←←←←
+/dev/sda2: UUID="RhI2Wm-eZjz-jxBV-og72-bKaH-5oym-MXtAaP" TYPE="LVM2_member" PARTUUID="ceae6398-02"
+/dev/sda1: UUID="ce5b5924-8f6e-4706-877c-b0782773298f" TYPE="xfs" PARTUUID="ceae6398-01"
+/dev/mapper/rhel-swap: UUID="b79ba117-5f43-481e-ac57-44250b552145" TYPE="swap"
+/dev/sr0: UUID="2024-07-03-19-03-13-00" LABEL="CDROM" TYPE="iso9660"
+/dev/sr1: UUID="2024-04-12-03-32-56-00" LABEL="RHEL-9-4-0-BaseOS-x86_64" TYPE="iso9660" PTUUID="8b7567d5" PTTYPE="dos"
+
+
+# kernal must support it too ,almost all kernals support it
+
+- the file (/boot/config-5.14.0-427.13.1.el9_4.x86_64 ) 
+
+is contains all options it support in compling it 
+
+
+# we must enable it in mounting the file system but ( xfs ) enable it automaticly
+ 
+we can enable it by 
+
+[ command: mount -o acl part-path mount-point]
+
+
+[root@redhat ~]#
+[root@redhat ~]# mount -o acl /dev/sdb1 /media
+[root@redhat ~]# mount -a
+[root@redhat ~]# lsblk
+NAME         MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
+sda            8:0    0  20G  0 disk
+├─sda1         8:1    0   1G  0 part /boot
+└─sda2         8:2    0  19G  0 part
+  ├─rhel-root
+  │          253:0    0  17G  0 lvm  /
+  └─rhel-swap
+             253:1    0   2G  0 lvm  [SWAP]
+sdb            8:16   0   5G  0 disk
+└─sdb1         8:17   0   3G  0 part /media
+
+
+# note if it was mounted without enabling acl 
+
+[ command : mount -o remount,acl part-path mount-point ]
+
+- we can see if acl enabled by 
+
+[ command : dumpe2fs part-file ]
+
+Default mount options:    user_xattr acl
+
+-------------- 
+
+# access control list : is to controll the access of the other users to write in files 
+
+- enabled in xfs and ext4
+
+# to set acl permissions to some usr :
+
+[ command : setfacl -m u:user-name:permission file-path ]
+
+set-file-access-control
+
+[user1@redhat work]$ setfacl --modify u:user2:rw file
+
+no we give the user:( user2 ) the permision to read write on file ( /work/file ) only
+
+
+
+[user2@redhat work]$ echo fucj elsisi >> file
+
+[user2@redhat work]$ cat file
+
+testfile
+fucj elsisi
+
+options :
+
+    -n, --no-mask
+           Do  not recalculate the effective rights mask. The default behavior of setfacl is to recalculate the ACL mask en‐
+           try, unless a mask entry was explicitly given.  The mask entry is set to the union of all permissions of the own‐
+           ing group, and all named user and group entries. (These are exactly the entries affected by the mask entry).
+
+       --mask
+           Do recalculate the effective rights mask, even if an ACL mask entry was explicitly given. (See the -n option.)
+
+       -d, --default
+           All  operations  apply  to  the Default ACL. Regular ACL entries in the input set are promoted to Default ACL en‐
+           tries. Default ACL entries in the input set are discarded. (A warning is issued if that happens).
+
+ - so the options -n and --mask identfy the only allowed permission that we can give to athers on the file debending on the umask command
+  
+-------------------------
+
+# to know info of acl for any files
+
+[ command : getfacl file-path ]
+
+ - it will show us three entries each one have some informations
+ 
+[user2@redhat work]$ getfacl /work/file
+
+getfacl: Removing leading '/' from absolute path names
+
+-------------------------------
+ 1- commented entries : the first three lines are comments that identify the file-name , owner ( user ) , the group owner ( operators).
+   - if there are any additional file flags ,such as ( setuid ) or ( setgid ) , then the fourth comment line will appear showing which flags are set .
+   
+# file: work/file
+# owner: user1
+# group: devs
+------------------------------------------
+ 2- User entries : 
+   
+  - File owner permissions
+  
+  - any users we give an acl perm to him
+
+user::rw-
+
+user:user2:rw-
+
+--------------------------------------------------------------
+3- group entries : to list the groups permissions for the file
+
+ - Group owner permissions. operators has rwx, but the mask limits the effective permissions to r only.
+
+group::r--
+ 
+ - any another groups has given an acl perm
+
+
+--------------------------------------------------
+4 - Mask entry:
+a Mask settings show the maximum permissions possible for all named users,
+the group owner, and named groups. UID 1005, operators, and GID 2210 cannot
+execute this file, even though each entry has the execute permission set.
+
+mask::rw-
+
+------------------------------------
+5- Other entry:
+
+ - Other or "world" permissions. All other UIDs and GIDS have NO permissions.
+
+other::r--
+-------------------------------------
+
+
+
+OPTIONS
+       -a, --access
+           Display the file access control list.
+
+       -d, --default
+           Display the default access control list.
+
+       -c, --omit-header
+           Do  not  display  the  comment  header (the first
+           three lines of each file's output).
+
+       -e, --all-effective
+           Print all  effective  rights  comments,  even  if
+           identical to the rights defined by the ACL entry.
+
+       -E, --no-effective
+           Do not print effective rights comments.
+
+       -s, --skip-base
+           Skip  files  that  only have the base ACL entries
+           (owner, group, others).
+
+       -R, --recursive
+           List the ACLs of all files and directories recur‐
+           sively.
+
+       -L, --logical
+           Logical  walk,  follow symbolic links to directo‐
+           ries. The default behavior is to follow  symbolic
+           link  arguments,  and skip symbolic links encoun‐
+           tered in subdirectories.  Only effective in  com‐
+           bination with -R.
+
+       -P, --physical
+           Physical  walk,  do  not follow symbolic links to
+           directories. This also skips symbolic link  argu‐
+           ments.  Only effective in combination with -R.
+   -t, --tabular
+           Use an alternative tabular output format. The ACL
+           and the default ACL are displayed side  by  side.
+           Permissions  that  are ineffective due to the ACL
+           mask entry are displayed capitalized.  The  entry
+           tag  names for the ACL_USER_OBJ and ACL_GROUP_OBJ
+           entries are also displayed  in  capital  letters,
+           which helps in spotting those entries.
+
+       -p, --absolute-names
+           Do  not strip leading slash characters (`/'). The
+           default behavior is to strip leading slash  char‐
+           acters.
+
+       -n, --numeric
+           List numeric user and group IDs
+
+ -n, --numeric
+           List numeric user and group IDs
+
+       -v, --version
+           Print the version of getfacl and exit.
+
+       -h, --help
+           Print help explaining the command line options.
+
+       --  End of command line options. All remaining param‐
+           eters are interpreted as file names, even if they
+           start with a dash character.
+
+       -   If the file name parameter is a single dash char‐
+           acter, getfacl reads a list of files  from  stan‐
+           dard input.
+
+-------------------------------
+# THE ACL mask Defines the maxmum permissions that you can give to named users ,the group owner and the named group 
+
+ - it does't restrict the permission of the file owner 
+
+ - all files and dirs that implement ACLs will have an ACL mask
+
+ - the mask can be viewed with getfacl and explicitly set with setfacl.
+
+ - It will be calculated nd added automatically if it is not explicitly set.
+
+ - it could also be inherited from a parent directory default mask setting. 
+
+ - By default the mask is recalculated whenever any of the affected ACLs are added, modified, or deleted.
+
+
+
+# the ACLs mask defaultly changes debending on the ACLs of owner and named users and groups permisions on the entries 
+
+ - the mask perm recalculate the entries permissions evry change modify delet in permissions
+
+ - it gain its permissions as it unoun the permissions on the entries 
+
+    * so if we have file 
+       
+       - its user own has read permission 
+       - its group own has read and write perm
+       - and named user entry has execute perm
+    then the mask will be : read write execute 
+
+[mo@server work]$ getfacl file
+# file: file
+# owner: mo
+# group: mo
+user::r--
+user:gaper:rw-
+group::rw-
+group:gaper:--x
+mask::rwx     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< that we talk about 
+other::r--
+
+
+ - look we will see that group ( gaper ) has ACL perm execute only but the user ( gaper ) has read and writ so user gaper will have ACL perm : read write and execute 
+
+
+# to change the mask use m::perm :
+
+[ command : setfacl --modify m::permissions file/dri-name ]
+
+
+[mo@server work]$ setfacl --modify m::r file
+
+[mo@server work]$ getfacl file
+# file: file
+# owner: mo
+# group: mo
+user::r--
+user:gaper:rw-                  #effective:r--
+group::rw-                      #effective:r--
+group:gaper:--x                 #effective:---
+mask::r--
+other::r--
+
+ - we will see that the last permissions are not valid now only read permission 
+ 
+ - we will see that comments effective perm appears to tell us the effective permissions
+
+ - so now we limite the maxmum permissions for all users gruops and else
+
+ - but the mask will reclculate the ACLs entries permissions and unoun its permissions on the mask
+
+-------------
+option : [ -n, --no-mask ]
+
+Do not recalculate the effective rights mask. The default behavior of setfacl is to recalculate
+the ACL mask entry, unless a mask entry was explicitly given. The mask entry is set to the
+union of all permissions of the owning group, and all named user and group entries.
+(These are exactly the entries affected by the mask entry).
+
+[root@server home]# setfacl -n -m u:karim:rwx passwd
+[root@server home]# setfacl -m u:karim:rw,m::r passwd
+
+
+---------------------------------------------------------------------------
+# ACL permission precedence : is how the ACLs permissions is applied on files in order to gain the right permission for that file :
+
+- so when determining whether a process can access afile , the file permissions and ACLs are applied as follows :
+
+ 1- if the process is running as the user owns the file , then the file's user ACL  permissions will be applied and that processe will have the own user's ACLs permission 
+    like : the dir ( work ) it's own user (mo) have perm : rwx
+
+          and the process 3256 is runnig as user ( mo ) so this process will gain the permissions of that user who is the own user of dir ( work )
+
+
+ 2- if the process is running as a user that is listed in a ( named user ACL entry ) , then the named user ACL permission will be applied [ as long as it is permitted by the mask ]
+
+
+
+ 3- If the process is running as a group that matches the group owner of the file, or as a group with an explicitly named group ACL entry, then the matching ACL permissions apply (as long as it is permitted by the mask).
+
+ 
+ 4- Otherwise, the file's other ACL permissions apply.
+
+
+- so system see if the process running as ( user own the file , user lised in user ACL entry , group own that file , group listed in named group ACL entry , otherwise  ) then match the ACL permission apply ( as long as permitted by the mask )
+
+
+ - NOTE :  if the process is running as user in two groups are listed in ( named ACL group entry )  the process will apllay the highist ACL permission 
+
+
+[ NOTE : as we see the ACLs permissions has higher order than the other permissions ]
+
+-------------------------------------
+
+# note: to change the own of dir 
+
+[ command: chown -R usr-name:groupname dir-path ]
+
+
+
+[root@redhat ~]# chown -R user1:devs /work/
+
+[root@redhat ~]# ls -ld /work/
+
+drwxrwxrwx. 2 user1 devs 18 Jul  8 15:35 /work/
+
+now the owner of dir /work/ is user:user1 and grop: devs
+
+
+-----------
+
+# to give an access for another group in dir /work/
+
+
+[ command: setfacl -R --modify g:group-name:permission dir-path ]
+
+
+[root@redhat ~]# setfacl -R --modify g:user2:rwx
+ /work/
+
+the dir /work/ is ownd by user1 and group : devs
+
+and now the group named user2 have perm-of : rwx
+
+
+
+[root@redhat ~]# getfacl /work/
+getfacl: Removing leading '/' from absolute path names
+# file: work/
+# owner: user1
+# group: devs
+user::rwx
+group::rwx
+group:user2:rwx
+mask::rwx
+other::rwx
+
+- so any user in group user2 have perm of read write exexute perm
+
+---------------------------------
+
+NOTE : if we unset permition from athors the permission will continue to be allowed to any user in group user2 as we set ACL permission
+
+so we must be sure about all permition and ACL permissions
+
+------------------ 
+
+NOTE: in dir ( /work/ ) if user1 created a new file it will ownd by user1 and group ( devs ) 
+
+and athors permission is not applied so user2 can't edit that new file as that file created after uset athers permissions
+
+------------------------------------
+
+# to makes any file will created in dir inheart the dir ACL 
+# permissions we must set that ACL permissions as DEFAULTE
+
+[ command : setfacl -R -m d:group-name:permissions dir-path ]
+
+
+
+[user1@redhat ~]$  setfacl -R -m d:user2:rxw /wo
+rk
+
+
+p
+ 
+-------------------------------------------------------------------
+
+# to change the ACLs permissions for the own user : dont add user name in the command setfacl or userid
+
+[ command : setfacl -m u::newpermissions ]
+
+[mo@server work]$ getfacl file
+# file: file
+# owner: mo
+# group: mo
+user::rw-  <<<<<<<<<<<<<<<<<<<<<< owner has permissions read and write
+group::rw-
+other::r--
+
+
+
+[mo@server work]$ setfacl -m u::r file
+
+[mo@server work]$ getfacl file
+# file: file
+# owner: mo
+# group: mo
+user::r-- <<<<<<<<<<<<<<<<<<<<<<<<<<< now it become read only 
+user:gaper:rw-
+group::rw-
+mask::rw-
+other::r--
+-------------------------------------------------------------------------
+EXAMPLES
+       Granting an additional user read access
+              setfacl -m u:lisa:r file
+
+       Revoking write access from all groups and all named users (using the effective rights mask)
+              setfacl -m m::rx file
+
+       Removing a named group entry from a file's ACL
+              setfacl -x g:staff file
+
+       Copying the ACL of one file to another
+              getfacl file1 | setfacl --set-file=- file2
+
+       Copying the access ACL into the Default ACL
+              getfacl --access dir | setfacl -d -M- dir
+
+
+#############################################################################################################################
+
+# we can save and store an backup for the ACLs perm of any thing 
+
+ - by redircting the output of command ( getfacl ) into an file 
+
+[ command : getfacl file-path > file-name/path ]
+
+
+[mo@server work]$ getfacl file > ACLs_file.txt
+
+  - now it stored in the text file (ACLs_file.txt)
+
+[mo@server work]$ cat ACLs_file.txt
+# file: file
+# owner: mo
+# group: mo
+user::r--
+user:gaper:rw-  #effective:r--
+group::rw-      #effective:r--
+group:gaper:--x #effective:---
+mask::r--
+other::r--
+
+# we can restor the ACLs permissions in backup file or set that permissions into another file by using option ( --set-file=backup-file-name/path )
+
+[ command : setfacl --set-file=backup-file-namr/path file-name ]
+
+
+[mo@server work]$ getfacl file_2
+# file: file_2
+# owner: mo
+# group: mo
+user::rw-
+group::rw-
+other::rw-
+ 
+ - we see that file_2 has different ACLs perm than file
+
+
+[mo@server work]$ setfacl --set-file=ACLs_file.txt file_2
+
+ - now it become like ACLs of file
+
+[mo@server work]$ getfacl file_2
+# file: file_2
+# owner: mo
+# group: mo
+user::r--
+user:gaper:rw-                  #effective:r--
+group::rw-                      #effective:r--
+group:gaper:--x                 #effective:---
+mask::r--
+other::r--
+
+
+# NOTE : we can pipline the ACLs of file or dir into another one by : piping the output of ( getfacl ) command into ( setfacl --set-file=-   the otherfile-name we want to inhert that ACLs )
+
+  Copying the ACL of one file to another                             getfacl file1 | setfacl --set-file=- file2
+
+
+[mo@server work]$ getfacl file_2 | setfacl --set-file=- file_3
+
+--------------------------------------------------------------------------
+# NOTE : if we copy any file or dir we dont't copy its ACLs perm as well 
+
+
+ - to copy the file with its ACLs perm use option -p
+
+  [ command : cp -p file-path newpath ]
+
+
+# NOTE : in moving files and dirs we move its ACLs too
+
+------------------------------------------------------------------------------------------
+
+
+# to remove an ACLs perm use options -x and -b : 
+
+ - option { -x } used with removing specific ACLs perm
+
+ - like removing ACLs  permission from named user 
+
+
+[root@server work]# getfacl file
+# file: file
+# owner: mo
+# group: mo
+user::r--
+user:gaper:rw-                  #effective:r--
+group::rw-                      #effective:r--
+group:gaper:--x                 #effective:---
+mask::r--
+other::r--
+    
+- now to remove ACL  permission from user gaper :
+[ setfacl -x u:gaper: file ]
+
+
+[root@server work]# setfacl -x u:gaper: file
+
+[root@server work]# getfacl file
+# file: file
+# owner: mo
+# group: mo
+user::r--
+group::rw-
+group:gaper:--x
+mask::rwx
+other::r--
+
+- now user gaper have no ACLs permissions but have execute as its in ACL  named group  of that file
+
+ 
+####################
+
+# to return to the default ACL use option -b :
+
+[ command : setfacl -b file/dir-path ]
+
+
+[root@server work]# setfacl -b file
+
+
+- now the default ACLs permission restored to that file.
+
+[root@server work]# getfacl file
+# file: file
+# owner: mo
+# group: mo
+user::r--
+group::rw-
+other::r--
+-----------------------------------------------------------------------------
+
+# we can set default ACLs permissions to any directories only , to set default ACLs permissions use arg d :
+
+  - to set default user ACL perm 
+[ command : setfacl -m d:u:gaper:rw- dir-path ]
+
+
+setfacl: file: Only directories can have default ACLs
+
+[root@server work]# setfacl -m d:u:gaper:rw- .
+
+[root@server work]# getfacl .
+
+# file: .
+# owner: mo
+# group: mo
+user::rwx
+group::r-x
+other::r-x
+default:user::rwx
+default:user:gaper:rw-
+default:group::r-x
+default:mask::rwx
+default:other::r-x
+
+
+- we will see that we have a new entry for default ACLs permissions so any file touched under that dir will have that default ACLs permissions as inhertanc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+

@@ -1,0 +1,170 @@
+.....................................................28.28-Day-13_Understanding_Boot_Process........................................................................
+
+
+what happind when start booting machine :
+
+we have two stages 
+
+1- befor the operating system start to load
+
+when clicking power boton
+
+|- BIOS do : POST (power on-self test):it will test the hardware in the device is exist or compataple with system or not
+
+NOTE:the (POST) not test all hardware we have but it test the main and minimume hardware that can run the system (ram ,hard disk , processor)
+----
+
+||- BIOS will find (Bootable devices) and (compare) it to its setings :like we have a flash contain bootable system or cd
+
+or from network or the hard disk debending on configration we write.
+----------
+
+|||- BIOS will load (IPL) (initial program loader):its job is to excute the bootloader on your device 
+
+
+boot loader exist in MPR
+
+so IPL will start /load : Boot Loader 
+
+Boot Loader in linux called : ( Grub ) (ground unified boot loader)
+NOTE:Grub can boot any operating system linux mac windows
+------------------
+
+||||- Boot loader (Grup) will load (kernal)
+
+--------------------------------
+
+|||||- kernal will start process (systemd/ init) 
+-----------------------------------------------
+
+
+
+||||||-Systemd/init will call the other processes 
+
+
+-----------------------------------------------------
+
+
+   
+
+
+
+
+
+
+
+
+
+2-after the operating system start to load
+
+
+
+
+
+
+
+
+...............................................................................................................................................................................
+
+
+Boot loader :
+
+is exist in MPR (dos) :446 byte 
+
+note : Boot loader file configration is larger than Bootloader itself
+
+
+to solve this problem :
+
+boot loader is two stsges 
+-------
+
+|-1st stage:
+
+frist stage is in MPR low space point on the secind stage on the disk 
+
+
+||-2st stage
+
+second stage  is large files saved on the disk in /boot/
+
+------------
+look at this problem if we have disk has MPR contalining Grub bootloader in frist stage 
+
+and we have RHEL , windows operating systems on the disk 
+
+the problem will occure when windows crashes and we download new windows
+
+as windos has its bootlader  NT Looder(NtLDr) 
+
+NT Loader will override the frist stage so it will delet RHEL from frist stage 
+
+so we have to override frist stage with grub agine
+
+the real problem is when removing MPR 
+--------------------
+
+NOTE: configration file of (grub) boot loader is stored in /boot but it has soft link in /etc/
+
+
+
+
+
+
+
+
+......................................................................................................................................
+
+
+-Kernal :
+
+NOTE : in windows the kernal is one file contain all of the kernal core and the drivers so if any thing occure to drivers it afecte kernal too 
+so it will crash
+
+Kernal is two stages (two files) :
+
+|- kernal file 
+
+this file contain the core of the kernal and the main things 
+
+its footprint is small as it consume small memory size as the larg modules ,drivers is in ( initramfs ) file
+
+
+NOTE :when kernal is loading to access file system in disk it will mount the root file system as (read only permssion) to avoid that file 
+system is not currapted and work well
+
+as if it has problem in file sytem it will fall to boot
+
+and after it is work well the kernal will remount it as (read and write perm)
+
+
+||-init ram fs file or initrd
+
+this file contains the moduls and drivers of network,disks..... else
+
+
+
+
+
+
+
+
+
+
+──(root㉿kali)-[/boot/grub]
+└─# ls -lah /boot/
+total 75M
+drwxr-xr-x  3 root root 4.0K Apr 14 01:36 .
+drwxr-xr-x 19 root root 4.0K May 10 13:13 ..
+
+-rw-r--r--  1 root root 251K Nov  7  2022 config-6.0.0-kali3-amd64
+
+drwxr-xr-x  6 root root 4.0K Apr 14 01:36 grub ←←←←←←←←←←←←←←←←←←←←this is the boot loader of linux
+
+
+-rw-r--r--  1 root root  67M Apr 14 01:36 initrd.img-6.0.0-kali3-amd64←←←←←←←←←←←←←←←←←←←← this is the file containing the file drivers for the kernal to access it and use drivers and modules
+
+-rw-r--r--  1 root root   83 Nov  7  2022 System.map-6.0.0-kali3-amd64
+
+-rw-r--r--  1 root root 7.5M Nov  7  2022 vmlinuz-6.0.0-kali3-amd64←←←←←←←←←←←←←←←←←←←←its the kernal of the virtual machine as we see its space is small so it is fast to load
+                                                 

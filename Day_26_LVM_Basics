@@ -1,0 +1,483 @@
+...............................................54.54-Day-26_LVM_Basics................................................................................
+
+hiper storage : allow us to controlle the storage we have as we can resize and add and remove storage
+
+
+--------
+
+LVM (Logical volume management): it's not like phisical volume that limited 
+
+- in phisical if disk is 500Gig we cant write more than 500Gig 
+ 
+1-in logical we have no limitation as if we have 500Gig disk and we want to write 800Gig data we can do it
+
+by adding new disk and combin the two disks and the size appers will be the total of the two disks and we can writ 800gig data like its one disk of 1000Gig
+--------------
+
+NOTE: LVM cant deal with phisical disks with it self it understand logical only as volumes
+
+- so we have to convert the phisical disk into logical volume
+
+-so LVM now can compine that logical volumes into ( volume group ) 
+
+------------------
+NOTE : in Raid  if we compine some disks two of 50Gig and one of 10gig Raid will deal with the two disks as they are 10Gig as the disk of 10Gig
+
+
+-but LVM we can compin deffirent volumes sizes and the net is thir total size
+
+----------------------------
+
+NOTE: LVM compin only logical volumes 
+
+---
+
+-in making volume group the LVM will partionize each volume into small size blocks with the same size for each one and compine this smalle blocks called (physical extent) into volume group witch act like one volume 
+
+
+-that new volume group we can resize make partitions as we liks no limits
+
+
+NOTE: in writing data LVM start with the frist (physical extent) and the next one and the next
+
+
+NOTE: each logical volume contains number of (physical extents)
+
+
+NOTE: default extent size is ( 4 Migabyte )   
+
+
+NOTE:each extent is made of some blocks
+
+------------------------------
+
+NOTE: in allocating partition try to make its size can be devided on 4 to have no wist of blocks in allocating Extents
+
+
+like if we allocate partiton of 203 Miga in deviding on 4 it gaives floats so we have some wisted  3Miga cant make an Extent
+
+
+----------------------------------------------------
+
+
+1- have an phsical partitions
+
+2- convert physical-patition into ( physical volume )  
+
+3- create (volume group) from (physical volume)  sampling process
+
+4-create (logical volume) from (volume group)
+
+5- create file system into the logical volume partition and mount it
+
+
+
+
+ -----------------------------------------------------------------------------
+
+NOTE: we can do LVM on disk or its partiton
+
+--------------------------------------------------------------------
+
+1- to convert partition into physical volume :
+
+command: pvcreate /dev/sdb1
+
+
+[root@fedora medo]# pvcreate /dev/sdb1 /dev/sdc
+
+  Physical volume "/dev/sdb1" successfully created.
+
+  Physical volume "/dev/sdc" successfully created.
+
+-to know where is physical volumes we create :
+
+command : pvs
+
+[root@fedora medo]# pvs
+
+  PV         VG Fmt  Attr PSize  PFree 
+
+  /dev/sdb1     lvm2 ---   5.00g  5.00g
+
+  /dev/sdc      lvm2 ---  <1.12g <1.12g
+
+--------------
+-to display more info use 
+
+command : pvdisplay
+
+[root@fedora medo]# pvdisplay 
+
+  "/dev/sdb1" is a new physical volume of "5.00 GiB"
+
+  --- NEW Physical volume ---
+
+  PV Name               /dev/sdb1
+
+  VG Name               
+
+  PV Size               5.00 GiB
+
+  Allocatable           NO
+
+  PE Size               0   
+
+  Total PE              0
+
+  Free PE               0
+
+  Allocated PE          0
+
+  PV UUID               szkZOp-th53-lVhu-Xgjn-jhM4-iXdU-QshOgt
+
+   
+
+  "/dev/sdc" is a new physical volume of "<1.12 GiB"
+
+  --- NEW Physical volume ---
+
+  PV Name               /dev/sdc
+
+  VG Name               
+
+  PV Size               <1.12 GiB
+
+  Allocatable           NO
+
+  PE Size               0   
+
+  Total PE              0
+
+  Free PE               0
+
+  Allocated PE          0
+
+  PV UUID               83pX0O-9JIS-Qa97-79LT-6iHL-0vGD-JNDrR5
+
+   
+
+
+---------------------------------------------------------------------------------------
+
+2- create volume group from physical volume :
+
+command : vgcreat group-name path of physical volumes
+
+
+[root@fedora medo]# vgcreate data /dev/sdb1 /dev/sdc
+
+  Volume group "data" successfully created
+
+- hear we creat group of name data contains partiton sdb1 and disk sdc witch converted into physical volumes
+
+-----
+- to display info about volume group
+
+command : vgs like vps
+
+[root@fedora medo]# vgs
+
+  VG   #PV #LV #SN Attr   VSize  VFree 
+
+  data   2   0   0 wz--n- <6.11g <6.11g
+
+
+-----------
+root@fedora medo]# vgdisplay 
+
+  --- Volume group ---
+
+  VG Name               data
+
+  System ID             
+
+  Format                lvm2
+
+  Metadata Areas        2
+
+  Metadata Sequence No  1
+
+  VG Access             read/write
+
+  VG Status             resizable
+
+  MAX LV                0
+
+  Cur LV                0
+
+  Open LV               0
+
+  Max PV                0
+
+  Cur PV                2
+
+  Act PV                2
+
+  VG Size               <6.11 GiB
+
+  PE Size               4.00 MiB
+
+  Total PE              1564
+
+  Alloc PE / Size       0 / 0   
+
+  Free  PE / Size       1564 / <6.11 GiB
+
+  VG UUID               WyDA1x-oYyU-ndmX-irX5-1qqF-iHnw-MglYp6
+
+   
+
+
+--------------------------------------------------------------------------------------------------------------
+
+3- creat logical volume from volume group
+
+
+#command: lvcreate --size 6G --name fedora-lv  volume-group-name 
+
+[root@fedora medo]# lvcreate --size 6G --name fedora-Lv data
+
+[  Logical volume "fedora-Lv" created.]
+
+
+
+
+
+
+-----
+to info:
+
+[root@fedora medo]# lvs
+
+  LV        VG   Attr       LSize Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+
+  fedora-Lv data -wi-a----- 6.00g                                                    
+
+
+[root@fedora medo]# lvdisplay 
+
+  --- Logical volume ---
+
+  LV Path                /dev/data/fedora-Lv
+
+  LV Name                fedora-Lv
+
+  VG Name                data
+
+  LV UUID                dZDxl8-nBPE-GaYc-CFuv-3UU0-k3Mm-Ke6P89
+
+  LV Write Access        read/write
+
+  LV Creation host, time fedora, 2024-06-22 12:26:55 -0400
+
+  LV Status              available
+
+  # open                 0
+
+  LV Size                6.00 GiB
+
+  Current LE             1536
+
+  Segments               2
+
+  Allocation             inherit
+
+  Read ahead sectors     auto
+
+  - currently set to     256
+
+  Block device           253:0
+
+   
+
+
+---------------------------------------------------------
+
+
+
+4- make file system on logical volume :
+
+[root@fedora medo]# mkfs.ext4 /dev/data/fedora-Lv 
+
+mke2fs 1.46.5 (30-Dec-2021)
+
+Creating filesystem with 1572864 4k blocks and 393216 inodes
+
+Filesystem UUID: 402939e4-e64e-4198-b4f7-263d29550c8d
+
+Superblock backups stored on blocks: 
+
+	32768, 98304, 163840, 229376, 294912, 819200, 884736
+
+
+
+Allocating group tables: done                            
+
+Writing inode tables: done                            
+
+Creating journal (16384 blocks): done
+
+Writing superblocks and filesystem accounting information: done 
+
+
+
+NOTE: file system must be created in the logical volume in /dev/lg-name/lv-name
+
+
+not in the partitions
+
+---------------------------------------------------------------------------------------------------------
+
+[root@fedora medo]# lsblk
+
+NAME         MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+
+sda            8:0    0   15G  0 disk 
+
+├─sda1         8:1    0  600M  0 part /boot/efi
+
+├─sda2         8:2    0    1G  0 part /boot
+
+└─sda3         8:3    0 13.4G  0 part /home
+
+                                      /
+
+sdb            8:16   0   15G  0 disk 
+
+└─sdb1         8:17   0    5G  0 part 
+
+  └─data-fedora--Lv
+
+             253:0    0    6G  0 lvm  
+
+sdc            8:32   0  1.1G  0 disk 
+
+└─data-fedora--Lv
+
+             253:0    0    6G  0 lvm  
+
+sdd            8:48   0  1.5G  0 disk 
+
+zram0        252:0    0  1.9G  0 disk [SWAP]
+
+
+-------------------------------------------------------------------------------
+
+
+NOTE: LVM HAS config files in /etc/lvm/
+-
+machine cane detect lv if we change disks from machine to another
+
+--------------------------------------------------------
+
+
+[root@fedora medo]# mount /dev/data/fedora-Lv /media/
+
+[root@fedora medo]# lsblk
+
+NAME         MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+
+sda            8:0    0   15G  0 disk 
+
+├─sda1         8:1    0  600M  0 part /boot/efi
+
+├─sda2         8:2    0    1G  0 part /boot
+
+└─sda3         8:3    0 13.4G  0 part /home
+
+                                      /
+
+sdb            8:16   0   15G  0 disk 
+
+└─sdb1         8:17   0    5G  0 part 
+
+  └─data-fedora--Lv
+
+             253:0    0    6G  0 lvm  /media <<<<<<<<<<<<<<<<<<<<<<<< mounted
+
+sdc            8:32   0  1.1G  0 disk 
+
+└─data-fedora--Lv
+
+             253:0    0    6G  0 lvm  /media <<<<<<<<<<<<mounted
+
+sdd            8:48   0  1.5G  0 disk 
+
+zram0        252:0    0  1.9G  0 disk [SWAP
+
+
+
+
+-------------------------------------------------------------------------------------
+
+
+NOTE: every thing we do LVM take copy for it and store every change
+
+
+-------------------------------------------------------------------------------------
+
+
+-to remove logical volume :
+
+command : lvremove path of lv
+
+lvreduce  lvremove  lvrename  lvresize
+
+[root@fedora Desktop]# lvremove /dev/data/fedora-Lv 
+
+  Logical volume data/fedora-Lv contains a filesystem in use.
+
+----------------------------------------------------------------------------------------------------
+
+this all what we can do with lv:
+
+
+
+[root@fedora Desktop]# lv
+
+lvchange     lvmdbusd     lvremove
+
+lvconvert    lvmdiskscan  lvrename
+
+lvcreate     lvmdump      lvresize
+
+lvdisplay    lvmpolld     lvs
+
+lvextend     lvmsadc      lvscan
+
+lvm          lvmsar       
+
+lvmconfig    lvreduce     
+
+------------------------------------------------------------------
+
+
+- the backup file is /etc/lvm/backup/
+
+[root@fedora Desktop]# ls /etc/lvm/backup/
+
+data
+
+-------------------------------------------------------------------------------------
+
+-we can remove volume group 
+
+:vgremove 
+
+----------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

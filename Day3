@@ -1,0 +1,96 @@
+the file system:
+
+
+
+       ##########every thing is an file #########
+
+
+
+the frist of the file system is the referance directory named slach /
+
+it containe :
+
+1- home directory wiche contains the users home dir
+
+
+2- etc directory :
+its the directory contains the configrations files of the system
+
+
+3-var dir :
+
+
+
+
+4- dev dir:
+
+contains files of devices like prtitions when i try to open partition i go to its file in dev dir
+
+
+
+
+
+5- tmp:
+contain temporrly files 
+
+
+6- usr dir:
+
+to contain shard filed between users
+ 
+
+
+
+7- bin dir:
+it contain the command we use in the terminal with bash
+
+
+
+8- sbin dir 
+suber user bin :it contain the root commands
+
+
+
+
+
+9-var dir 
+
+it contain the variable files like log file or any file have any changes
+
+
+
+
+
+10 - root dir:
+for the home directory of the root user to save its files 
+
+
+
+
+11- proc:
+its dir for the cernal to save the information about your machine in file name cpuinfo 
+its change evry time we restat the machin
+
+
+
+
+12-opt :
+empty dir for installation wehn installing servesis or any elce it try to install in that dir
+
+13-srv  free for virtuoial hosting
+
+
+14-media :
+for any flash cd room to be monted it apear in that dir
+
+
+
+15-mnt ofr floobydisk
+
+
+16-boot dir
+
+for kernal files and bootloader
+
+
+  

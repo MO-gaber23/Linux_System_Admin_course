@@ -1,0 +1,112 @@
+..........................................43.43-Day-21_NIC_Teaming...............................................
+
+
+-high avilability : is to connect the server with two links with the switche to avoid cuting in connection as if one link down the other will work 
+
+or linke the server to two switches
+
+-redundancy : is to have the same data in another server but if the main server failed the other one dont do anything
+
+ ------------------------------------------------
+
+nicteaming : is to compine links of more than one port in the nic card 
+
+-if we have server consist of three links each one is 1Gb/sec and we want the connection between the server and the switche is 3Gb/sec so we compine thim by nicteaming
+
+
+but we limit  as switches limits
+
+-----------------------
+there are many (modes) methods to compine the links of nic card 
+
+1- round-robin method: it will be like sending backet in link one and backet in link two and the thered backet in link three
+
+as we devide the load in equal to the links we have 
+
+-NOTE: IF we have two interface it will send in the frist then the second interface
+
+
+------
+2- Active-backup : it will down the other links and send in one link at the full speed 
+
+
+---------
+3-LACP (Link agrigation control protocol) :
+
+it compine the all links and send trafice in all links but switche and server must support the (LACP) to work
+
+server connect to one switche or stacked switches(switches connected like stack with the ports of interface appers like one switche)
+-------------
+4-load-palanc :to send trafice in the same time at all links 
+
+it works with stand alone switche (normal switches)
+
+------------------
+
+so in nic teaming we compine all links in one link output from virtual interface
+
+team device wuth v-mac with the active interface mac
+
+NOTE: we call the phisical port we use (slave)
+and call the (vif) master
+----------------------------
+in linux to compine links we can use :
+
+1-bonding in REHL6
+
+2-Teaming REHL7 :
+we must use teming as it user space implemintation that user can run it with scripte
+
+-NOTE : teaming have footprint
+
+-NOTE:we prefare user space implrmentation as if error happined it wont crach the system but happend in kernal space implementation in ponding
+----------
+
+ex : if we have two  nic teaming in our server one for web other for ftp 
+
+if any instance happend in wep it will not affict ftp as it user space
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+we can add team in ethernet in adding connection process by :
+
+nmcli connection add type team con-name team0 ifname team0 
+
+here we add connection with type team and virtual interface named team0 and connection-name team0
+
+
+                                                                                                                    
+┌──(root㉿kali)-[/home/mo]
+└─# nmcli connection add type team ifname team0 con-name team0 config '{"runner":{"name":"activebackup"}}' 
+
+
+NOTE: we must enter the mode of teaming in adding team in (JASON :java scribt object notation) {"runner "(mode): 
+{"name":"roundrobin"}}
+
+-we can add the mode in editing the connection
+
+-----------
+now we will  add slaves to the interfac team by  using modify with its master
+
+──(root㉿kali)-[/home/mo]
+└─# nmcli connection add type team-slave ifname eth2 con-name eth2-slave master team0
+
+NOTE: the slaves must uped manualy as if we down the master and up it again the slaves will still down 
+
+and we will up it manually one by one
+
+-----------------------------------
+
+to control teams you creat install backage for teamdctl and team 
+
+
+
+	
+
+
+
+
+
+
+
+
+

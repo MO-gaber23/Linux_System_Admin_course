@@ -1,0 +1,1067 @@
+
+............................................CH05_security enhanced linux..................................................
+
+
+# Security Enhanced linux is and additional security layer deffirent from the standard traditional permissions 
+
+
+
+# the traditional permissions called (d.a.c) disctionary access control : as it manage files and dirs access basd on user and group mempership
+
+
+----------------------------
+# SELinux is ( M.A.C ) mandatory access control 
+
+# by it we control wich subject can access witch opject 
+
+ - Subject can be : user , process 
+ 
+ - Object can be  : file ,directory ,network-port
+
+# SELinux has some rules ,polices stored in ( SELinux Policy Database ) from this database the selinux takes the  decision to allow or deny or grante the access 
+
+
+ - the SELinux apply some complex roles witch stored in the database so it can ( enforce ) it in some kind fomula to grante the ( List breviliage ) 
+
+ - the list brivilage : is to give the process or user the access he need in some resources to do some kind of tasks  and restricte the access of user or process on any other resorces 
+
+
+
+- so if we have an proccess want to read some file it will send an request to the frist module ( layer ) [ SELinux ] then the selinux will see the polices of this proccess in the database and decide to allow or deny that access if it allowed then it will go to the second layer ( standard permission ) and see if the proccess has the read permission or not to allow or deny that proccess from reading the file
+
+   
+
+
+- Security Enhanced Linux (SELinux) is an additional layer of system security.
+
+- The primary goal of SELinux is to protect user data from system services that have been compromised like if we have an apache web server and opend to public to access and some one brock the permission into apache user it will not have the access to the file system of your as the selinux deny that .
+-----
+To allow remote anonymous access to a web server, firewall ports must be opened. However,
+this gives malicious people an opportunity to crack the system through a security exploit.
+If they succeed in compromising the web server process they gain its permissions. Specifically,
+the permissions of the apache user and the apache group. That user and group has read access
+to the document root, /var/www/html. It also has access to /tmp, and /var/tmp, and any other
+files and directories that are world writable.
+-----
+- Most Linux administrators are familiar with the standard user/group/other permission security model.
+ 
+- This is a user and group based model known as discretionary access control.
+
+- SELinux provides an additional layer of security that is object-based and controlled by more sophisticated rules, known as mandatory access control.
+
+-------------------------------------------------------------------------------
+
+
+# As we know the SELinux is a set of security rules that determine which proccess can access which file ,dir,and prot 
+
+
+# the SELinux assigen an special security label to the files , dirs ,and ports this labels named ( SELinux Context ) 
+
+
+# ( SELinux Context ) is a name or label used by the SELinux policy to determine whether a process can access afile ,dir ,port or not :
+
+
+By default, the policy does not allow any interaction unless an explicit rule grants access. If there is no allow rule, no access is allowed.
+
+
+
+# the SELinux Label have several small context : user , role ,type , sensitivity 
+
+
+like :
+
+unconfined_u:object_r:httpd_sys_content_t:sO      /var/www/html/file2
+      ⬇️        ⬇️          ⬇️              ⬇️                ⬇️
+SELinux User  Role       Type             Level          File
+
+
+[ the default policy enabled in rehat is (the targeted policy )]
+
+
+- the targeted policy bases or puts its rules on the third context : the type context 
+
+- Type context names usually end with ( _t )
+
+- the user or process must have the same Type context with the targeted file it want to read ,write or execute it .
+
+
+
+-----------------------------------------------------------------------------------
+
+- an example : we have an server run Apache service and MariaDB service :
+
+- the Apache has user named apache its context type is ( httpd_t ) its allowed to access the file ( /var/www/html/ ) wiche has context type ( httpd_sys_content_t )
+
+- the mariaDB context type is mysqld_t allowed to access the dir ( /data/mysql/ ) witche has context type mysql_db_t 
+
+ * now if some one hacked the web site and become apache user it only will have the access to ( /var/www/html/ ) as its context type 
+
+ * now if he tried to access the data base on the dir ( /data/mysql/ ) the SELinux will deny the accesss as its context type is deffirent than the database context type 
+
+- NOTE : to make the Appache access an files or dires on the database we can create boolane for that .
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# to see the label or the contexets of files dirs processes ports we will add option [ -Z ] to each specfic commands
+
+- with listing files and dirs
+
+ * with files
+[ command : ls -Z file-path ]
+
+[root@server html]# ls -Z /etc/passwd
+
+system_u:object_r:passwd_file_t:s0 /etc/passwd
+
+ * with dirs
+[ command : ls -dZ dir-path ]
+
+[root@server html]# ls -dZ /etc/
+
+system_u:object_r:etc_t:s0 /etc/
+
+
+
+- with processes 
+
+[ command : ps -Z ]
+
+
+[root@server html]# ps -Z
+LABEL                               PID TTY          TIME CMD
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 56717 pts/3 00:00:02 bash
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 58162 pts/3 00:00:00 ps
+
+
+[root@server html]# ps -auZ
+
+LABEL                           USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 mo 2430 0.0  0.1 374156 2272 tty2 Ssl+ Aug26   0:00 /usr/libexec/gdm-wayland-session -
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 mo 2437 0.0  0.1 513180 2176 tty2 Sl+ Aug26   0:00 /usr/libexec/gnome-session-binary
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 mo 22643 0.0  0.0 224244 1280 pts/0 Ss Aug26   0:00 bash
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 root 22727 0.0  0.1 246568 2176 pts/0 S Aug26   0:00 sudo su
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 root 22729 0.0  0.1 242992 2008 pts/0 S Aug26   0:00 su
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 root 22732 0.0  0.0 224488 1536 pts/0 S+ Aug26   0:00 bash
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 root 27777 0.0  0.0 8252 1056 pts/0 S Aug26   0:00 dbus-launch --autolaunch=7e0fb7d251
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 mo 32895 0.0  0.0 224408 1664 pts/5 Ss+ Aug26   0:00 /usr/bin/bash --init-file /usr/sh
+system_u:system_r:container_t:s0:c804,c936 root 56367 0.0  0.0 1084 128 pts/0    Ss+  01:05   0:00 /catatonit -P
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 root 56717 0.0  0.5 242092 9088 pts/3 Ss 01:33   0:02 -bash
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 root 58062 0.0  0.3 224360 5632 pts/1 Ss 04:38   0:00 -bash
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 root 58120 0.0  0.2 223288 3968 pts/1 S+ 04:39   0:00 nano ch_3_Tuning_system
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 root 58163 0.0  0.3 242880 6656 pts/3 R+ 04:53   0:00 ps -auZ
+
+[ command : ps -axo label ]
+
+[root@server html]# ps -axo  pid,label
+
+
+  53052 system_u:system_r:httpd_t:s0
+  53053 system_u:system_r:httpd_t:s0
+  54132 system_u:system_r:cockpit_session_t:s0
+  54141 unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+  54168 system_u:system_r:kernel_t:s0
+  56365 system_u:system_r:container_runtime_t:s0
+  56367 system_u:system_r:container_t:s0:c804,c936
+  56705 system_u:system_r:sshd_t:s0-s0:c0.c1023
+  56710 system_u:system_r:kernel_t:s0
+  56711 system_u:system_r:kernel_t:s0
+  56713 system_u:system_r:kernel_t:s0
+  56714 system_u:system_r:kernel_t:s0
+  56715 unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+  56717 unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+  56794 unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+  56827 system_u:system_r:kernel_t:s0
+  56839 system_u:system_r:kernel_t:s0
+  57997 system_u:system_r:kernel_t:s0
+  58028 system_u:system_r:sssd_t:s0
+  58054 system_u:system_r:sshd_t:s0-s0:c0.c1023
+  58059 unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+  58062 unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+  58063 system_u:system_r:kernel_t:s0
+  58075 system_u:system_r:kernel_t:s0
+  58120 unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 
+  58152 system_u:system_r:kernel_t:s0
+  58154 system_u:system_r:kernel_t:s0
+  58165 system_u:system_r:kernel_t:s0
+  58167 unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+
+
+# Many commands that deal with files use the -Z option to display or set SELinux contexts.
+
+# For instance, PS, Is, cp, and mkdir all use the -Z option to display or set SELinux contexts.
+
+______________________________________________________________________________________________________________________________________
+
+
+# SELinux Modes :
+
+- Selinux has three modes to work with 
+
+1- Enforcing Mode :
+  
+  - the most secure mode 
+  
+  - in this mode the selinux enforce polices ( apply the rules polises ) to deny access of any actions or processes that violate those policies whene violation is detected
+
+  - and save that violation in the odiet loge files 
+
+2- Permissive Mode :
+
+  - it won't deny any violating access AS it doesn't enforce its polices
+
+  - but it save that violating access in the odite log files
+
+  - this mode is useful for testing and troubleshooting SELinux policies without affecting the system security.
+EX: 
+
+ - if we have an web site and have an trouple in openning it ,
+ we can set the permissive mode to see if the SELinux was deny the access or not 
+
+
+3- Disabled Mode :
+
+   - In disabled mode, SELinux is completely turned off and has no effect on the system.   
+
+Use Enforcing  or 1 to put SELinux in enforcing  mode.
+Use Permissive or 0 to put SELinux in permissive mode.
+
+
+---------------------------
+
+# to see thw mode applied on your system now :
+
+[ command : getenforce ]
+
+
+[root@server ~]# getenforce
+
+Enforcing
+
+
+# to set SELinux to adifferent mode :
+
+[ command : setenforce mode-name ]
+
+[root@server ~]# setenforce permissive
+
+[root@server ~]# getenforce
+
+Permissive
+ 
+- now the mode become the permissive mode 
+
+Use Enforcing  or 1 to put SELinux in enforcing  mode.
+Use Permissive or 0 to put SELinux in permissive mode.
+
+- [root@server ~]# setenforce
+
+   usage:  setenforce [ Enforcing | Permissive | 1 | 0 ]
+
+# the disabling the SELinux require rebooting the system .
+
+------------
+
+# to see more information about the SELinux mode apllied :
+
+
+[ command : sestatus ]
+
+
+[root@server ~]# sestatus
+
+SELinux status:                 enabled
+
+SELinuxfs mount:                /sys/fs/selinux
+
+SELinux root directory:         /etc/selinux
+
+Loaded policy name:             targeted
+
+Current mode:                   permissive
+
+Mode from config file:          enforcing
+
+Policy MLS status:              enabled
+
+Policy deny_unknown status:     allowed
+
+Memory protection checking:     actual (secure)
+
+Max kernel policy version:      33
+
+
+# NOTE : the change of the mode with command : setenforc : is not permanent
+
+# the dir contain the SELinux configurations files is ( /etc/selinux/ )
+
+--------------------------------------------------------------------------------------------------------
+
+# to change the mode from the config-file 
+
+ - open file ( /etc/selinux/config )
+
+ - at the line 22 change the variable [ SELINUX=enforcing ] into the mode we want
+
+
+--------------------------------------------------------------------------------------------------------------------------
+
+# in the same file ( /etc/selinux/config ) we will find variable to determin the type of selinux policies named ( SELINUX=targeted )
+
+# SELINUXTYPE= can take one of these three values:
+
+  #     targeted - Targeted processes are protected,
+
+  #     minimum - Modification of targeted policy. Only selected processes are protected.
+
+  #     mls - Multi Level Security protection.
+
+SELINUXTYPE=targeted
+
+---------------------------------------------------------------------------------------------------------------------------
+
+
+# on the system running all processes and files dirs are labeled ,the label represents the security relevant information , known 
+# as the SELinux context
+
+# in creating new files the new one will inherit their SELinux context from the parent directory , thus ensuring that they have 
+# the proper context.
+
+
+# NOTE : if creating file and [ MOVE ] it into another directory it will not have the context of the distination directory but it 
+# will stil have the context of its parete dir it created on it .
+
+# NOTE : the files inherit the SELinux context of the distenation directory if we copy it into new directory .
+
+# to copy any file and want to prevent any change in its context use option [ -a ] 
+
+                     work
+[root@server mo]# ls -dZ bash/
+
+unconfined_u:object_r:user_home_t:s0 bash/
+
+[root@server mo]# cp -a bash/ data/
+
+[root@server data]# ls -dZ bash/
+
+unconfined_u:object_r:user_home_t:s0 bash/
+
+- the context reminde the same
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+# working with contexts :
+
+1- declare the default labeling for file using :
+
+[ command : semanage fcontext ]
+
+  - ths command is used to determin ( define ) the rules used to determine the SELinux-context for files or dirs 
+
+  - it is the preferred one to set the defualt SELinux context 
+
+  - the changes work permanently
+  
+  - we can add , modify ,delete ,list ,rules in the context policy database 
+
+ 
+  
+2- apply that context to the file using :
+
+[ command : restorecon -v file/path ]
+
+  - this will ensure that the labeling will be as desired even after a complete relabeling of the file system
+
+  - it works as it restore the context defined in the database of context policies so we must define it with ( semanage fcontext ) 
+  befor restoring it with ( restorecon )
+
+-NOTE : so if we edit any context for any file we do that command to start appling the new context table 
+ ----------------------
+
+# to change context of any file but not permanetly :
+
+[ command : chcon -t new-context_type file-path ]
+
+ - not permanent
+ 
+ - The chcon command changes SELinux contexts. 
+
+ - chcon sets the security context on the file,stored in the file system.
+
+ - It is useful for testing and experimenting. However, it does not save context changes in the SELinux context database When a 
+ restorecon command runs, changes made by the chcon command also do not survive. Also, if the entire file system is relabeled,
+
+ - the SELinux context for files changed using chcon are reverted.
+
+
+
+[root@server html]# chcon -t root_t index.html
+
+[root@server html]# ls -Z index.html
+
+unconfined_u:object_r:root_t:s0 index.html <<<<<<<<<<<< now we see that the context-type has been changed into root_t
+
+# we can change the user context label too using option -u :
+
+[ command : chcon -u new-con_u file-path ]
+
+
+[root@server html]# chcon -u root_u index.html
+
+[root@server html]# ls -Z
+
+root_u:object_r:root_t:s0 index.html
+
+- now only the user with that context have access for that file , which is the root user .
+
+# to restor the context we changed debending on the contextpolicies database :
+
+[ command : restorecon -v file-path ]
+
+
+[root@server html]# restorecon -v index.html
+Relabeled /var/www/html/index.html from root_u:object_r:root_t:s0  to   root_u:object_r:httpd_sys_content_t:s0
+
+- NOTE : it didn't restore the user context so we will use option -F to restore evry thing forcedly
+
+
+[root@server html]# restorecon -vF index.html
+
+Relabeled /var/www/html/index.html from root_u:object_r:httpd_sys_content_t:s0 to system_u:object_r:httpd_sys_content_t:s0
+
+
+
+-----------------------------------------------------------------------------------------------------------------
+
+# to list all SELinux context for all file-system :
+
+[ command : semanage fcontext -l ]
+
+[root@server html]# semanage fcontext -l
+SELinux fcontext                                   type               Context
+
+/                                                  directory          system_u:object_r:root_t:s0
+/.*                                                all files          system_u:object_r:default_t:s0
+/[^/]+                                             regular file       system_u:object_r:etc_runtime_t:s0
+/\.autofsck                                        regular file       system_u:object_r:etc_runtime_t:s0
+/\.autorelabel                                     regular file       system_u:object_r:etc_runtime_t:s0
+/\.ismount-test-file                               regular file       system_u:object_r:sosreport_tmp_t:s0
+/\.journal                                         all files          <<None>>
+/\.snapshots(/.*)?                                 all files          system_u:object_r:snapperd_data_t:s0
+/\.suspended                                       regular file       system_u:object_r:etc_runtime_t:s0
+/a?quota\.(user|group)                             regular file       system_u:object_r:quota_db_t:s0
+/afs                                               directory          system_u:object_r:mnt_t:s0
+/bacula(/.*)?                                      all files          system_u:object_r:bacula_store_t:s0
+/bin                                               all files          system_u:object_r:bin_t:s0
+/bin/.*                                            all files          system_u:object_r:bin_t:s0
+
+
+################
+
+# NOTE : in creating file into directory the file inherit the context of the dir created in 
+
+  - so in  the dir ( /var/www/) if we create dir for logs ( logs ) and touch file.logs into the dir ( logs )
+
+  - the dir ( logs ) take its context from its parent witch is dir ( www/ )
+
+  - the file.logs taks its context from its parent dir ( logs )
+
+  -  but the context type of logs file must be (httpd_log_t) as listed in database
+
+  - so to apply the label of the data base on new created files 
+  
+[ restorecon -Rv new-file-path ]
+
+
+[root@server www]# mkdir logs                      < here we create dir named logs 
+
+[root@server www]# ls -dZ logs/
+
+unconfined_u:object_r:httpd_sys_content_t:s0 logs/  < we see that its context type is ( httpd_sys_content_t ) but as that dir is maked to save the logs its context type must be ( httpd_log_t )
+
+
+[root@server www]# restorecon -Rv logs
+
+Relabeled /var/www/logs from unconfined_u:object_r:httpd_sys_content_t:s0 to unconfined_u:object_r:httpd_log_t:s0
+
+  - so we restore the normal context from the database
+
+
+# NOTE : whene creating any file or dir be sure to label it with the right context type 
+
+ - so must do command :  restorecon -Rv new-file-path
+
+
+
+####################################################################################### 
+
+# to add new context type for any file or dir 
+
+[ command : semanage fcontext -a -t con-type_t file/path ]
+
+ 
+[root@server mo]# mkdir /virtiual/
+
+[root@server mo]# cd /
+
+[root@server /]# ls -dZ /virtiual/
+
+unconfined_u:object_r:default_t:s0 /virtiual/
+
+- after creating the file we will see that it have an selinux context 
+
+
+[root@server /]# semanage fcontext -a -t httpd_sys_content_t  '/virtiual(/.*)?'
+
+[root@server /]# ls -dZ /virtiual/
+
+ unconfined_u:object_r:default_t:s0 6 Aug 28 22:52 /virtiual/
+
+- here we see that it still have the its context type not changed 
+
+[ but if we grep for the new label context type in the data base we will see its added successfuly ]
+
+
+[root@server /]# semanage fcontext -l | grep -w /virtiual/
+
+/virtiual(/.*)?                                   all files
+
+system_u:object_r:httpd_sys_content_t:s0
+
+
+[ now its the turn of the ( restorecon ) command ]
+
+[root@server /]# restorecon -Rv /virtiual
+
+Relabeled /virtiual from unconfined_u:object_r:default_t:s0 to unconfined_u:object_r:httpd_sys_content_t:s0
+
+# we can delet the SELinux context from the database for any files by :
+
+[ command : semanage fcontext -d -t context_type 'file/path' ]
+
+
+[root@server /]# semanage fcontext -d -t httpd_sys_content_t '/virtiual/'
+
+##########################################################################################################################
+
+# to deal with the ports by SELinux :
+
+[ commmand : semanage port -a or -d or -l ]
+
+- now if we tried to assigen another port for service sshd 
+
+- the selinux will deny that and it will appears in the file ( /var/log/audit/audit.log )
+
+- if we opend the file ( /var/log/audit/audit.log ) we will find an line tell us that the selinux denay to access the port as the context type is not the same to that port 
+
+
+- in the config file ( /etc/ssh/ssh_config ) we will assigen the port to 9999
+
+then we will restart the service sshd
+
+the problem will auccore and we will need to change the contect for tha port 
+
+
+[root@server /]# semanage port -l | grep  9999
+
+jboss_management_port_t        tcp      4447, 4712, 7600, 9123, 9990, 9999, 18001  <<<< as we see the context type for port 9999 is jboss_managment_port_t as it used by jboss.service
+
+
+---
+
+[root@server /]# semanage port -a -t ssh_port_t -p tcp 9999
+Port tcp/9999 already defined, modifying instead
+
+[root@server /]# semanage port -m -t ssh_port_t -p tcp 9999
+
+                                                 ⬇️the option -p is to determine the protocol used 
+
+
+
+
+now restart and success 
+
+
+[root@server /]# semanage port -l | grep 9999
+jboss_management_port_t        tcp      4447, 4712, 7600, 9123, 9990, 9999, 18001
+
+ssh_port_t                     tcp      9999, 22
+
+
+# to delet port context :
+
+[ command : semanage port -d -t context-type -p protocol portnumber ]
+
+
+[root@server ~]# semanage port -l | grep ssh
+ssh_port_t                     tcp      9998, 22 <<<< befor delet
+
+[root@server ~]# semanage port -d -t ssh_port_t  -p tcp 9998 
+
+[root@server ~]# semanage port -l | grep ssh
+
+ssh_port_t                     tcp      22 <<<<< after delet
+
+
+
+
+#######################################################################################
+
+# SELinux Booleans :
+
+- if we have two server the frist is the apache web server and the second is the database server 
+
+- and the web server want to connect to the database but as we know each one has its own context-type witch is deffirent so web server cant access the data base as the SELinux context deny that 
+
+- so to solve this problem without making an the web server has the same context type of the data base server context-type as the SELinux policy 
+
+- is to set an ( Booleans ) whre are switches that change the behavior of the SELinux policy
+
+- They can be used by security administrators to tune the policy to make selective adjustments.
+
+
+For example, let's say you have a Linux web server that will be using a SQL database, such as
+
+MySQL or MariaDB. One of the SELinux booleans is httpd_can_network_connect_db.
+
+If httpd_can_network_connect_db is off, the web server will be unable to connect to the SQL
+
+database. On the other hand, if httpd_can_network_connect_db is on, the web server will be
+
+able to connect to the SQL database.
+
+= so the Booleans are like an context-type can be assigend to deffirent subjects
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# to know the booleans exist on the system 
+
+[ command : getsebool -a ]
+
+
+
+[root@server ~]# getsebool -a
+abrt_anon_write --> off
+abrt_handle_event --> off
+abrt_upload_watch_anon_write --> on
+antivirus_can_scan_system --> off
+antivirus_use_jit --> off
+auditadm_exec_content --> on
+authlogin_nsswitch_use_ldap --> off
+authlogin_radius --> off
+authlogin_yubikey --> off
+awstats_purge_apache_log_files --> off
+boinc_execmem --> on
+cdrecord_read_content --> off
+cluster_can_network_connect --> off
+cluster_manage_all_files --> off
+cluster_use_execmem --> off
+cobbler_anon_write --> off
+cobbler_can_network_connect --> off
+cobbler_use_cifs --> off
+cobbler_use_nfs --> off
+collectd_tcp_network_connect --> off
+colord_use_nfs --> off
+condor_tcp_network_connect --> off
+conman_can_network --> off
+conman_use_nfs --> off
+container_connect_any --> off
+container_manage_cgroup --> off
+container_read_certs --> off
+container_use_cephfs --> off
+container_use_devices --> off
+container_use_dri_devices --> on
+container_use_ecryptfs --> off
+container_user_exec_content --> on
+cron_can_relabel --> off
+cron_system_cronjob_use_shares --> off
+cron_userdomain_transition --> on
+cups_execmem --> off
+cvs_read_shadow --> off
+daemons_dontaudit_scheduling --> on
+daemons_dump_core --> off
+daemons_enable_cluster_mode --> off
+daemons_use_tcp_wrapper --> off
+daemons_use_tty --> off
+dbadm_exec_content --> on
+dbadm_manage_user_files --> off
+dbadm_read_user_files --> off
+deny_bluetooth --> off
+deny_execmem --> off
+deny_ptrace --> off
+dhcpc_exec_iptables --> off
+dhcpd_use_ldap --> off
+dnsmasq_use_ipset --> off
+domain_can_mmap_files --> off
+domain_can_write_kmsg --> off
+domain_fd_use --> on
+domain_kernel_load_modules --> off
+entropyd_use_audio --> on
+exim_can_connect_db --> off
+exim_manage_user_files --> off
+exim_read_user_files --> off
+fcron_crond --> off
+fenced_can_network_connect --> off
+fenced_can_ssh --> off
+fips_mode --> on
+ftpd_anon_write --> off
+ftpd_connect_all_unreserved --> off
+ftpd_connect_db --> off
+ftpd_full_access --> off
+ftpd_use_cifs --> off
+ftpd_use_fusefs --> off
+ftpd_use_nfs --> off
+ftpd_use_passive_mode --> off
+git_cgi_enable_homedirs --> off
+git_cgi_use_cifs --> off
+git_cgi_use_nfs --> off
+
+
+# to enable or disable any boolean we have :
+
+[ command : setsebool boolean-name=on/off ]
+
+
+[root@server ~]# setsebool httpd_can_network_connect_db=on  <<<<<<<< now we enable the boolean 
+
+
+- if we see him by command : getsebool 
+
+
+[root@server ~]# getsebool httpd_can_network_connect_db
+
+httpd_can_network_connect_db --> on
+
+- NOTE : if we do on/off any boolean by that method : the boolean will set un permenantly
+
+- to set the boolean permanently : use option [ -P ]
+
+
+[root@server ~]# setsebool httpd_can_network_connect_db=off  -P
+
+------------------------------------
+
+# to reports on whether or not aboolean is persistent ,along with ashort desciption 
+
+[ command : semanage boolean -l  ]
+
+
+- 
+[root@server ~]# semanage boolean -l
+SELinux boolean                State  Default Description
+
+abrt_anon_write                (off  ,  off)  Allow abrt to anon write
+abrt_handle_event              (off  ,  off)  Allow abrt to handle event
+abrt_upload_watch_anon_write   (on   ,   on)  Allow abrt to upload watch anon write
+antivirus_can_scan_system      (off  ,  off)  Allow antivirus to can scan system
+antivirus_use_jit              (off  ,  off)  Allow antivirus to use jit
+
+
+- NOTE : to come with an spacevic boolean use pipline with command grep
+
+
+[root@server ~]# semanage boolean -l | grep -i httpd_can_network_connect_db
+
+httpd_can_network_connect_db   (off  ,  off)  Allow httpd to can network connect db 
+
+                                 ⬆️      ⬆️ 
+                               the       the 
+                             current     pemanentlatity
+                               stat     
+---------------------------------------------------------------------------
+
+# NOTE  : we can run scripts from the web browser by adding the scribt file into dir ( /var/www/cgi-bin/ )
+
+
+- this dir can be reached by default because of the SELinux boolean ( httpd_enable_cgi (on , on) Allow httpd to enable cgi ) which 
+is turned on
+
+- so we must turn it off 
+
+
+[root@server ~]# setsebool httpd_enable_cgi=off -P
+ 
+
+[root@server ~]# semanage boolean -l | grep cgi
+
+
+httpd_enable_cgi               (off  ,  off)  Allow httpd to enable cgi 
+
+------------------------------------------------------------------------------------------
+
+# Troubleshooting SELinux Issues :
+
+- It is important to understand what actions you must take when SELinux prevents access to files on a server that you know should be accessible.
+
+- most SELinux Issues is the rwong context type on the file as we move file from dir to dir it must have the context-type of the new dir it moved on  by using [ command : restorecon file/name ] 
+
+
+- but we have to know that if we have any issues that the package ( setroubleshoot-server ) package always audit the file ( /var/log/audit/audit.log ) with the new audits 
+- and send ashort summary about what happend ( the insedent or violation ) to file ( /var/log/messages )
+
+- NOTE : the sammary includes an uniqe identifiers ( UUID ) for the SELinux violations that can be uset to come with ( gather ) further information about the violations 
+
+
+################
+
+# to come with a report for specific incident :
+
+[ command : sealert -l UUID ]
+
+- NOTE : the uuid come from the file ( /var/log/message ) after the Issue happined 
+
+
+
+# to prodce reports for all incidents in the file ( /var/log/audit/audit.log )
+
+[ command : sealert -a /var/log/audit/audit.log ]
+
+like :
+
+SELinux is preventing /usr/bin/ls from getattr access on the directory /etc/unbound.
+
+*****  Plugin httpd_unified (89.3 confidence) suggests   *********************
+
+If you want to allow httpd to execute cgi scripts and to unify HTTPD handling of all content files.
+Then you must tell SELinux about this by enabling the 'httpd_unified' and 'http_enable_cgi' booleans
+Do
+
+# setsebool -P httpd_unified=1 httpd_enable_cgi=1
+
+*****  Plugin catchall (11.6 confidence) suggests   **************************
+
+If you believe that ls should be allowed getattr access on the unbound directory by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+
+# ausearch -c 'ls' --raw | audit2allow -M my-ls
+# semodule -X 300 -i my-ls.pp
+
+
+Additional Information:
+Source Context                system_u:system_r:httpd_sys_script_t:s0
+Target Context                system_u:object_r:named_conf_t:s0
+Target Objects                /etc/unbound [ dir ]
+Source                        ls
+Source Path                   /usr/bin/ls
+Port                          <Unknown>
+Host                          <Unknown>
+Source RPM Packages           coreutils-8.32-35.el9.x86_64
+Target RPM Packages           unbound-libs-1.16.2-3.el9_3.5.x86_64
+SELinux Policy RPM            selinux-policy-targeted-38.1.35-2.el9_4.2.noarch
+Local Policy RPM              selinux-policy-targeted-38.1.35-2.el9_4.2.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     server.medo.com
+Platform                      Linux server.medo.com 5.14.0-427.22.1.el9_4.x86_64
+                              #1 SMP PREEMPT_DYNAMIC Mon Jun 10 09:23:36 EDT
+                              2024 x86_64 x86_64
+Alert Count                   2
+First Seen                    2024-08-30 08:33:23 EDT
+Last Seen                     2024-08-30 08:33:23 EDT
+Local ID                      7f37f2cc-694f-4800-ab9a-b381c142e63c
+
+Raw Audit Messages
+type=AVC msg=audit(1725021203.388:3433): avc:  denied  { getattr } for  pid=62695 comm="ls" path="/etc/unbound" dev="dm-0" ino=18515811 scontext=system_u:system_r:httpd_sys_script_t:s0 tcontext=system_u:object_r:named_conf_t:s0 tclass=dir permissive=0
+
+
+type=SYSCALL msg=audit(1725021203.388:3433): arch=x86_64 syscall=statx success=no exit=EACCES a0=ffffff9c a1=7ffff658d280 a2=900 a3=25e items=0 ppid=62694 pid=62695 auid=4294967295 uid=48 gid=48 euid=48 suid=48 fsuid=48 egid=48 sgid=48 fsgid=48 tty=(none) ses=4294967295 comm=ls exe=/usr/bin/ls subj=system_u:system_r:httpd_sys_script_t:s0 key=(null)ARCH=x86_64 SYSCALL=statx AUID=unset UID=apache GID=apache EUID=apache SUID=apache FSUID=apache EGID=apache SGID=apache FSGID=apache
+
+Hash: ls,httpd_sys_script_t,named_conf_t,dir,getattr
+
+
+
+
+
+# to search in the audit file about messages type : AVC 
+# auccored in last ten menutes 
+
+[command : ausearch -m AVC -ts recent ]
+
+
+
+As an example of some issue :
+
+1- create file in path ( /root/ ) 
+
+
+[root@server ~]# touch /root/myweb
+
+
+[root@server ~]# ls -Z /root/myweb
+
+unconfined_u:object_r:admin_home_t:s0 /root/myweb
+
+2- move the file into ( /var/www/html )
+
+
+[root@server ~]# mv  /root/myweb /var/www/html/
+
+
+[root@server ~]# ls -Z /var/www/html/myweb
+
+unconfined_u:object_r:admin_home_t:s0 /var/www/html/myweb 
+
+   - the context type remines the same 
+
+3- try to accesse this file with command ( curl )
+
+
+[root@server ~]# curl http://localhost/myweb
+
+
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>403 Forbidden</title>
+</head><body>
+<h1>Forbidden</h1>
+<p>You don't have permission to access this resource.</p>
+</body></html>
+
+[ now it tell us that file ( myweb ) can't be rached ]
+
+4- to see the message of selinux : 
+
+
+[root@server conf]# tail /var/log/audit/audit.log 
+
+type=AVC msg=audit(1725054958.636:3533): avc:  denied  { getattr } for  pid=63804 comm="httpd" path="/var/www/html/myweb" dev="dm-0" ino=33749087 scontext=system_u:system_r:httpd_t:s0 tcontext=unconfined_u:object_r:admin_home_t:s0 tclass=file permissive=0
+
+type=SYSCALL msg=audit(1725054958.636:3533): arch=c000003e syscall=262 success=no exit=-13 a0=ffffff9c a1=7feacc0069c0 a2=7fead3ffe8b0 a3=0 items=0 ppid=63566 pid=63804 auid=4294967295 uid=48 gid=48 euid=48 suid=48 fsuid=48 egid=48 sgid=48 fsgid=48 tty=(none) ses=4294967295 comm="httpd" exe="/usr/sbin/httpd" subj=system_u:system_r:httpd_t:s0 key=(null)ARCH=x86_64 SYSCALL=newfstatat AUID="unset" UID="apache" GID="apache" EUID="apache" SUID="apache" FSUID="apache" EGID="apache" SGID="apache" FSGID="apache"
+type=PROCTITLE msg=audit(1725054958.636:3533): proctitle=2F7573722F7362696E2F6874747064002D44464F524547524F554E44
+type=AVC msg=audit(1725054958.636:3534): avc:  denied  { getattr } for  pid=63804 comm="httpd" path="/var/www/html/myweb" dev="dm-0" ino=33749087 scontext=system_u:system_r:httpd_t:s0 tcontext=unconfined_u:object_r:admin_home_t:s0 tclass=file permissive=0
+type=SYSCALL msg=audit(1725054958.636:3534): arch=c000003e syscall=262 success=no exit=-13 a0=ffffff9c a1=7feacc006a90 a2=7fead3ffe8b0 a3=100 items=0 ppid=63566 pid=63804 auid=4294967295 uid=48 gid=48 euid=48 suid=48 fsuid=48 egid=48 sgid=48 fsgid=48 tty=(none) ses=4294967295 comm="httpd" exe="/usr/sbin/httpd" subj=system_u:system_r:httpd_t:s0 key=(null)ARCH=x86_64 SYSCALL=newfstatat AUID="unset" UID="apache" GID="apache" EUID="apache" SUID="apache" FSUID="apache" EGID="apache" SGID="apache" FSGID="apache"
+type=PROCTITLE msg=audit(1725054958.636:3534): proctitle=2F7573722F7362696E2F6874747064002D44464F524547524F554E44
+type=SERVICE_STOP msg=audit(1725054969.770:3535): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=dbus-:1.1-org.fedoraproject.SetroubleshootPrivileged@12 comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'UID="root" AUID="unset"
+type=SERVICE_STOP msg=audit(1725054969.911:3536): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=setroubleshootd comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'UID="root" AUID="unset"
+
+- as we see in the frist line we have an audit type = AVC : tells us that the accesse denied and show us the two contxt-types the context of the file we cant access and the context type must be 
+
+- and we can see more info from ( /var/log/messages )
+
+[root@server conf]# tail /var/log/messages
+
+
+[root@server conf]# tail /var/log/messages
+Aug 30 18:05:22 server avahi-daemon[922]: Withdrawing address record for fe80::c2e4:24f3:8456:b006 on ens224.
+
+Aug 30 18:05:22 server setroubleshoot[63904]: SELinux is preventing /usr/sbin/httpd from getattr access on the file /var/www/html/myweb. For complete SELinux messages run: sealert -l d2c255fb-3588-4d5b-b03d-13dccb8546b4
+
+Aug 30 18:05:22 server setroubleshoot[63904]: SELinux is preventing /usr/sbin/httpd from getattr access on the file /var/www/html/myweb.#012#012*****  Plugin restorecon (92.2 confidence) suggests   ************************#012#012If you want to fix the label. #012/var/www/html/myweb default label should be httpd_sys_content_t.#012Then you can run restorecon. The access attempt may have been stopped due to insufficient permissions to access a parent directory in which case try to change the following command accordingly.#012Do#012# /sbin/restorecon -v /var/www/html/myweb#012#012*****  Plugin httpd_unified (7.83 confidence) suggests   *********************#012#012If you want to allow httpd to execute cgi scripts and to unify HTTPD handling of all content files.#012Then you must tell SELinux about this by enabling the 'httpd_unified' and 'http_enable_cgi' booleans#012Do#012# setsebool -P httpd_unified=1 httpd_enable_cgi=1#012#012*****  Plugin catchall (1.41 confidence) suggests   **************************#012#012If you believe that httpd should be allowed getattr access on the myweb file by default.#012Then you should report this as a bug.#012You can generate a local policy module to allow this access.#012Do#012allow this access for now by executing:#012# ausearch -c 'httpd' --raw | audit2allow -M my-httpd#012# semodule -X 300 -i my-httpd.pp#012
+
+Aug 30 18:05:22 server setroubleshoot[63904]: SELinux is preventing /usr/sbin/httpd from getattr access on the file /var/www/html/myweb. 
+
+For complete SELinux messages run: sealert -l d2c255fb-3588-4d5b-b03d-13dccb8546b4
+
+Aug 30 18:05:22 server setroubleshoot[63904]: SELinux is preventing /usr/sbin/httpd from getattr access on the file /var/www/html/myweb.#012#012*****  Plugin restorecon (92.2 confidence) suggests   ************************#012#012If you want to fix the label. #012/var/www/html/myweb default label should be httpd_sys_content_t.#012Then you can run restorecon. The access attempt may have been stopped due to insufficient permissions to access a parent directory in which case try to change the following command accordingly.#012Do#012# /sbin/restorecon -v /var/www/html/myweb#012#012*****  Plugin httpd_unified (7.83 confidence) suggests   *********************#012#012If you want to allow httpd to execute cgi scripts and to unify HTTPD handling of all content files.#012Then you must tell SELinux about this by enabling the 'httpd_unified' and 'http_enable_cgi' booleans#012Do#012# setsebool -P httpd_unified=1 httpd_enable_cgi=1#012#012*****  Plugin catchall (1.41 confidence) suggests   **************************#012#012If you believe that httpd should be allowed getattr access on the myweb file by default.#012Then you should report this as a bug.#012You can generate a local policy module to allow this access.#012Do#012allow this access for now by executing:#012# ausearch -c 'httpd' --raw | audit2allow -M my-httpd#012# semodule -X 300 -i my-httpd.pp#012
+
+
+- as we see it tells us that the SELinux prevent to access that file and give us that message to try to solve the problem
+
+For complete SELinux messages run: sealert -l d2c255fb-3588-4d5b-b03d-13dccb8546b4
+                                          ⬆️        ⬆️          
+                                                   the UUID of the incedint
+
+4- run command : sealert -l UUID  to come with agreat info about what happend and how to solve 
+
+
+[root@server conf]# sealert -l d2c255fb-3588-4d5b-b03d-13dccb8546b4
+SELinux is preventing /usr/sbin/httpd from getattr access on the file /var/www/html/myweb.
+
+*****  Plugin restorecon (92.2 confidence) suggests   ************************
+
+If you want to fix the label.
+/var/www/html/myweb default label should be httpd_sys_content_t.
+Then you can run restorecon. The access attempt may have been stopped due to insufficient permissions to access a parent directory in which case try to change the following command accordingly.
+Do
+# /sbin/restorecon -v /var/www/html/myweb
+
+*****  Plugin httpd_unified (7.83 confidence) suggests   *********************
+
+If you want to allow httpd to execute cgi scripts and to unify HTTPD handling of all content files.
+Then you must tell SELinux about this by enabling the 'httpd_unified' and 'http_enable_cgi' booleans
+Do
+# setsebool -P httpd_unified=1 httpd_enable_cgi=1
+
+*****  Plugin catchall (1.41 confidence) suggests   **************************
+
+If you believe that httpd should be allowed getattr access on the myweb file by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c 'httpd' --raw | audit2allow -M my-httpd
+# semodule -X 300 -i my-httpd.pp
+
+
+Additional Information:
+Source Context                system_u:system_r:httpd_t:s0
+Target Context                unconfined_u:object_r:admin_home_t:s0
+Target Objects                /var/www/html/myweb [ file ]
+Source                        httpd
+Source Path                   /usr/sbin/httpd
+Port                          <Unknown>
+Host                          server.medo.com
+Source RPM Packages           httpd-core-2.4.57-8.el9.x86_64
+Target RPM Packages
+SELinux Policy RPM            selinux-policy-targeted-38.1.35-2.el9_4.2.noarch
+Local Policy RPM              selinux-policy-targeted-38.1.35-2.el9_4.2.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     server.medo.com
+Platform                      Linux server.medo.com 5.14.0-427.22.1.el9_4.x86_64
+                              #1 SMP PREEMPT_DYNAMIC Mon Jun 10 09:23:36 EDT
+                              2024 x86_64 x86_64
+Alert Count                   6
+First Seen                    2024-08-30 17:55:44 EDT
+Last Seen                     2024-08-30 18:05:20 EDT
+Local ID                      d2c255fb-3588-4d5b-b03d-13dccb8546b4
+
+Raw Audit Messages
+type=AVC msg=audit(1725055520.49:3538): avc:  denied  { getattr } for  pid=63804 comm="httpd" path="/var/www/html/myweb" dev="dm-0" ino=33749087 scontext=system_u:system_r:httpd_t:s0 tcontext=unconfined_u:object_r:admin_home_t:s0 tclass=file permissive=0
+
+
+type=SYSCALL msg=audit(1725055520.49:3538): arch=x86_64 syscall=newfstatat success=no exit=EACCES a0=ffffff9c a1=7feacc010ae0 a2=7fead8f7d8b0 a3=100 items=0 ppid=63566 pid=63804 auid=4294967295 uid=48 gid=48 euid=48 suid=48 fsuid=48 egid=48 sgid=48 fsgid=48 tty=(none) ses=4294967295 comm=httpd exe=/usr/sbin/httpd subj=system_u:system_r:httpd_t:s0 key=(null)
+
+Hash: httpd,httpd_t,admin_home_t,file,getattr
+
+
+
+-----------------------------------------------------------------
+
+- another way to have info about the incedent :
+
+
+[root@server conf]# ausearch -m AVC -ts recent
+
+
+----
+time->Sat Aug 31 00:04:04 2024
+type=PROCTITLE msg=audit(1725077044.674:3564): proctitle=2F7573722F7362696E2F6874747064002D44464F524547524F554E44
+type=SYSCALL msg=audit(1725077044.674:3564): arch=c000003e syscall=262 success=no exit=-13 a0=ffffff9c a1=7feacc0069b8 a2=7fead2ffc8b0 a3=0 items=0 ppid=63566 pid=64005 auid=4294967295 uid=48 gid=48 euid=48 suid=48 fsuid=48 egid=48 sgid=48 fsgid=48 tty=(none) ses=4294967295 comm="httpd" exe="/usr/sbin/httpd" subj=system_u:system_r:httpd_t:s0 key=(null)
+type=AVC msg=audit(1725077044.674:3564): avc:  denied  { getattr } for  pid=64005 comm="httpd" path="/var/www/html/myweb" dev="dm-0" ino=33749087 scontext=system_u:system_r:httpd_t:s0 tcontext=unconfined_u:object_r:admin_home_t:s0 tclass=file permissive=0
+----
+time->Sat Aug 31 00:04:04 2024
+type=PROCTITLE msg=audit(1725077044.676:3565): proctitle=2F7573722F7362696E2F6874747064002D44464F524547524F554E44
+type=SYSCALL msg=audit(1725077044.676:3565): arch=c000003e syscall=262 success=no exit=-13 a0=ffffff9c a1=7feacc006a88 a2=7fead2ffc8b0 a3=100 items=0 ppid=63566 pid=64005 auid=4294967295 uid=48 gid=48 euid=48 suid=48 fsuid=48 egid=48 sgid=48 fsgid=48 tty=(none) ses=4294967295 comm="httpd" exe="/usr/sbin/httpd" subj=system_u:system_r:httpd_t:s0 key=(null)
+type=AVC msg=audit(1725077044.676:3565): avc:  denied  { getattr } for  pid=64005 comm="httpd" path="/var/www/html/myweb" dev="dm-0" ino=33749087 scontext=system_u:system_r:httpd_t:s0 tcontext=unconfined_u:object_r:admin_home_t:s0 tclass=file permissive=0
+
+
+---------------------
+
+- to see info about all alerts we have :
+
+[ command : sealert -a /var/log/audit/audit.log ]
+
+
+------------------------------------------------------------------------------------------------------------------
+
+# we can also see the error from the web consol by the ( cockpit )
+
+- in the section SELinux 
+
+   - SELinux access control errors
+
+

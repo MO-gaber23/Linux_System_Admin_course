@@ -1,0 +1,185 @@
+..............................................49.49-Day-23_History..................................................
+
+
+-evrey thing we write in the terminal is saved in the history 
+
+-NOTE:each user have its own history in file (/root/.bash_history)
+
+
+in kali (.zsh_history)
+
+----
+
+--------------------------------
+TO show the history commands we have :
+
+history 
+
+┌──(root㉿kali)-[/home/mo]
+└─# history
+    1  ifconfig
+    2  nmcli connection show
+    3  ifconfig
+    4  nano /etc/hosts
+    5  firefox
+    6  ping clone.mo.com
+    7  ping  172.28.58.72
+    8  nano /etc/hosts
+    9  ping kali
+   10  ping kali.supsys.com
+   11  ping6 kali.supsys.com
+   12  nano /etc/hosts
+   13  ping6 kali.supsys.com
+
+----------------------------------------
+
+to do the last command : !!
+
+---------
+to do the command number 13 in the history : !13
+
+┌──(root㉿kali)-[/home/mo]
+└─# !13
+
+┌──(root㉿kali)-[/home/mo]
+└─# ping6 kali.supsys.com
+--------------
+
+to do the last command start with letter : !letter
+
+┌──(root㉿kali)-[/home/mo]
+└─# !l
+
+┌──(root㉿kali)-[/home/mo]
+└─# ls  -lah /root/
+
+┌──(root㉿kali)-[/home/mo]
+└─# !man
+
+┌──(root㉿kali)-[/home/mo]
+└─# man users
+
+--------------------------
+
+to do the therd command from the bottom : !-3
+
+┌──(root㉿kali)-[/home/mo]
+└─# !-3
+
+┌──(root㉿kali)-[/home/mo]
+└─# bash ./script
+
+---------------------------------------
+to do the fouth command: !4
+
+┌──(root㉿kali)-[/home/mo]
+└─# !4
+
+┌──(root㉿kali)-[/home/mo]
+└─# nano /etc/hosts
+
+--------------------------------------------------
+
+
+NOTE: your commands stored in the buffer 
+
+after rebooting or loggingout it will be stored in the file (.bash_history)
+
+
+--------------------------------------------------------
+
+to remove the history buffer :
+
+command: history -c
+
+--------------------
+
+to remove the history commands from the file (.bash_history )
+
+
+
+we can override the file with any thing :
+
+echo "" > /root/.bash_history
+
+---------------------
+
+to know the history size : as it saved in system_variable $HISTSIZE
+
+
+we can show with :
+
+command : echo $HISTSIZE
+we can change it so we can increas and dicreas the size
+
+
+┌──(root㉿kali)-[/home/mo]
+└─# echo $HISTSIZE
+1000
+
+------------------------------
+
+to increas the line Ctrl + Shift + +
+
+decreas Ctrl + _
+
+--------------------------------------------
+to new terminal Ctrl + Shift + t
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------
+
+
+
+
+
+
+
+
+
+

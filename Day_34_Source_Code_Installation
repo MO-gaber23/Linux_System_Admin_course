@@ -1,0 +1,96 @@
+............................65.65-Day-34 Source_Code_Installation....................................................
+
+
+
+# today we will creat yum server and make sourc code installation
+
+
+- so we will use an machine as server 
+this server will share its files by https or ftp
+
+to use ftp to share files we have to install pkg ( vsftp )
+[ command : yum install vsftp ]
+
+-NOTE : to make pkg can shared we must host this pkgs with ftp server 
+
+- the ftp server host its files by dir :( /var/ftp/pup/ )
+
+so we could copy pkgs in the dir ( /var/ftp/pub/ ) 
+
+-----------
+
+1-now to make pkgs can be shared we taks an copy into dir 
+( /var/ftp/pub/ )
+
+the pkgs we find it in the iso file in cd-rom we install from it , so we mounted it into ( /mnt/ )
+
+and copy the dir Packages into ( /var/ftp/pub/ )
+
+[root@server ~]# cp -r /mnt/BaseOS/Packages/ /var/ftp/pub/ &
+[1] 11892
+
+--------
+2- now we will create the metadata of the pkgs we have so we will install an pkg ( createrepo )
+# this pkgs will create an xml-files contails the metadata of pkgs in the server 
+
+[command: yum install createrepo ]
+
+# to create metadata for pkgs we have 
+
+[ command : createrepo -v pkgs-path ]
+
+
+[root@server ~]# createrepo -v /var/ftp/pub/Packages/
+11:17:26: Version: 0.20.1 (Features: LegacyWeakdeps )
+11:17:26: Signal handler setup
+11:17:26: Thread pool ready
+Directory walk started
+
+# now we will find an dir named ( repodata ) created in the dir /var/ftp/pub/Packages/
+
+
+[root@server ~]# ls -dhl /var/ftp/pub/Packages/repodata/
+
+drwxr-xr-x. 2 root root 4.0K Jul 10 11:17 /var/ftp/pub/Packages/repodata/
+
+[root@server repodata]# ls
+1a17f82a11290bf9e5d88dae85081ca8c559820a4c932b79b5e160a6ccba4603-primary.sqlite.bz2
+20ee762f9c9da05e3ababb117162a5665d1f6e3b46e85ec01546b88295eda6c1-primary.xml.gz
+3386726f49f0ad5121cda708b961a23ff340219d4ce7278d1c64bec60624e3a9-filelists.xml.gz
+3ea78a93aafe908a979ecfa1db0ca9bff5b479d40308e47ca67f2fa86e2b1bce-filelists.sqlite.bz2
+41d5a14708947bdcb124a4de7102e51d1906f4692a3685bf47a3ea721c07dc65-other.sqlite.bz2
+5ec49a7ca08bf69e2d32663d39abfca90c50e551c0db844637bb34de2ad3b21b-other.xml.gz
+repomd.xml
+
+--------------------------------------------------------------
+
+
+# now we will setup the client 
+# we will make the client to be able to recive packages by ftp protocol
+
+# so we will install ftp-Pkg to the client
+[ command: yum install ftp ]
+
+- now we can connict to the server by the ftp protocole 
+
+- but we must be sure that the firewall will make us can connect by letting the ftp work in its port 
+
+[command : firewall-cmd --add-service=ftp --permanent ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

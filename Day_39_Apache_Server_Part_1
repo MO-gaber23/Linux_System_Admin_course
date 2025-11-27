@@ -1,0 +1,290 @@
+....................................................70.70-Day-39 Apache_Server_Part_1.............................
+
+# apache is an web server 
+
+- web-servers work on port 80 and the secuire one work on port 443;
+
+ 
+- appache is famous as it was the frist web server allow to host many websites on the same  server 
+
+- and one machine can run more than one web-server with apache-server 
+
+
+- its free  and support many language to use on like PHP ,Perl ,ruby ,python 
+
+
+------
+
+NOTE : as the apache sapport larg things it make us nedd to tune it and spacify the use of it 
+
+
+[ example : if i want to run web-server with python language and installed apache with paython and php but we dont use php so if any bugs or valnarbility was found it will make your web-server in dangers ]
+
+ 
+--------------------
+
+# install , start and enable 
+
+[ yum install httpd ]
+
+[ systemctl start --now httpd ]
+
+----------------------------------------
+
+# the apache serve its file from ( /var/www/html/ )
+
+
+- NOTE : we mustmake the firewall allow the service httpd to work and has its own port open
+
+ 
+[ firewall-cmd --add-service=http --permanent ]
+
+---------------------
+
+# the code of our website must located on ( /var/www/html/ )
+
+
+----------------------------------
+
+# the configrations files of the apache will be on ( /etc/httpd/ )
+
+
+- the main conf-file is ( /etc/httpd/conf/httpd.conf )
+
+- its two parts the frist one is for the main website web-server 
+
+the seconde one is for the othe virtual hosts as its make virtual web-servers on the same server to host more than one host website
+
+
+- ServerRoot "/etc/httpd" this whare the configration of the server is.
+
+
+-----------------
+- the second part of the conf-file is :
+
+Dynamic Shared Object (DSO) Support 
+
+
+- to small the size of file ( httpd.conf ) we have an dir to contain anthor config-files witch the main config-file will incloud 
+
+- so the line ( Include conf.modules.d/*.conf ) will come with the other configrations from another files in dir ( conf.modules.d )
+so it incloud any file with .conf extension located on ( modules.d ) 
+
+
+
+[root@localhost httpd]# cd conf.modules.d/
+
+[root@localhost conf.modules.d]# ls
+00-base.conf      00-ssl.conf
+00-brotli.conf    00-systemd.conf
+00-dav.conf       01-cgi.conf
+00-lua.conf       10-fcgid.conf
+00-mpm.conf       10-h2.conf
+00-optional.conf  10-proxy_h2.conf
+00-proxy.conf     README
+
+# the files located on dir ( conf.modules.d ) this file will load the modules of the apache web-server
+
+
+
+---------------------------------
+
+- revers proxy : 
+
+if we have many apache web-server on the data center it will work on uncenterlized ports so insted of being on port 80 for all appache web-servers each one will have its own port to work throghout but the users must connect with port 80 as the apache work on that port
+
+
+so we will have an main server connected with the apache web-servers and whene user want to connect with one of this web-servers it tell the main server witch one he want to connect with and the main connect them 
+
+- it work like NAT as it has an several ports in the network of the servers but it communicat with clients by port 80 as the main one convert them ports into port 80 to be seen by the clients
+
+so the main apache has host name table for its network apache server and work like gateway if user want to connect with server of hostname mostafa.com it will do that 
+
+
+[ it called revers proxy as the user fristly connect to the internet then go to the proxy to connect the apache web-server ]
+
+but in the normal proxy the user must connect to the proxy at frist to see what the user will requst from the internet then determine to connect him or not as it work like filter 
+
+
+
+----------------------------------- 
+
+# in the apache config-file we have three config-parts 
+
+1- global config 
+
+like : 
+[ - user and group will run the apache : as we know any service has its own user and group created with the service ]
+
+[ the port will listen on ]
+
+[ the modules it will loads from files on dir conf.modules.d ]
+
+the config will affect the virtual hostes and the main server in globle forms
+----
+2- Main server config 
+
+like :
+
+[ config for file will serve from ( /var/www/html )]
+
+[ the server admin mail users contact if problem habends ]
+
+[ server-name: like: www.medo.com   and port it would lisen on ]
+
+[ deni access  to file system ]
+
+<Directory />
+    AllowOverride none
+    Require all denied
+</Directory>
+
+[ DocumentRoor "/var/www/html/"]
+
+- to see where the files that server will serve 
+
+[ the dire will be allowed to be accessed by user normaly the dir contains the web site ]
+
+< Directory "/var/www">
+     AllowOverride None
+     # Allow open access:
+     Require all granted
+</Directory>
+
+[ DirectoryIndex : the file that apache will serve if a directory is requested by user]
+- so if we send request any thing from the apache it will search for file named index.html to responds by it to the request
+
+- we can add more indexis to be served by the apache like ( index.php ) to serve the with php files 
+ 
+< ifModule dir_module>
+       DirectoryIndex index.html
+</ifModule>
+
+[ deni the ht files from being seen by the clients ]
+
+- the .ht files is the files contain the access and passwords for the server so we have to not allow clients to see it
+
+<Files ".ht*">
+    Require all denied
+</Files>
+
+[ the errorlogs : to open files resbonsible for the error-logs]
+
+Errorlog "logs/error_log"
+
+- it located on path ( /var/log/httpd/error_log )
+
+
+
+#
+# LogLevel: Control the number of messages logged to the error_log.
+# Possible values include: debug, info, notice, warn, error, crit,
+# alert, emerg.
+#
+LogLevel warn
+
+
+##################################
+
+# tha last config is to include config-files from dir ( conf.d )
+
+[ inclodeOptional conf.d/*.conf ]
+
+witch include any config file with extintion ( .conf )
+
+that ayes to have many configrations without long tall config file as we can partition the configrations on the files 
+
+so each file can do spacific configratikons 
+
+NOTE : this file will be opend one by one as the alfapetical arrangment so we must name at as what we want to run fristly
+
+----------
+# the dir ( conf.d ) contain many configrations files 
+
+[root@server ~]# ls /etc/httpd/conf.d/
+
+autoindex.conf
+manual.conf
+fcgid.conf
+nss.conf
+ipa.conf              
+README
+ipa-kdc-proxy.conf    
+ssl.conf
+ipa-pki-proxy.conf
+
+
+ipa-rewrite.conf
+welcome.conf
+lookup_identity.conf
+
+----------
+# the manual file for the apache web server :
+
+- the manual file inclode the manual page from ( /usr/share/httpd/manual )
+
+- we can find all config we can do in the manual file so we can cp it and use it in config files 
+
+- we can see the manual from the browser by writing ( server-ip/manual )
+
+ 
+------------------------------------
+# and file  :  userdir.conf 
+
+ it allows the apache to serve the http-requists from home directories of users
+
+- to enable to serve from the local users directory  uncomment the var ( UserDir public_html )
+
+- now the any user on the server can serve its http content in dir ( public_html )
+
+- now we will create ( public_html ) by user mo in its home dir with write and execute permissions to the other 
+
+d-wx--xr-x.  2 mo   mo           24 Aug 15 16:09 public_html the x permission will allow the others ( apache to access that dir and see its content )
+
+
+NOTE : the home dir of the user mo have no perm to the others so we will give it ( x )perm 
+
+
+[mo@server ~]$ ls -lad .
+
+drwx------. 25 mo mo 4096 Aug 15 16:09 .
+
+
+[mo@server ~]$ chmod o+x .
+
+ 
+[mo@server ~]$ ls -lad .
+drwx-----x. 25 mo mo 4096 Aug 15 16:09 .
+
+- and don't forgit to restart the apache service httpd
+
+- NOTE : the SElinux will deni to access that apache so we must allow it by setting label for that file with selinux to allow to access it with others
+
+----------------------------------
+
+
+
+ipa-rewrite.conf      
+welcome.conf
+lookup_identity.conf  
+
+
+
+
+
+
+
+
+
+
+
+3- virtual hosts config
+
+
+
+
+
+
+
+
+

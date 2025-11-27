@@ -1,0 +1,142 @@
+.....................................................37.37-Day-18_IPV6_Intro.....................................................................................
+
+
+we can kwno the status of our interface use :
+
+command : mii-tool interface-name
+
+command : ethtool interface-name
+
+                                    
+┌──(root㉿kali)-[/home/mo]
+└─# ethtool eth0
+Settings for eth0:
+	Supported ports: [ TP ]
+	Supported link modes:   1000baseT/Full
+	                        10000baseT/Full
+	Supported pause frame use: No
+	Supports auto-negotiation: No
+	Supported FEC modes: Not reported
+	Advertised link modes:  Not reported
+	Advertised pause frame use: No
+	Advertised auto-negotiation: No
+	Advertised FEC modes: Not reported
+	Speed: 10000Mb/s
+	Duplex: Full
+	Auto-negotiation: off
+	Port: Twisted Pair
+	PHYAD: 0
+	Transceiver: internal
+	MDI-X: Unknown
+	Supports Wake-on: uag
+	Wake-on: d
+	Link detected: yes
+
+ethtool is greater than miitool
+
+--------------
+IPV6
+
+
+ipv4 was 32 bit 
+
+-for broadcast 255.255.255.255 cuse broadcast storm in switches it fail the network with large size files's backets  
+
+SO WE have 4 belion ip address
+
+it partionized into groubs A B C D
+
+and it is not enough now so we come with IPV6
+
+-no of ip was small
+
+---
+ipv6 have 128bit
+
+-its larg ip addres so we have large large number of ip's we can't use all of it 
+
+- it solve the broadcast problems as it use mlticast insted of broadcast so not all devices in the same switch get the same masege
+
+
+- unicast maks device sends backets from the sender device into one device (reciver only)
+so each device to connect to server must initiat its connection 
+ but it has a problem : 
+if we have 4 users send requestes to server and each user work with 3megabit/sec
+
+and server work with 10megabit/sec 
+
+we see that to send data to the all four users we must has server with 12megabit/sec
+
+so it case fail in sending data eficantly.
+
+the solution is to let the routers and switches decide how many user needs data in the network as the server send one copy of the data to switche connected and the swithe 
+
+connected to two routers the two has requested that data so switch will make acopy for the two routers and each router will deside how many copies will make depinding on the number of requstes it have from its network 
+
+so at the end of network if we have switche taks backes od data from router and must make many copies for its user connected with it can has overload and trafic didnt go to users 
+
+this is multicusting
+
+but not all the network from all routers and switches till that switch 
+
+-NOTE : all user must request the same data in the same time like streeming in cctv ,iptv
+
+-NOTE : multicast deal with realtime cams
+
+----------------
+NOTE : in switches the hardware optimized to seds packets of data from interface to another interface so it can overload
+
+-routers depend on software to forward backets from network to another network
+-------------------------------
+-we use unicast in defferent data requests
+
+------------------------------
+broadcast : uses ip 255.255.255.255
+
+to sed data to all users in the same network with switche 
+
+- if abroadcast arived to router -> router drops it as multicust 
+but we can enable multicust to not droped
+
+
+
+-broadcast in switche converted into phisical address as switche work with phisical address in communication 
+
+so 255.255.255.255 converted into -> ff:ff:ff:ff:ff:ff
+
+ to overcome broadcast storm we have to make broadcast conrol in the switche 
+
+
+
+
+
+
+------ 
+
+
+
+NOTE : ther are no broadcast in IPV6
+
+-IPV6 : work with hexadecimal with 8 nodes xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx
+ 
+where x can be from 0 to F
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

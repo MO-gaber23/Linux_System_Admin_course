@@ -1,0 +1,316 @@
+we have three main permission to :
+
+1- the owner of the file who created it 
+
+2- the group that the owner in so any user in that group have thhe same permission like the owner
+
+3- other users 
+
+
+the three main permissions is :
+read   write  execute
+ r       w      x
+
+1        2      4
+
+
+whne we listing file in directory py command: ls -l
+it appere like that 
+
+drwxr-xr-x 13 root root 4096 Feb 17 17:04 fluxion
+
+
+the d in the frist refer to directory
+if it was:
+- it reffer to normal file 
+d directory
+b block device :like disk/partion so its the device the system write and read from block by block
+c char dev    :like keyboard terminal ////////////character by character
+l linked file : shortcut
+ 
+then the permission comes for 
+
+
+fil or dir or link    owner-perm    group-perm     others-perm     link_counter     owner   group      size         date of last access             Name
+d                       rwxr         -xr          -x               13               root    root       4096       Feb 17 17:04                      fluxion
+
+link_counter :refer to how many shortcut for that file hoe many likes of theat file
+
+
+after the permissions we see dot . that refer to selinux to protect that file or directory
+
+
+
+
+
+
+
+
+note that whne permission not given it comes with dash 
+insted of the permission leter
+
+Note/// it need 10 bits for the permissions leters and kind of the file 
+ 
+
+
+
+
+
+
+
+in command we refer to the users by the given leters:
+
+u : for usre or owner
+
+g : for group
+
+o : for other
+
+
+so we can shange permissions for owner group other by:
+command : chmod  u or g or o  +  r or w or x file name
+
+
+for file  help.txt
+we change modes of the others and groups by commands:
+
+
+ chmod o+wx help.txt/     :that change mode of others to write permission
+
+- rw- r--  rwx 13 root root 4096 Feb 17 17:04 help.txt
+
+command :
+
+ chmod g+rwx help.txt
+
+- rw- rwx rwx  1 medo medo 2435 Mar 10 22:16 help.txt
+
+we can change permission for u g o in the same time by commanf
+chmod ugo+rwx file name 
+
+Note :
+to remove permission from u g o insted of useng + use -
+
+chmod u-r name file 
+
+that command make the user cant read that file
+
+
+
+.................................
+
+we can add and remove permission in the same time in on command
+
+
+command: chmod ug+r , o-wx fileName
+
+if i didnt determined wich i will add or remove perm it wil add or remove from the all
+
+chmod -r file name
+ 
+chmod -r mana
+it give:
+d-wx--x--x 10 root root 4096 Feb 18 10:29 mana
+
+chmod +r mana
+it give:
+drwxr-xr-x 10 root root 4096 Feb 18 10:29 mana
+
+
+
+
+
+
+Note : to add perm to u g o and remove from the others :
+command 
+chmod -rwx,o+rwx mana
+it gives:
+
+drwx------ 10 root root 4096 Feb 18 10:29 mana
+
+
+
+
+
+
+
+
+
+to applay changes to the sup files dir in one command us option : -R with the command chmod
+
+
+command :
+chmod -R  g+w mana
+it gaves :
+d---r----- 10 root root 4096 Feb 18 10:29 mana
+and all files dir in will chnged modes too
+drwxr-xr-x 4 root root 4096 Feb 18 10:29 apache
+drwxr-xr-x 2 root root 4096 Feb 18 10:29 crackapd
+drwxr-xr-x 2 root root 4096 Feb 18 10:29 firelamb
+drwxr-xr-x 6 root root 4096 Feb 18 10:35 hostapd-mana
+-rw-r--r-- 1 root root  539 Feb 18 10:29 ISSUE_TEMPLATE.md
+-rwxr-xr-x 1 root root  968 Feb 18 10:29 kali-install.sh
+-rw-r--r-- 1 root root  910 Feb 18 10:29 LICENSE
+-rw-r--r-- 1 root root 2790 Feb 18 10:29 Makefile
+drwxr-xr-x 2 root root 4096 Feb 18 10:35 net-creds
+-rw-r--r-- 1 root root 5156 Feb 18 10:29 Readme.md
+drwxr-xr-x 4 root root 4096 Feb 18 10:29 run-mana
+drwxr-xr-x 4 root root 4096 Feb 18 10:29 sslstrip-hsts
+-rwxr-xr-x 1 root root  990 Feb 18 10:29 ubuntu-install.sh
+
+
+
+
+=========================================================
+to change the owneer chip of dir or file use command:
+command:
+chown userName fileName
+
+to change group own 
+chown username:groupname file naem
+
+i can change the owner group too :
+command:
+chown username:groupname filename
+or
+chown :groupname filename
+0000000000000000000000000000000000000000000000000000000000
+if iam a user not in the ownergroup or not the owner of an file 
+so i have no perm to it put 
+we cann use ther is an special perm named :set user id bit :
+
+
+its allow me to have fun with files only related to me but iam not its owner 
+
+
+like file /etc/shadow iam not the owner to thes file or in shadow group but i can edit my passwrd on it only
+
+as it have the set user id perm
+so i can idet it for me not for any user els 
+⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️
+
+to give that permission (ser user id ):
+
+the file must had exicute permission befor giveing him the set user id
+
+command:
+
+chmod u+xs file1
+dr-sr--r--  2 root Net1 4096 Mar 23 17:38 file1
+
+now the file named file1 have the set user id permission
+its like the owner permission
+.......
+if it wasnot exicutable file it will gave (S) like: 
+  ⬇️ 
+d r-Sr--r--  2 root Net1 4096 Mar 23 17:38 file1
+.............................................................
+
+
+in numarical for set user id add the furth number :
+
+4 to setuser id 
+
+command:
+chmod 7774 file1
+
+............................................................
+
+like set user id we have set group id but for the groups 
+
+to be the groupowners but for the system only not have the privelege of that ownergroup in onther files
+
+
+command :
+chmod g+xs file1
+      ⬇️
+dr-sr-sr--  2 Gaber Gaber 4096 Mar 23 17:38 file1
+
+ 
+when setting roup id on directory it make any file will created in be in the group owner of the dir
+
+............................................................................................................
+
+
+stikybit :
+
+it give perm to read write in dir files but cant delet from it
+ when you are not the owner
+like tmp dir we can read its files write files on but cannot delet from it
+
+
+
+command:
+
+chmod o+xt file1
+         ⬇️ 
+dr-sr-sr-t  2 Gaber Gaber 4096 Mar 23 17:38 file1  
+
+0000000000000000000000000000000000000000000000000000000000000000000000000000
+
+defult permissions
+when i creat dir or file it has an defult perm :
+
+by command: umask  the perm idont need to be 
+
+umask 002
+
+ rwx rwx rw- will be defult of any new one 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

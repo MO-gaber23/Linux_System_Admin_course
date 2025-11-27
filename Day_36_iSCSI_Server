@@ -1,0 +1,360 @@
+.................................................................67.67-Day-36 iSCSI_Server.....................................
+
+
+
+# ISCSI 
+
+- as we have limited disks to access with servers so we compine diskes in rakes and make what we call ( shared storage )
+
+- so now we can access large size of storage by many servers too
+
+-NOTE : if we have VMs in our server and the storage was local we will not have the high avilablety like if we connected to shared storage 
+
+
+-----------------------------
+
+- to do that and connect with the shared storage we have many implemintations
+
+like :
+
+1-fiber channel : need spacifice swetches to work
+
+========
+2-fiber channel over ethernet : dont need spacific switches to work with
+=========================================================
+
+3-iscsi (internet small computer system interface ) ←←←←←←←←←←←←←←←←←←←← : us IP network to connect with servers and transfer data as it use the language of love that used to deal with servers over ip network
+
+so if we have machine connected to storage this storage will appers in that machine like its an local storage 
+
+- that protocole constructed with (internet + commands of data trasfer to disks( scsi ) )
+
+[ iscsi uses TCP at port 3260 ]
+
+
+
+
+
+
+---------------------------------------
+
+# the implementation used in linux to use iscsi is ( LIO )
+
+-we will have client machine and server machine  
+
+- the iscsi server always named ( target )
+
+- the iscsi client alaws named ( initiator )
+
+# we have to install pkg ( targetcli )
+
+[ command : yum install targetcli ]
+
+and start ,enable it.
+
+------------------------------------------
+
+# in the frist we add an scasi disk 
+
+# then make an logical volume from that scasi disk 
+
+=============================
+
+- now we will use targetcli shell :
+
+[ command : targetcli ]
+
+- this shell has its own commands like bash-shell
+
+
+- if we list the files we could find many files to use each one is for different usage like :
+
+
+/> ls
+o- / ..................................... [...]
+  o- backstores .......................... [...] <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<this file is used to save what we export as we can export ( blocks , fileio , pscsi , ramdisk ) so it work like the containar of the storage we export .
+  | o- block .............. [Storage Objects: 0]<<<<<<<< to export block device 
+  | o- fileio ............. [Storage Objects: 0] <<<<<<<<<<<<<<<<<< to export fileio as we can touch file and export it as block device  
+  | o- pscsi .............. [Storage Objects: 0]
+  | o- ramdisk ............ [Storage Objects: 0]
+  o- iscsi ........................ [Targets: 0]
+  o- loopback ..................... [Targets: 0]
+ 
+======================
+ 
+# we can export blocks in the dir ( backstores/block ) by entring that file and do command :
+
+
+[ command : create blocks-name path-of-lv we takes blocks from ]
+
+
+1- [ command : targetcli ]
+
+2- [ enter file ( /backstores/block )]
+
+3- [ command : create blocks-name path-of-device ]
+
+
+/backstores/block> create oracl /dev/data/oracl
+
+- Created block storage object oracl using /dev/data/oracl.
+
+
+/backstores/block> ls
+o- block .................. [Storage Objects: 1]
+  o- oracl  [/dev/data/oracl (3.0GiB) write-thru deactivated]
+    o- alua ................... [ALUA Groups: 1]
+      o- default_tg_pt_gp  [ALUA state: Active/optimized]
+
+
+# now we exporte some blocks in file ( /backstores/block/ ) named oracl
+
+--------------------------------------------------------------------------------
+
+# iscsi servers and client use iqn () to connect and communicate with each others 
+
+
+[ iqn ( iscsi qualified name ) : iqn.date of compny start . revers domain name .servername ]
+
+
+if we have company opend in 5-2013 with domain name mostafa.com ----and server name is storage 
+
+
+
+iqn : iqn.2013-05.com.mostafa.storage
+
+
+------------------------------------------------------
+
+
+# to create iqn 
+
+1- enter file iscasi :
+
+/> cd iscsi
+/iscsi>
+
+2- use command create with our iqn we want to create 
+
+the date is 2024-07 
+
+the domain name : server.medo.com
+
+[command : create iqn.2024-07.com.medo.server ]
+
+/iscsi> create iqn.2024-07.com.medo.server
+
+Created target iqn.2024-07.com.medo.server.
+Created TPG 1.
+Global pref auto_add_default_portal=true
+Created default portal listening on all IPs (0.0.0.0), port 3260.
+
+
+/iscsi> ls
+
+o- iscsi .......................... [Targets: 1]
+  o- iqn.2024-07.com.medo.server ..... [TPGs: 1]
+    o- tpg1 ............. [no-gen-acls, no-auth]
+      o- acls ........................ [ACLs: 0]
+      o- luns ........................ [LUNs: 0]
+      o- portals .................. [Portals: 1]
+        o- 0.0.0.0:3260 ................... [OK]
+
+
+- we see that it created an portal that iscsi use to lestine in with the storage 
+
+# as we know the storage have many interfase so we must have some thing to know witch interface we use 
+
+- to solve that we call the interfaces that listen to iscsi and serve trafice ( portal ) : witch is the gate that iscsi pass throughout 
+
+* in another way portal is the ip that used in listening to iscsi
+
+
+-NOTE : if we add the ip and the port of iscsi trafice it will be called ( portal group )
+
+========================
+- we note that it listen defaultly on all ips 
+============================
+-----------------------------------
+- NOTE : to avoid any client to connect with the storage and come with its data we make ( ACL : Access control list ) to manage the permission of the others in connecting the storage 
+
+we determine the clients with the ( iqn )
+
+-we could find the acls in (/iscsi/iqn. . /tpg1/acls )
+
+============
+
+- we can create an acl for the client on the iscsi server by :
+
+1- accessing the file ( /iscsi/iqn. ./tpg1/acls )
+
+2- using command : create with the iqn of the client 
+
+/iscsi/iqn.20...ver/tpg1/acls> create iqn.2024-0
+7.com.medo.client
+
+Created Node ACL for iqn.2024-07.com.medo.client
+================
+- NOTE : we can set userid and passwd in this acl for client in authenticating to the storage :
+
+1 - at the path (/iscsi/iqn. .server/tpq1/acls/iqn. .client )
+
+/> cd /iscsi/iqn.2024-07.com.medo.server/tpg1/ac
+ls/iqn.2024-07.com.medo.client/
+
+
+2 - use command ( set ) that we can use atributes like ( attribute  auth       global     parameter
+group= ) with it 
+
+- to set userid :
+
+[ command : set auth userid= " user-name" ]
+
+/iscsi/iqn.20...m.medo.client> set auth userid='mohamed'
+Parameter userid is now ''.
+
+/iscsi/iqn.20...m.medo.client> set auth password=redhat
+Parameter password is now 'redhat'.
+
+
+
+
+
+---------------------------------
+
+#now we have to export the plock devices we created 
+
+- so we export it as lun ( logical unit number )
+
+
+
+
+1- access the file ( /iscsi/iqn. . /tpg1/lun )
+
+cd /iscsi/iqn.2024-07.com.medo.server/tpg1/luns
+
+2- use command create with the path of block in the file ( /backstors )
+
+
+[command : create /backstores/block/oracle ]
+
+
+
+/iscsi/iqn.20...ver/tpg1/luns> create /backstores/block/oracl
+Created LUN 0.
+
+Created LUN 0->0 mapping in node ACL iqn.2024-07.com.medo.client
+
+o- / ..................................... [...]
+  o- backstores .......................... [...]
+  | o- block .............. [Storage Objects: 1]
+  | | o- oracl  [/dev/data/oracl (3.0GiB) write-thru activated]
+  | |   o- alua ............... [ALUA Groups: 1]
+  | |     o- default_tg_pt_gp  [ALUA state: Active/optimized]
+  | o- fileio ............. [Storage Objects: 0]
+  | o- pscsi .............. [Storage Objects: 0]
+  | o- ramdisk ............ [Storage Objects: 0]
+  o- iscsi ........................ [Targets: 1]
+  | o- iqn.2024-07.com.medo.server ... [TPGs: 1]
+  |   o- tpg1 ........... [no-gen-acls, no-auth]
+  |     o- acls ...................... [ACLs: 1]
+  |     | o- iqn.2024-07.com.medo.client  [Mapped LUNs: 1]
+  |     |   o- mapped_lun0  [lun0 block/oracl (rw)]
+  |     o- luns ...................... [LUNs: 1]
+  |     | o- lun0  [block/oracl (/dev/data/oracl) (default_tg_pt_gp)]
+  |     o- portals ................ [Portals: 1]
+  |       o- 0.0.0.0:3260 ................. [OK]
+  o- loopback ..................... [Targets: 0]
+
+---------------------------------------------------------------------------------
+
+/iscsi/iqn.20...m.medo.client> exit
+Global pref auto_save_on_exit=true
+Last 10 configs saved in /etc/target/backup/.
+Configuration saved to /etc/target/saveconfig.json
+
+
+- after we exite that shell it will save changes in configration file ( /etc/target/savconfig.jason )
+
+this file writen with java script language 
+
+
+NOTE : after all of this we will find that the service target.service is not working as the firewall block that port ( 3260/tcp )
+
+so we will allow that port to run :
+
+[ command : firewall-cmd --add-port=3260/tcp --permanent ]
+
+
+[root@server ~]# firewall-cmd --add-port=3260/tc
+p --permanent
+success
+
+
+---------------------------------------------------------------------------------------------------
+
+# now we will go to the client to start that service on it 
+
+#1- install ( iscsi-initiator-utils )
+
+[ commamd : yum install iscsi-initiator-utils ]
+
+#2- start service iscsi and enable it 
+[ command : systemctl start --now iscsi ]
+
+
+#3- we must edit the intitiator name as we created iqn for the client in the acls we will set that name at file ( /etc/iscsi/initiatorname.iscsi )
+
+the new one is : iqn.2024-07.com.medo.client
+
+
+#4-  discover  the iscsi server with command: iscsiadm 
+
+[ command : iscsiadm --mode discovrydb --type sendtargets --portal server-ip --discover ]
+
+
+[root@client2 ~]# iscsiadm --mode discovery --type sendtargets --portal 192.168.233.16 --discover
+
+192.168.233.16:3260,1 iqn.2024-07.com.medo.server
+
+-  now it tell us that he found an iscsi server on that ip with iqn :iqn.2024-07.com.medo.server
+
+
+#5- we must set the userid and the passwd to authenticate with the iscsi-server
+
+so access the config file ( /etc/iscsi/iscsid.conf )
+
+at the section of ( set a CHAP username and password) 
+
+uncomment the two lines of userame and password to set it
+
+
+#6- restart the service iscsi 
+
+
+#7- discover the iscsi server with 
+
+[ command : iscsiadm -m discovery -t st -p 192.168.233.16 ]
+
+
+
+[root@client2 ~]#  iscsiadm -m discovery -t st -
+p 192.168.233.16
+192.168.233.16:3260,1 iqn.2024-07.com.medo.server
+
+
+this command will see the target is avilable to authenticat with or not 
+
+and it will save that we scane it in the file ( /var/lib/iscsi/send_targets/192.168.233.16,3260/st_config )
+
+#8- now we will login to the iscsi server by iscsiadm command :
+
+
+[root@client2 ~]# iscsiadm -m node -T iqn.2024-07.com.medo.server -p 192.168.233.16 --login
+
+Logging in to [iface: default, target: iqn.2024-07.com.medo.server, portal: 192.168.233.16,3260]
+iscsiadm: Could not login to [iface: default, target: iqn.2024-07.com.medo.server, portal: 192.168.233.16,3260].
+iscsiadm: initiator reported error (24 - iSCSI login failed due to authorization failure)
+iscsiadm: Could not log into all portals
+
+

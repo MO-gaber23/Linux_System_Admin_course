@@ -1,0 +1,201 @@
+.....................................................30.30-Day-14_Systemd_Targets.........................................................................
+
+
+we have two modes(graphical/commandline)interface
+
+so in starting system the init/systemd call for them 
+
+NOTE : systemd can work with commandline only 
+
+but graphical must work with command line 
+
+
+---------------------------------------------------------------------
+
+targets : is the modes of the systemd
+
+NOTE :in init it called runlevels
+
+
+init has seven runlevels
+
+runlevel zero: for power off(halt)
+
+1 : single user mode used in trubleshooting its allow us to use root without password
+
+2 : for multiuser -gui -nfs servier
+
+3 : for cli -gui(multiusermode/without graphical interface) mainly servers works in this runlevel
+
+4 : unused
+
+5 : multiuser +gui -
+
+6: for reboot
+
+──(root㉿kali)-[/home/mo]
+└─# systemctl set-default multi-user.target
+Created symlink /etc/systemd/system/default.target → /lib/systemd/system/multi-user.target.
+                                                           
+┌──(root㉿kali)-[/home/mo]
+└─# systemctl get-default                  
+multi-user.target
+-------------------------------------------------------------------------
+ 
+targets of the systemd:
+
+multi user target  == runlevel three in init
+
+graphical target   == runlevel five in init
+
+
+rescue target      == runlevel one in init
+
+
+reboot target     ===          6 in init
+
+power-off        ==     0 in init
+
+--------
+
+# we can know the default target in systemd in our machine in booting by  :
+
+[ systemctl get-default ]
+
+──(root㉿kali)-[/home/mo]
+└─# systemctl get-default
+graphical.target
+
+-------------------
+
+# we can set default target in our machin by using :
+
+[ systemctl set-defult ***.target ]
+
+
+──(root㉿kali)-[/home/mo]
+└─# systemctl set-default multi-user.target
+Created symlink /etc/systemd/system/default.target → /lib/systemd/system/multi-user.target.
+                                                           
+┌──(root㉿kali)-[/home/mo]
+└─# systemctl get-default                  
+multi-user.target
+--------------------------------------
+# to know the runlevel you in :
+
+[ command : runlevel ]
+
+──(root㉿kali)-[/home/mo]
+└─# runlevel 
+N 5
+
+N :the last runlevel is not avilable 
+
+---------------------------------------------------
+
+# we can change targets without rebooting machine :
+
+[ command : systemctl isolate the nexttarget.target ]
+
+we now in graphical and we want to turn into multiuser target without rebooting:
+
+
+[ command: systemctl isolate multiuser.target ]
+
+will turn us into multiuser target
+
+┌──(root㉿kali)-[/home/mo]
+└─# runlevel
+3 5
+
+befor isolate we was in multiusertarget and now we in graphical
+
+----------------------------------------------------------------------------
+
+# init command is still in the system so we can change the rnlevel with init :
+
+[ command : init runlevel ]
+
+init 6 to reboot  
+
+...........................................................................................................................
+
+as we know configration files locatied in /etc/
+
+systemd conf-files located in  /usr/lib/systemd/
+
+but we have /etc/systemd/ too 
+
+NOTE :services to start systemctl will make soft link from /usr/lib/systemf/service to -> /etc/systemd/
+
+when disable this service it will remove that soft link from /etc/systemd/
+
+----------
+
+in init :
+
+in runlevel to enable disable service it will rename it like:
+
+S03ssh : reffer to start the service in periority number 03  ssh 
+
+k01cron : kill ,,,,,,,
+
+----------------
+systemd can open service after service of open service if service is was open
+
+like : appache opend after dns or network
+
+--------------------
+
+# to list systemd units:
+
+[ command : systemctl list-units ]
+
+ UNIT                                                                                             LOAD   ACTIVE SUB   >
+  proc-sys-fs-binfmt_misc.automount                                                                loaded active waitin>
+  sys-devices-pci0000:00-0000:00:10.0-host2-target2:0:0-2:0:0:0-block-sda-sda1.device              loaded active plugge>
+  sys-devices-pci0000:00-0000:00:10.0-host2-target2:0:0-2:0:0:0-block-sda-sda2.device              loaded active plugge>
+  sys-devices-pci0000:00-0000:00:10.0-host2-target2:0:0-2:0:0:0-block-sda.device                   loaded active plugge>
+  sys-devices-pci0000:00-0000:00:10.0-host2-target2:0:1-2:0:1:0-block-sdb-sdb1.device              loaded active plugge>
+  sys-devices-pci0000:00-0000:00:10.0-host2-target2:0:1-2:0:1:0-block-sdb-sdb2.device              loaded active plugge>
+  sys-devices-pci0000:00-0000:00:10.0-host2-target2:0:1-2:0:1:0-block-sdb.device                   loaded active plugge>
+  sys-devices-pci0000:00-0000:00:11.0-0000:02:01.0-sound-card0-controlC0.device                    loaded active plugge>
+  sys-devices-pci0000:00-0000:00:11.0-0000:02:03.0-ata3-host3-target3:0:0-3:0:0:0-block-sr0.device loaded active plugge>
+  sys-devices-pci0000:00-0000:00:15.0-0000:03:00.0-net-ens160.device                               loaded active plugge>
+  sys-devices-pci0000:00-0000:00:17.0-0000:13:00.0-net-ens224.device                               loaded active plugge>
+  sys-devices-platform-serial8250-tty-ttyS1.device                                                 loaded active plugge>
+  sys-devices-platform-serial8250-tty-ttyS2.device                                                 loaded active plugge>
+  sys-devices-platform-serial8250-tty-ttyS3.device                                                 loaded active plugge>
+  sys-devices-pnp0-00:05-tty-ttyS0.device                                                          loaded active plugge>
+  sys-devices-virtual-block-dm\x2d0.device                                                         loaded active plugge>
+  sys-devices-virtual-block-dm\x2d1.device                                                         loaded active plugge>
+  sys-devices-virtual-block-dm\x2d2.device                                                         loaded active plugge>
+  sys-devices-virtual-misc-rfkill.device                                                           loaded active plugge>
+  sys-devices-virtual-net-br\x2d10a1eab34b96.device                                      
+-------------------------------------------
+
+# to list unit files use :
+
+[ command : systemctl list-unit-files ]
+
+ 
+
+
+
+
+[root@server graphical.target.wants]# systemctl list-unit-files
+UNIT FILE                                  STATE           PRESET
+proc-sys-fs-binfmt_misc.automount          static          -
+-.mount                                    generated       -
+boot.mount                                 generated       -
+dev-hugepages.mount                        static          -
+dev-mqueue.mount                           static          -
+proc-fs-nfsd.mount                         static          -
+proc-sys-fs-binfmt_misc.mount              disabled        disabled
+run-vmblock\x2dfuse.mount                  enabled         disabled
+sys-fs-fuse-connections.mount              static          -
+sys-kernel-config.mount                    static          -
+sys-kernel-debug.mount                     static          -
+sys-kernel-tracing.mount                   static          -
+tmp.mount                                  disabled        disabled
+var-lib-nfs-rpc_pipefs.mount               static          -

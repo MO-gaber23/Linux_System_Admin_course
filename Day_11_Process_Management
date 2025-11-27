@@ -1,0 +1,504 @@
+....................................................22.22-Day-11_Process_Management.....................................................................
+
+
+what is the proccess ?
+
+if we have pinary file not executed so now is called :programe
+
+when we open it (execute it ) and it taks some ram space and run proccessor it now called a proccess .
+.....................
+--NOTE: 
+as an admin we have to controll that proccess and manage how much it tskes from the proccessor and ram and else
+
+as suspendding proccess terminat , start ,,......
+................................
+
+NOTE : the kernal manage all the proccesses by an id named (proccess id) (pid)
+
+NOTE : each process has (parent id) (ppid) 
+
+.................
+to under stand if we have process in the ram like shell
+
+and we run nano command  ,as the linux work by copy onwrite to copy the space on ram like the parent proccess space allocated 
+
+it will allocat copy space for the new process and run it into it and if it has new space it will allocat it.
+
+or shrink it.
+
+...............
+NOTE : each process will be cutted into pages (small eara in ram) 1mega or smaller
+
+NOTE : programmes used shared liberaries
+
+
+  .............................................
+
+as we have process parent we can terminat the process from its parent if it dosent work well
+
+
+NOTE:
+in real 7
+as the processes takes pid so the frist process is (systemd) pid:1
+
+ pefor it was (init) process in rel 6
+
+it was main process to call other processes
+...................................... 
+
+to show running process in your trminal use:
+
+command :ps
+
+──(root㉿kali)-[/home/mo]
+└─# ps
+    PID TTY          TIME CMD
+   2655 pts/1    00:00:00 sudo
+   2656 pts/1    00:00:00 su
+   2657 pts/1    00:00:01 zsh
+   2958 pts/1    00:00:00 ps
+.................................................
+
+to show running process of all terminals use :
+
+command : ps a
+
+┌──(root㉿kali)-[/home/mo]
+└─# ps a
+    PID TTY      STAT   TIME COMMAND
+   1694 tty2     Ssl+   0:00 /usr/libexec/gdm-x-session --run-scri
+   1696 tty2     Sl+    0:03 /usr/lib/xorg/Xorg vt2 -displayfd 3 -
+   1730 tty2     Sl+    0:00 /usr/libexec/gnome-session-binary
+   2609 pts/0    Ss     0:00 zsh
+   2627 pts/0    S+     0:00 sudo su
+   2655 pts/1    Ss     0:00 sudo su
+   2656 pts/1    S      0:00 su
+   2657 pts/1    S      0:01 zsh
+   2972 pts/1    R+     0:00 ps a
+................................................................................................
+
+to show all the process on your system use :
+
+command : ps aux
+
+──(root㉿kali)-[/home/mo]
+└─# ps aux
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root           1  0.0  0.6 102364 12368 ?        Ss   09:39   0:02 /sbin/init splash
+root           2  0.0  0.0      0     0 ?        S    09:39   0:00 [kthreadd]
+root           3  0.0  0.0      0     0 ?        I<   09:39   0:00 [rcu_gp]
+root           4  0.0  0.0      0     0 ?        I<   09:39   0:00 [rcu_par_gp]
+root           5  0.0  0.0      0     0 ?        I<   09:39   0:00 [slub_flushwq]
+root           6  0.0  0.0      0     0 ?        I<   09:39   0:00 [netns]
+
+it will show you the user of the process ,pid, cpu usage , stat start,...... 
+
+NOTE : ? in filed tty means it work in background.
+...........................................................................................
+
+
+to terminat process :
+
+command kill [pid]
+
+┌──(root㉿kali)-[/home/mo]
+└─# kill  3134 
+
+kill :send signal to the process that has pid (3134) to terminate
+
+ 
+NOTE : to show signal we can send use command :
+
+kill -l 
+
+┌──(root㉿kali)-[/home/mo]
+└─# kill -l    
+HUP 
+
+INT
+
+QUIT
+
+ILL
+
+TRAP
+
+IOT
+
+BUS
+
+FPE
+
+KILL
+
+USR1
+
+SEGV
+
+USR2
+
+PIPE
+
+ALRM
+
+TERM
+
+STKFLT
+
+CHLD
+
+CONT
+
+STOP
+
+TSTP 
+
+TTIN
+
+TTOU
+
+URG
+
+XCPU
+
+XFSZ
+
+VTALRM
+
+PROF
+
+WINCH
+
+POLL
+
+PWR
+
+
+SYS
+
+root@server
+kill -1
+1)
+6)
+1)
+6)
+1)
+6)
+1)
+8)
+3)
+8)
+3)
+8)
+3)
+SIGHIJP
+SIGABRT
+SIGSEGV
+SIGSTKFLT
+SIGTTIN
+SIGVTALRM
+SIGSYS
+SIGRTMIN+4
+SIGRTMIN+9
+2)
+7)
+12)
+17)
+22)
+27)
+34)
+39)
+44)
+59)
+64)
+SIGINT
+3)
+SIGBUS
+8)
+SIGUSR2
+13)
+18)
+SIGCHLD
+SIGTTOU
+23)
+SIGPROF
+28)
+SIGRTMIN
+35)
+SIGRTMIN+5
+40)
+SIGRTMIN+IO 45)
+SIGRTMIN+15 50)
+SIGRTMAX-IO 55)
+SIGRTMAX-5
+60)
+SIGRTMAX
+SIGQUIT
+SIGFPE
+SIGPIPE
+SIGCONT
+SIGURG
+SIGWINCH
+SIGRTMIN+I
+SIGRTMIN+6
+SIGRTMIN+II
+4)
+9)
+14)
+19)
+24)
+29)
+36)
+41)
+46)
+SIGILL
+SIGKILL
+SIGALRM
+SIGSTOP
+SIGXCPU
+SIGIO
+SIGRTMIN+2
+SIGRTMIN+7
+SIGRTMIN+12
+5)
+10)
+15)
+20)
+25)
+30)
+37)
+42)
+47)
+SIGRTMIN+14 49)
+SIGRTMAX-II 54)
+SIGRTMAX-6
+SIGRTMAX-I
+SIGRTMAX-14 51)
+SIGRTMAX-9
+56)
+SIGRTMAX- 4
+61)
+SIGRTMAX-13 52)
+SIGRTMAX-8
+57)
+SIGRTMAX-3
+62)
+SIGTRA
+SIGIJSRI
+SIGTÉRM
+SIGTSTP
+SIGXFSZ
+SIGPV•/R
+SIGRTMIN+3
+SIGRTMIN+8
+SIGRTMIN+13
+SIGRTMAX- 12
+SIGRTMAX-7
+SIGRTMAX-2                                         
+
+
+
+...................................................................................................
+
+
+NOTE :the defulte signal is SIGTERM (to terminat process)
+
+kill pid : is deflute 
+
+................................... 
+
+to forcly kill process use signal number (9) SIGKILL
+
+it used if the process isnot responding
+
+kill -signalnumber pid 
+
+command :
+
+kill -9 6535
+
+...........
+
+signal 1 SIGHUP is used to reload configration file of process
+
+NOTE : dont use signal -9 SIGKILL evry time is if the process was doing some thing important it will kill it without asking it and it can corrabt system or data
+.................................................................................
+
+for more human readable :
+
+ps aux | less
+
+..................................................................................................
+
+
+NOTE :
+
+      to show pid and ppid 
+
+command : ps -ef | less
+
+┌──(root㉿kali)-[/home/mo]
+└─# ps -ef       
+UID          PID    PPID  C STIME TTY          TIME CMD
+root           1       0  0 09:39 ?        00:00:03 /sbin/init spl
+root           2       0  0 09:39 ?        00:00:00 [kthreadd]
+root           3       2  0 09:39 ?        00:00:00 [rcu_gp]
+root           4       2  0 09:39 ?        00:00:00 [rcu_par_gp]
+root           5       2  0 09:39 ?        00:00:00 [slub_flushwq]
+
+
+......................................
+
+? is for demon (back ground process)
+
+......................................................................................................................
+
+
+to tree the processes in your system use command :
+
+command : pstree
+
+┌──(root㉿kali)-[/home/mo]
+└─# pstree
+systemd─┬─ModemManager───2*[{ModemManager}]
+        ├─NetworkManager───2*[{NetworkManager}]
+        ├─accounts-daemon───2*[{accounts-daemon}]
+        ├─colord───2*[{colord}]
+        ├─cron
+        ├─dbus-daemon
+        ├─gdm3─┬─gdm-session-wor─┬─gdm-x-session─┬─Xorg───{Xorg}
+        │      │                 │               ├─gnome-session-+
+        │      │                 │               └─2*[{gdm-x-sess+
+        │      │                 └─2*[{gdm-session-wor}]
+        │      └─2*[{gdm3}]
+        ├─haveged
+        ├─polkitd───2*[{polkitd}]
+        ├─power-profiles-───2*[{power-profiles-}]
+        ├─rtkit-daemon───2*[{rtkit-daemon}]
+
+
+we can pip it into less 
+
+pstree | less
+
+this command will show the tree of processes as it show us the parents and childes of all processes working
+
+........................................................................................
+
+to search about the process id by its name only 
+
+use command : pgrep processname
+
+
+─(root㉿kali)-[/home/mo]
+└─# pgrep firefox
+
+4093
+....................................................................................................
+
+to kill with the process name :
+
+command :pkill processname
+
+NOTE : if we opened more than tap that command (pkill) will kill all of it
+
+but with pid we can kill spacifice tap
+
+.............................................................................................
+
+NOTE:we can run an application in background by writing & in the end of command.
+
+i can return it to the shell
+
+command : fg %number of process in background
+
+
+
+command : jobs  show process in background
+
+ 
+
+
+
+
+NOTE :to puse some command running outputs in terminal use ctr z 
+
+to resume is us command forground: fg
+
+to make it in background by command :bg %number of process in background
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.......................................................................
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

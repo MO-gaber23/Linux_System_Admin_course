@@ -1,0 +1,124 @@
+................................38.38-Day-18_IPV6_Cont..........................................
+
+
+IPV6 : be like  XXXX:XXXX:XXXX:XXXXX:XXXX:XXXX:XXXX:XXXX
+
+
+like : 2001:0000:0000:0200:0011:0073:2110:0001
+
+but that form is diffecult to save in our mind 
+
+so we have to eays it by : 
+
+1- if it have 4 zeros we will erduce it to one zero only
+
+
+like : 2001:0000:0000:0200:0011:0073:2110:0001
+             ⬇️   ⬇️
+       2001:0   :0   :0200:0011:0073:2110:0001
+
+
+----
+2- if we have zero in the frist we can remove it frome the left only
+
+
+ 2001:0   :0   :0200:0011:0073:2110:0001
+
+ 2001:0   :0   :200 :11  :73  :2110: 1
+
+----
+3- if zero come in two digit or more we can remove it if zero come after zero or more we can remove them and but : in ther place
+
+
+ 2001:0   :0   :0200:0011:0073:2110:0001
+
+ 2001::0200:0011:0073:2110:0001
+----
+
+ex :
+
+2001:0000:0000:007e:0000:0000:0000:0011
+
+2001:0:0:7e:0:0:0:11
+
+2011::7e:0:0:0:11
+
+or 2001:0:0:7e::11
+
+NOTE: we can not use method three more than one time 
+
+--------------
+
+NOTE: any interface we have will make IPV6 automaticaly by using MAC-Address of your nic card
+
+by IANA and will be Fe80:/64
+
+
+the mac address is 48 bit like:
+
+00:11:22:aa:bb:cc
+
+so we will add fe80 at the left side and fffe at the midell
+
+fe80::02:0011:22ff:feaa:bbcc
+
+we see that we will complet ip with 0000:0000:0000
+
+we see the ::and we will convert the binary value of the second hexvalue from the right into 1
+
+so hex value will be 2 and reduces zeros
+
+it will be like :  fe80::02:0011:22ff:feaa:bbcc
+
+----
+ex change to ipv6 the mac address is :
+ 00:48:1c:1b:bc:87
+
+we will add fffe at middle
+
+0048:1cff:fe1b:bc87
+
+and add fe80 at left 
+
+fe80::0048:1cff:fe1b:bc87
+
+we have three zeros 
+
+now we will use binary value of 0048 -> 0000 0000 0100 1000
+
+and change the seven binary value from zero to one or revers so it would be -> 0000 0000 0110 1000 ->   68 in hex
+
+
+the ip would be
+
+fe80::68:1cff:fe1b:bc87
+
+
+
+
+
+---
+we must know that it will work in layer two domain so it work link local in its network only its not reachable to routers
+
+so if we have network of one router and two switches each switche has its users so link local that users work in means that users in switche one can see and send to each other but not see or send to the users in switche two connected with the router
+
+----
+
+NOTE :  if we hve no dhcp the machine will use APIPA  to creat its ipv4 start with 169.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

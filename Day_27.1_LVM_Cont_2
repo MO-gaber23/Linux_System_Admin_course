@@ -1,0 +1,484 @@
+																							
+[root@fedora /]# lvdisplay --- Logical volume 
+  --- LV Path /dev/data/sampo LV Name sampo VG 
+  Name data LV UUID 
+  yfgzpq-DCpL-8blM-XN23-lIY3-FICt-3RelgT LV 
+  Write Access read/write LV Creation host, 
+  time fedora, 2024-06-24 02:47:27 -0400 LV 
+  snapshot status source of
+                         sampo-snapshot [active]
+  LV Status              available
+  # open                 1
+  LV Size                15.00 GiB
+  Current LE             3840
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     1024
+  Block device           253:0
+
+  --- Logical volume ---
+  LV Path                /dev/data/sampo-snapshot
+  LV Name                sampo-snapshot
+  VG Name                data
+  LV UUID                BCe9UC-VcGX-eKB9-Agd9-yEVx-ldJ4-0j3Jle
+  LV Write Access        read/write
+  LV Creation host, time fedora, 2024-06-24 03:47:27 -0400
+  LV snapshot status     active destination for sampo
+  LV Status              available
+  # open                 0
+  LV Size                15.00 GiB
+  Current LE             3840
+  COW-table size         2.00 GiB
+  COW-table LE           512
+  Allocated to snapshot  93.89%
+  Snapshot chunk size    4.00 KiB
+  Segments               2
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     1024
+  Block device           253:3
+[root@fedora /]# lvdisplay
+  --- Logical volume ---
+  LV Path                /dev/data/sampo
+  LV Name                sampo
+  VG Name                data
+  LV UUID                yfgzpq-DCpL-8blM-XN23-lIY3-FICt-3RelgT
+  LV Write Access        read/write
+  LV Creation host, time fedora, 2024-06-24 02:47:27 -0400
+  LV snapshot status     source of
+                         sampo-snapshot [active]
+  LV Status              available
+  # open                 1
+  LV Size                15.00 GiB
+  Current LE             3840
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     1024
+  Block device           253:0
+
+  --- Logical volume ---
+  LV Path                /dev/data/sampo-snapshot
+  LV Name                sampo-snapshot
+  VG Name                data
+  LV UUID                BCe9UC-VcGX-eKB9-Agd9-yEVx-ldJ4-0j3Jle
+  LV Write Access        read/write
+  LV Creation host, time fedora, 2024-06-24 03:47:27 -0400
+  LV snapshot status     active destination for sampo
+  LV Status              available
+  # open                 0
+  LV Size                15.00 GiB
+  Current LE             3840
+  COW-table size         2.00 GiB
+  COW-table LE           512
+  Allocated to snapshot  93.89%
+  Snapshot chunk size    4.00 KiB
+  Segments               2
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     1024
+  Block device           253:3........................................ nano Day_27_LVM_Cont............................................................
+
+# LVM cut the disks that contract the LV into strips each is 4 Mega 
+
+
+# LVM will write data on strips one by one from the frist strip to the last one in the LV wither them in disk one or the two as if we have 4 disks converted into PV to make LV the writing data will start with the frist strip in disk one to finish all strips in that disk so will move toward the next strips in the next disk
+
+
+[it's not good to writ data to finish all strips we have in the disk to move into onther strips in another disk so if disk one failed all data written into it will die ]
+
+[-so the best way in storing data in the LV is to write data on strips of deffirent disks like taking strip in the disk one then strip in the disk two thin the strip in the disk three so insted of sending 25Mega to one disk that will take more time we send that 25Mega into the four disks it saves time]
+
+
+NOTE: the frist way in storing data called (linear) 
+
+NOTE: the second way in storing data called (striping) 
+
+
+NOTE: the second way give us higer i/o
+
+
+---------------------------------------------------------------------------------------------------
+
+
+# - to make it write data in (striping method):
+
+- in creating LV we use opition -i that determin the disks that we will distributs the strips on :
+
+
+[lvcreate --size 15G --name sampo_alaganpo -i 4 data ]
+
+
+- so in the last command we will find 
+that we will distribe strips in four 
+disks
+
+
+[root@fedora sudo]# lvcreate --size 15G --name sampo -
+i 4 data
+  Using default stripesize 64.00 KiB.
+  Logical volume "sampo" created.
+
+--------------
+[root@fedora /]# lvdisplay
+  --- Logical volume ---
+  LV Path                /dev/data/sampo
+  LV Name                sampo
+  VG Name                data
+  LV UUID                yfgzpq-DCpL-8blM-XN23-lIY3-FICt-3RelgT
+  LV Write Access        read/write
+  LV Creation host, time fedora, 2024-06-24 02:47:27 -0400
+  LV snapshot status     source of
+                         sampo-snapshot [active]
+  LV Status              available
+  # open                 1
+  LV Size                15.00 GiB
+  Current LE             3840
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     1024
+  Block device           253:0
+
+  --- Logical volume ---
+  LV Path                /dev/data/sampo-snapshot
+  LV Name                sampo-snapshot
+  VG Name                data
+  LV UUID                BCe9UC-VcGX-eKB9-Agd9-yEVx-ldJ4-0j3Jle
+  LV Write Access        read/write
+  LV Creation host, time fedora, 2024-06-24 03:47:27 -0400
+  LV snapshot status     active destination for sampo
+  LV Status              available
+  # open                 0
+  LV Size                15.00 GiB
+  Current LE             3840
+  COW-table size         2.00 GiB
+  COW-table LE           512
+  Allocated to snapshot  93.89%
+  Snapshot chunk size    4.00 KiB
+  Segments               2
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     1024
+  Block device           253:3
+[root@fedora /]# lvdisplay
+  --- Logical volume ---
+  LV Path                /dev/data/sampo
+  LV Name                sampo
+  VG Name                data
+  LV UUID                yfgzpq-DCpL-8blM-XN23-lIY3-FICt-3RelgT
+  LV Write Access        read/write
+  LV Creation host, time fedora, 2024-06-24 02:47:27 -0400
+  LV snapshot status     source of
+                         sampo-snapshot [active]
+  LV Status              available
+  # open                 1
+  LV Size                15.00 GiB
+  Current LE             3840
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     1024
+  Block device           253:0
+
+  --- Logical volume ---
+  LV Path                /dev/data/sampo-snapshot
+  LV Name                sampo-snapshot
+  VG Name                data
+  LV UUID                BCe9UC-VcGX-eKB9-Agd9-yEVx-ldJ4-0j3Jle
+  LV Write Access        read/write
+  LV Creation host, time fedora, 2024-06-24 03:47:27 -0400
+  LV snapshot status     active destination for sampo
+  LV Status              available
+  # open                 0
+  LV Size                15.00 GiB
+  Current LE             3840
+  COW-table size         2.00 GiB
+  COW-table LE           512
+  Allocated to snapshot  93.89%
+  Snapshot chunk size    4.00 KiB
+  Segments               2
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     1024
+  Block device           253:3
+[root@fedora /]# lvdisplay
+  --- Logical volume ---
+  LV Path                /dev/data/sampo
+  LV Name                sampo
+  VG Name                data
+  LV UUID                yfgzpq-DCpL-8blM-XN23-lIY3-FICt-3RelgT
+  LV Write Access        read/write
+  LV Creation host, time fedora, 2024-06-24 02:47:27 -0400
+  LV snapshot status     source of
+                         sampo-snapshot [active]
+  LV Status              available
+  # open                 1
+  LV Size                15.00 GiB
+  Current LE             3840
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     1024
+  Block device           253:0
+
+  --- Logical volume ---
+  LV Path                /dev/data/sampo-snapshot
+  LV Name                sampo-snapshot
+  VG Name                data
+  LV UUID                BCe9UC-VcGX-eKB9-Agd9-yEVx-ldJ4-0j3Jle
+  LV Write Access        read/write
+  LV Creation host, time fedora, 2024-06-24 03:47:27 -0400
+  LV snapshot status     active destination for sampo
+  LV Status              available
+  # open                 0
+  LV Size                15.00 GiB
+  Current LE             3840
+  COW-table size         2.00 GiB
+  COW-table LE           512
+  Allocated to snapshot  93.89%
+  Snapshot chunk size    4.00 KiB
+  Segments               2
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     1024
+  Block device           253:3
+
+- to see the maping of the LV :
+
+command : lvdisplay -m path
+
+[root@fedora sudo]# lvdisplay -m /dev/data/sampo
+  --- Logical volume ---
+  LV Path                /dev/data/sampo
+  LV Name                sampo
+  VG Name                data
+  LV UUID                yfgzpq-DCpL-8blM-XN23-lIY3-FICt-3RelgT
+  LV Write Access        read/write
+  LV Creation host, time fedora, 2024-06-24 02:47:27 -0400
+  LV Status              available
+  # open                 0
+  LV Size                15.00 GiB
+  Current LE             3840
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     1024
+  Block device           253:0
+
+  --- Segments ---
+  Logical extents 0 to 3839:
+    Type                striped
+    Stripes             4
+    Stripe size         64.00 KiB
+    Stripe 0:
+      Physical volume   /dev/sdb
+      Physical extents  0 to 959
+    Stripe 1:
+      Physical volume   /dev/sdc
+      Physical extents  0 to 959
+    Stripe 2:
+      Physical volume   /dev/sdd
+      Physical extents  0 to 959
+    Stripe 3:
+      Physical volume   /dev/sde
+      Physical extents  0 to 959
+
+
+# NOTE : here we will see some info about the striping we make on the lv for each disk 
+
+[ no we will write data on the four disks not on one to end then move to next disk]
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+[LV Snapshute]
+
+- in resizeng LV or writeng data on the LV and fear of LV corrapte we can take snapeshot to it and write data then we can (revert , merge ) that snapshot
+
+- revert /merge : is to discard  the change on the copy and return to the time befor any changes 
+
+- or we can let the data written and descard the snapshot
+
+# NOTE: we take the snapsot for the data written only in tha volume
+like if we have volume of 15G has 5G of data written so the snapshot will be for that size of data only or much bigger
+
+---------------------
+
+# to make snapshot  we can do it with command : 
+[lvcreate --size  --name --snapshot path of the LV we want to copy ]
+
+
+
+
+[root@fedora /]# du -sh /data/
+1.3G    /data/
+
+
+
+[root@fedora /]# lvcreate --size 2G --name sampo-snaps
+hot  --snapshot /dev/data/sampo
+  Logical volume "sampo-snapshot" created.
+
+[in our LV ther 1.3G written so we create snapshot of 2G ]
+
+
+info :
+
+
+
+[root@fedora /]# lvdisplay
+  --- Logical volume ---
+  LV Path                /dev/data/sampo
+  LV Name                sampo
+  VG Name                data
+  LV UUID                yfgzpq-DCpL-8blM-XN23-lIY3-FICt-3RelgT
+  LV Write Access        read/write
+  LV Creation host, time fedora, 2024-06-24 02:47:27 -0400
+  LV snapshot status     source of
+                         sampo-snapshot [active]
+  LV Status              available
+  # open                 1
+  LV Size                15.00 GiB
+  Current LE             3840
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     1024
+  Block device           253:0
+
+  --- Logical volume ---
+  LV Path                /dev/data/sampo-snapshot
+  LV Name                sampo-snapshot
+  VG Name                data
+  LV UUID                BCe9UC-VcGX-eKB9-Agd9-yEVx-ldJ4-0j3Jle
+  LV Write Access        read/write
+  LV Creation host, time fedora, 2024-06-24 03:47:27 -0400
+  LV snapshot status     active destination for sampo
+  LV Status              available
+  # open                 0
+  LV Size                15.00 GiB
+  Current LE             3840
+  COW-table size         2.00 GiB
+  COW-table LE           512
+  Allocated to snapshot  93.89%
+  Snapshot chunk size    4.00 KiB
+  Segments               2
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     1024
+  Block device           253:3
+
+
+# NOTE: the snapshot will be created in the same (volume-group) path 
+
+so ther must be free space in the volume group to can create the new lv 
+
+or you can create new group from new ph from new disk that is better
+
+
+ 
+
+--------------------------------------------------------------------------------
+
+
+# to restor(merge/revert) snapshot we take 
+
+1- unmount the lv 
+
+
+[root@fedora sudo]# umount /data/
+umount: /data/: not mounted.
+
+2- use command :
+
+[ lvconvert --merge path of the snapshot ]
+
+[root@fedora sudo]# lvconvert --merge /dev/data/
+medo-sodu  snap_shot
+
+[root@fedora sudo]# lvconvert --merge /dev/data/snap_shot
+
+  Merging of volume data/snap_shot started.
+
+  data/medo-sodu: Merged: 100.00%
+
+-------
+#now the data comebacke from the snapshot to 
+#the lv
+
+[root@fedora sudo]# mount /dev/data/medo-sodu /data [root@fedora sudo]# ls /data/ etc 
+lost+found usr 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# snapshot use method named copy in write 
+# (COW)
+
+-:we take snapshot for the original data on 
+the lv but write new data on the snapshot not 
+on the orignal lv
+
+
+as if we have file of 5M so we will stop 
+writing in the original and take snapshot and 
+write new data in the snpshot and point on the 
+original LV and so
+
+-the original will be read only
+------------------------------------------------------------------------------
+
+#NOTE : in taking snapshot we determin the space of data exist on the original and the space of data we will write in 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+# NOTE: we can resize the snapshot to extend it 
+
+-but we can't extend or shrink the original lv till merge snapshot or remove it.
+
+
+---------------------------------------------------------------------------------------------------------------
+
+
+# to make automatic resize to the LVM :
+
+- from the configration file (/etc/lvm/lvm.conf)
+
+in the line of (snapshot_autooextend_threshold=100) change the value to 75 so it will extend the snapshot if the space used is 75% 
+
+
+to determine how much it will extend :
+
+in the line of (snapshot_autoextend_percent =20) it mean it will extend by 20% of the total space 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

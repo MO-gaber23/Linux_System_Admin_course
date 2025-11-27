@@ -1,0 +1,391 @@
+..........................................41.41-Day-20_Network_TSHOOT.....................................
+
+
+frist thing we have to do is : checking phisical connectivity (wires , routers ,switches ) is working or not
+
+
+
+-NOTE: IFCONFIG -A show us the undown interface so it show up interfaces
+
+ ifconfig -a
+eth0: flags=4098<BROADCAST,MULTICAST>  mtu 1500
+        ether 00:0c:29:93:bd:09  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+eth1: flags=4098<BROADCAST,MULTICAST>  mtu 1500
+        ether 00:0c:29:93:bd:13  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 6024  bytes 487440 (476.0 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 6024  bytes 487440 (476.0 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+                                                                  
+--------------
+to show connected interfaces on your machine use :
+
+command :lspci
+
+
+──(root㉿kali)-[/home/mo]
+└─# lspci  
+00:00.0 Host bridge  : Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 01)
+00:01.0 PCI  bridge  : Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 01)
+00:07.0 ISA  bridge  : Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 08)
+00:07.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.3 Bridge       : Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 08)
+
+──(root㉿kali)-[/home/mo]
+└─# lspci | grep -i interface
+00:07.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.7 System peripheral: VMware Virtual Machine Communication Interface (rev 10)
+
+──(root㉿kali)-[/home/mo]
+└─# lspci | grep -i net      
+03:00.0 Ethernet controller: VMware VMXNET3 Ethernet Controller (rev 01)
+13:00.0 Ethernet controller: VMware VMXNET3 Ethernet Controller (rev 01)
+-------------------------
+                      
+-to check connectivity use :
+
+mii-tool interfacename
+
+MII-TOOL(8)                                                                                       Linux System Administrator's Manual                                                                                       MII-TOOL(8)
+
+NAME
+       mii-tool - view, manipulate media-independent interface status
+
+SYNOPSIS
+       mii-tool [-v, --verbose] [-V, --version] [-R, --reset] [-r, --restart] [-w, --watch] [-l, --log] [-A, --advertise=media,...]  [-F, --force=media] [-p, --phy=addr] interface ...
+
+DESCRIPTION
+       This utility checks or sets the status of a network interface's Media Independent Interface (MII) unit.  Most fast ethernet adapters use an MII to autonegotiate link speed and duplex setting.
+
+       Most  intelligent  network  devices  use an autonegotiation protocol to communicate what media technologies they support, and then select the fastest mutually supported media technology.  The -A or --advertise options can be
+       used to tell the MII to only advertise a subset of its capabilities.  Some passive devices, such as single-speed hubs, are unable to autonegotiate.  To handle such devices, the MII protocol also  allows  for  establishing  a
+       link by simply detecting either a 10baseT or 100baseT link beat.  The -F or --force options can be used to force the MII to operate in one mode, instead of autonegotiating.  The -A and -F options are mutually exclusive.
+
+       The default short output reports the negotiated link speed and link status for each interface.
+
+DIAGNOSTICS
+       SIOCGMIIPHY on 'eth?' failed: Invalid argument
+              If the interface is not running (up), kernel will refuse to report its link state.
+
+       SIOCGMIIPHY on 'eth?' failed: Operation not permitted
+              Most kernels restrict access to root.
+
+       SIOCGMIIPHY on 'eth?' failed: No such device
+              This error is shown, if the kernel does not know about the named device.
+
+       SIOCGMIIPHY on 'eth?' failed: Operation not supported
+              The interface in question does not support MII queries. Most likely, it does not have MII transceivers, at all.
+
+------
+──(root㉿kali)-[/home/mo]
+└─# mii-tool eth0  
+SIOCGMIIPHY on 'eth0' failed: Operation not supported
+-----------------------
+so we must cheek is the problem come from the cable or from the port of the interface is up or down 
+
+...............................................................................................................................
+
+2- check if the machine has its (IP)
+
+if we have server with 8 ports
+
+we must cheek all ports have ip by :
+
+ifconfig | grep -i inet
+
+┌──(root㉿kali)-[/home/mo]
+└─# ifconfig | grep -i inet
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+                       
+in our machin we have two ports appears
+----
+
+cheking ipv4 only :
+
+ifconfig | grep "inet "
+
+──(root㉿kali)-[/home/mo]
+└─# ifconfig | grep -i "inet "
+        inet 127.0.0.1  netmask 255.0.0.0
+---------
+
+cheking ipv6 only
+
+ifconfig | grep inet6
+
+──(root㉿kali)-[/home/mo]
+└─# ifconfig | grep -i "inet6 "
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+-----------------
+
+NOTE : the ip and netmusk must be valid                                                                    
+
+like if we have pc has ip 192.168.101.104/32
+
+we note that the subnet mask is 32 so 32 - 32 =0 so 2^0=1
+
+so the pc is in network of one and only host so no one can connect with it 
+
+------
+to overcome that we can use command:
+
+route that will show all data in routing table :
+
+┌──(root㉿kali)-[/home/mo]
+└─# route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         192.168.233.2   0.0.0.0         UG    100    0        0 eth0
+192.168.233.0   0.0.0.0         255.255.255.0   U     100    0        0 eth0
+
+
+the routing table is like the map of the network from it hosts can know the way to commeunicat with and the packet sends to the right destination
+packet forwarding : is to have packets come from interface and will go to another interface (router do that )
+-----------------------------
+-NOTE: we can add and remove from routing table and decide the dns we go into to resolve the names to ip
+
+so we must decide the defult gatway 
+
+command : ip rout add 8.8.8.8/32 via 192.168.233.2
+or
+command : route add default gw 192.168.233.2  
+  
+┌──(root㉿kali)-[/]
+└─# ip route add 8.8.8.8/32 via 192.168.233.1
+                                     
+- as we will see we add destination (google dns) to route from the gateway 192.168.233.2
+
+──(root㉿kali)-[/]
+└─# route -n
+Kernel IP routing table
+Destination     Gateway                          Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         192.168.233.2← default gateway   0.0.0.0         UG    100    0        0 eth0 <- this mean to reach any ip in any network(with any netmask)  use gate-way 192.168.233.2 and interface eth0
+8.8.8.8         192.168.233.1← gate way         255.255.255.255 UGH   0      0        0 eth0
+
+
+-----------
+
+NOTE:the defaulte gateway is the gateway you pass thriugh to any another network or the internet
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+DNS or name server : is an device used to convert names into ip (resolving)to communicate between devices
+
+- we can find public dns on the internet like google dns 
+
+and we can find private dns in or company
+                                              
+-----------
+to configure the dns in our machine we can find the file in (/etc/resolv.conf)
+
+in this file we can do 
+
+1- identyfie the name server we have by writing :
+
+nameserver ip-of-server 
+like :
+
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+nameserver 4.4.2.2
+------
+NOTE : if we write more than one nameserver the system will  use thim one by one to reach the targeted ip 
+
+so system will use nameserver 8.8.8.8 fristly if it not has the ip we want system will  wait to dns timeout and go call nameserver 8.8.4.4 and so 
+
+
+NOTE:in local network we don't have to make (dns) to resolve the names of network hosts as we can set (ip to name) of each host in all hosts
+
+as we have three hosts each one know the name and ip of the other two hosts but it is hard in large local network
+
+the file consists of this is (/etc/hosts)
+
+we find this in:
+
+127.0.0.1       localhost
+127.0.1.1       kali.kall.com   kali
+192.168.233.133
+# The following lines are desirable for IPv6 capable hosts
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+----------------------
+here we can add ip of each machine and its name we can searche by
+
+NOTE: by defualt the system lookfor file (/etc/hosts) fristly in resolving ips
+then go to file /etc/resolve.conf
+
+- as we have file (nsswitch.conf) that determin witch file we looked for fristly 
+
+in section hosts : we can determine witch one go fristly if (fils == /etc/hosts) come fristly if (dns =/etc/resolv.conf) 
+...............................................................................................................................................
+
+NOTE:in troblshooting we must be sure that file (/etc/nsswitch.conf) is wrten correctly
+...............................................................................................................
+
+
+NOTE : we must confeger all networks with networkmanager to work 
+if we edit in netwoking without networkmanager tools it will not stay after rebooting 
+
+....................................................................
+
+-we can add dns to our connection with nmcli after creating connection :
+
+nmcli connection modify con-name ipv4.dns dnsip
+
+                                                                                            
+┌──(root㉿kali)-[/home/mo]
+└─# nmcli connection modify kali ipv4.dns 8.8.8.8
+                                    
+
+-we notes that the dns will not be in the file (/etc/resolv.conf) as it assigned with nmcli 
+
+
+
+but we can find it in tne file (/etc/sysconfig/network-scripts/ifcfg-interfacename)
+
+-------------
+to add more than one dns :
+
+command nmcli connection modify (con-name) +ipv4.dns ip
+
+
+                                                                                             
+┌──(root㉿kali)-[/]
+└─# nmcli connection modify kali +ipv4.dns 8.8.4.4
+                         
+----------------------
+
+-NOTE:we dont use file (/etc/resolv.conf) till we disable the networkmanager
+
+by command : disable NM -network
+
+-------------------------------------
+NOTE :we can make an referince name or nicename for hosts we have by using file (/etc/resolv.conf and write : search the domain name)
+
+we have host named clone.kali.com
+
+so we will write search kali.com
+
+or with networkmanager 
+
+──(root㉿kali)-[/home/mo]
+└─# nmcli connection modify kali ipv4.dns-search kali.com
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------
+the file contains the host name is :
+
+(/etc/hostname)
+
+
+NOTE: we can set hostname by using :
+
+command : hostnamectl set-hostname newhostname
+
+                                                                                                                                                                                                                                            
+┌──(root㉿kali)-[/home/mo]
+└─# hostnamectl set-hostname clone.kali.com
+---------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

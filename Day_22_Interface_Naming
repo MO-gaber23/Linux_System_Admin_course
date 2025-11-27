@@ -1,0 +1,114 @@
+......................................45.45-Day-22_Interface_Naming......................................................
+
+
+in any server we have an port for ssh connection to allow us to controle  and monotring the server remotly 
+from web like remote disktob in windows 
+
+-we can configur the storage in that server 
+
+-we can reboot it and power on or power off
+
+------
+some problem to solve:
+
+in servers we have 4 ports ethernet for VM and 2 fiber to access the storage
+
+
+and 2pors built in to access the operating system  
+
+
+----now we have 8 ports the khazok is witch one will be readen fristly
+
+witch will be eth0 and eth1 and so
+
+the operating system will do unexpected naming
+
+so if we have ports eth0 and eth1 and so in os debian 
+
+if we change to red hat may port eth0 become eth7 and so with the other ones
+
+so that is the unexpected naming.
+
+so to solve that problem we go to the data center and change the cables but its nonusfull if we have large no of server 
+
+
+-:the real solution is the interface naming protocol
+
+that debend on where the port name in the (PIOS) 
+
+as pios will fristly in pooting the machine will search for the interfaces and name it 
+
+we have two types of interfaces :
+
+1- on poard (bult in cards)
+
+will named as eno + numper pios read (ethernet on-board)
+
+
+
+2- external cards connected with bci
+
+will named as ens +  number if we have one port only
+
+if we have more than one port in the external interface :
+
+we will name it like ens +number +p (portnumber)
+
+like (ens1p0) 
+ 
+----------------------------------------------
+
+to list all ports we have and interfaces :
+
+command: lspci | grep -i ether
+
+
+┌──(root㉿kali)-[/home/mo]
+└─# lspci | grep -i ether
+03:00.0 Ethernet controller: VMware VMXNET3 Ethernet Controller (rev 01)
+04:00.0 Ethernet controller: VMware VMXNET3 Ethernet Controller (rev 01)
+0c:00.0 Ethernet controller: VMware VMXNET3 Ethernet Controller (rev 01)
+13:00.0 Ethernet controller: VMware VMXNET3 Ethernet Controller (rev 01)
+1b:00.0 Ethernet controller: VMware VMXNET3 Ethernet Controller (rev 01)
+
+
+
+-------------------------
+
+we have backage named (biosdevname ) used in making kernal see the names of interfaces comming from bios and make apply to it.
+
+---------------------------------
+
+to return to naming like eth0 we must lock biosdwvname in booting the machin:
+
+1- when the machine is booting and menu entry appers click e 
+
+2- go to line linux16
+
+3- at the end of line linux16 add (biosdevname=0 net.ifnames=0)
+
+
+------------------------------------------------------
+
+ to stop and disable NetworkManager :
+
+systemctl stop NetworkManager.servece
+
+systemctl disable NetworkManager
+
+systemctl start network
+
+systemctl enable network
+
+
+
+ 
+ 
+
+
+ 
+
+
+
+
+

@@ -1,0 +1,152 @@
+.............................................23.23-Day-12_Process_Management_Cont..............................................................................................................
+
+
+NOTE : the frist process start is systemd its parent is the kernal 
+
+the kernal is the parent of process kernal thread demon
+
+....................................................................................
+
+processes is two types 
+
+1- for ground
+
+2- background (deamon) in windos called service
+
+NOTE : this deamon has its parent from whre we opend it 
+
+
+if the systemd call it and i opend it from terminal
+
+now if we terminat its parent (terminal ) it wont closed as its parent will be systemd
+
+NOTE : when closing deamon the servece control will pass its parent to systemd to be its new parent
+
+service can work localy or has port to send or recive from internet
+
+
+........................................................................................
+
+we can kill process py its name py command:
+
+pkill process name
+
+┌──(root㉿kali)-[/home/mo]
+└─# pgrep firefox
+3140
+                                                                           
+┌──(root㉿kali)-[/home/mo]
+└─# pkill firefox
+                                                                           
+┌──(root㉿kali)-[/home/mo]
+└─# pgrep firefox
+
+or command:
+
+killall processname
+
+......................................................................................................................................
+
+
+controlling perirety of process :
+
+
+nice valiue :its a value to controle periorty of process in working
+
+it start from -20  to 19
+
+the defult (normal priority) is zero 
+
+the highst priority is -20
+
+the lowst prioroty is 19
+
+NOTE :user can give lowst priority to the process but can't give higst priority to the process
+
+NOTE: as root we can do evry thing
+
+.............................................................................................................
+
+to see how much time your machin was up use command:
+
+
+
+┌──(root㉿kali)-[/home/mo]
+└─# top                  
+
+top - 10:08:21 up 46 min,  2 users,  load average: 0.01, 0.03, 0.00
+Tasks: 279 total,   1 running, 278 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  1.0 us,  1.0 sy,  0.0 ni, 97.8 id,  0.2 wa,  0.0 hi,  0.0 si,  0.
+MiB Mem :   1946.6 total,     73.4 free,   1335.0 used,    538.1 buff/cache
+MiB Swap:    975.0 total,    944.2 free,     30.8 used.    455.9 avail Mem 
+ Unknown command - try 'h' for help 
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ 
+   1681 mo        20   0  354456  80544  53668 S   1.7   4.0   0:08.15 
+   1817 mo        20   0    9084   4388   3856 S   0.7   0.2   0:00.03 
+   1851 mo        20   0 3699588 257436 110440 S   0.7  12.9   0:13.77 
+
+
+NOTE: zombie process is the half dead process so it has a problem and it not responds  and it is not working but consume storage and the cpu  and kernal dont know is it working or notso we use 
+
+kill -9 with it
+
+
+we can kill process with command top is we in top command we stop in the process and click k poton
+
+and use the signal we want
+
+top is like taskmanager in windows
+
+.............................................................................................................
+
+sar stor what happind in the system
+
+..................................................................................................................
+
+ we have tools to buld graves from native values
+
+like rrd tool
+
+gnuplot
+.................................................................................................................
+
+to give nice value for process 
+
+command:
+
+nice -n [nice value] process name
+
+nice -n 15 firefox
+
+...........................................................
+
+to show information like nice values py ps command
+
+we can manage what we need to show in command ps
+
+ps -eo "%p %a %c %n"
+
+
+
+.......................................................................................
+
+NOTE : we can give priority to process when it is working
+
+command :renice -n -newnicevalue pid
+
+ 
+...........................
+NOTE : command nice is used with process that will ran but its terminated now
+
+we use name of process with nice command
+
+
+renice is used with process that is running now 
+
+we use pid of the process in reniceing it
+
+...................................................................................
+
+    
+
+

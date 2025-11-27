@@ -1,0 +1,429 @@
+.................................................29.29-Day-14_Understanding_Systemd....................................29.29-Day-14_Understanding_Systemd...............................................
+
+
+- Systemd (init in REHL6) : is the frist process start with the machin and it call other processes to start
+
+
+
+init:
+
+in init :if it call process it will wait tell it will start after that it will go to another process 
+
+
+like :if it call (ssh) it wait 3 second after it call appach it wait 5 second after it call ftp with 8 second so it taks 16 second to start 
+all this process
+
+-it has init script for each process to start processes from it
+
+like /etc/init.d/apache2 
+
+this file contain shell script so its large and defficult to understand 
+--------------------------------------------------------------------
+systemd: 
+
+in systemd it will start all process in the same time : 
+
+it will send signal for all process at same time so it start in parallel
+
+-it has unit files txet file as var=val
+ 
+like: /etc/systemd
+
+#SpeedMeterIntervalSec=10sec
+#ManageForeignRoutingPolicyRules=yes
+#ManageForeignRoutes=yes
+#RouteTable=
+
+[DHCPv4]
+#DUIDType=vendor
+#DUIDRawData=
+
+[DHCPv6]
+#DUIDType=vendor
+#DUIDRawData=
+........................................................................ 
+
+NOTE: systemd is compataple with init it can run scrips for init 
+
+NOTE: systemd call init that will run scripts for process we want to run like oracle
+
+-NOTE :in  systemd we have one command(systmctl) to do all we want to do but in init we have more commands 
+so its easy to use systemd
+
+NOTE: when writing (systemd) (journald) was writen too so thay are same in more cases
+
+...............................................................................
+
+ journald is used to controle logs in the system
+
+in past we had (syslog) that manag and store logs but it must start to store that logs 
+
+so if any process have started befor (syslog) we willnot know about this service logs
+---------------
+NOTE:to search about logs we use command (journalctl) 
+
+
+
+................................................................................................................................................................
+
+# to kow the status of service (process) use:
+
+[ command : systemctl status servicename ]
+
+──(root㉿kali)-[/]
+└─# systemctl status ssh
+○ ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/lib/systemd/system/ssh.service; disabled; preset:>
+     Active: inactive (dead)
+       Docs: man:sshd(8)
+
+             man:sshd_config(5)
+
+──(root㉿kali)-[/]
+└─# systemctl status apache2
+○ apache2.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2.service; disabled; pre>
+     Active: inactive (dead)
+ 
+      Docs: https://httpd.apache.org/docs/2.4/
+
+
+
+NOTE : service is active refeer to that service is working now but we dont know about activity if we reboot 
+
+NOTE : service enabled refer to that service will work if we reboot machine
+
+
+
+
+                          --------------------------------------------------------
+
+NOTE: any service end with d in its name it referr to deamon as it works in background.
+
+............................................................................................................................................................
+
+
+NOTE: cron is an scheduler service we can use to schedule commands to be ran
+
+...............
+
+# we can disaple services with systemctl by : 
+
+[ command :systemctl disable service-name ]
+
+
+ ──(root㉿kali)-[/home/mo]
+└─# systemctl disable cron  
+Synchronizing state of cron.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install disable cron
+Removed "/etc/systemd/system/multi-user.target.wants/cron.service".
+                                       
+
+
+┌──(root㉿kali)-[/home/mo]
+└─# systemctl status cron   
+● cron.service - Regular background program processing daemon
+     Loaded: loaded (/lib/systemd/system/cron.service; (disabled); preset: en>
+     Active: active (running) since Sun 2024-05-26 16:47:50 EDT; 9min ago
+       Docs: man:cron(8)
+
+\now it become disabled service and if we reboot it willnot run in startup 
+
+......................................................................................................................
+
+# to start service but not change its status enabled or disabled use:
+
+[ command: systemctl start service-name ]
+
+
+┌──(root㉿kali)-[/home/mo]
+└─# systemctl start apache2
+                                                                            
+┌──(root㉿kali)-[/home/mo]
+└─# systemctl status apache2
+● apache2.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2.service; disabled; preset:>
+     Active: active (running) ←←←←←←←←←←←←←←←←←←←←←←←
+--------------------
+
+# NOTE: we can do the same with init by command:
+
+[ service cron status ]
+
+000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+# we can know if the service is enabled or not by :
+
+[ command : systemctl is-enabled serviceName ]
+
+──(root㉿kali)-[/home/mo]
+└─# systemctl is-enabled cron
+enabled
+ 
+
+------------------------------
+# to see activity :
+
+[ command :systemctl is-active cron ]
+
+
+──(root㉿kali)-[/home/mo]
+└─# systemctl is-active cron 
+active
+
+
+...........................................................................................................
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.............................................................................................................
+we can use all of this with systemctl
+ 
+──(root㉿kali)-[/home/mo]
+└─# systemctl 
+Completing unit command
+bind                                 -- Bind mount a path from the host in
+cat                                  -- Show the source unit files and dro
+clean                                -- Remove configuration, state, cache
+help                                 -- Show documentation for specified u
+is-active                            -- Check whether units are active    
+is-failed                            -- Check whether units are failed    
+
+[mo@server work]$ getfacl file_2 | setfacl --set-file=- file_3isolate                              -- Start one unit and stop all others
+kill                                 -- Send signal to processes of a unit
+list-automounts                      -- List automounts                   
+list-dependencies                    -- Show unit dependency tree         
+list-sockets                         -- List sockets                      
+list-timers                          -- List timers                       
+list-units                           -- List units                        
+mount-image                          -- Mount an image from the host into 
+reload                               -- Reload one or more units          
+reload-or-restart                    -- Reload one or more units if possib
+reset-failed                         -- Reset failed state for all, one, o
+restart                              -- Start or restart one or more units
+set-property                         -- Sets one or more properties of a u
+show                                 -- Show properties of one or more uni
+start                                -- Start (activate) one or more units
+status                               -- Show runtime status of one or more
+stop                                 -- Stop (deactivate) one or more unit
+try-reload-or-restart  force-reload  -- Reload one or more units if possib
+try-restart            condrestart   -- Restart one or more units if activ
+Completing machine command
+list-machines  -- List the host and all running local containers
+Completing unit file command
+add-requires     -- Add Requires= dependencies to a unit
+add-wants        -- Add Wants= dependencies to a unit
+disable          -- Disable one or more unit files
+edit             -- Edit one or more unit files
+enable           -- Enable one or more unit files
+get-default      -- Query the default target
+is-enabled       -- Check whether unit files are enabled
+link             -- Link one or more units files into the search path
+list-unit-files  -- List installed unit files
+mask             -- Mask one or more units
+preset-all       -- Enable/disable all unit files based on preset config
+preset           -- Enable/disable one or more unit files based on prese
+reenable         -- Reenable one or more unit files
+revert           -- Revert unit files to their vendor versions
+set-default      -- Set the default target
+unmask           -- Unmask one or more units
+Completing job command
+cancel     -- Cancel all, one, or more jobs
+list-jobs  -- List jobs
+Completing environment command
+import-environment  -- Import environment variables set on the client
+set-environment     -- Set one or more environment variables
+show-environment    -- Dump environment
+unset-environment   -- Unset one or more environment variables
+Completing manager state command
+daemon-reexec      -- Reexecute systemd manager
+daemon-reload      -- Reload systemd manager configuration
+log-level          -- Get or set the log level
+log-target         -- Get or set the log target
+service-watchdogs  -- Get or set the state of software watchdogs
+Completing system command
+default                 -- Enter system default mode
+emergency               -- Enter system emergency mode
+exit                    -- Ask for user instance termination
+halt                    -- Shut down and halt the system
+hibernate               -- Hibernate the system
+hybrid-sleep            -- Hibernate and suspend the system
+is-system-running       -- Query overall status of the system
+kexec                   -- Shut down and reboot the system with kexec
+poweroff                -- Shut down and power-off the system
+reboot                  -- Shut down and reboot the system
+rescue                  -- Enter system rescue mode
+suspend                 -- Suspend the system
+suspend-then-hibernate  -- Suspend the system for a period of time, and 
+switch-root             -- Change root directory
+........................................................................................................................................................................................................
+
+
+NOTE: worist case senario 
+
+if we have two services do the same thing like (apach and enginx) in the same machin :
+
+so we have to use one service only and close and disable the other one 
+
+so we can do some thing better (masking that service) that maks any one than you cannot start that service 
+
+that maks him know that other service is up and running
+
+
+[ systemctl mask service-name ]
+
+.........
+
+┌──(root㉿kali)-[/home/mo]
+└─# systemctl mask cron         
+Created symlink /etc/systemd/system/cron.service → /dev/null.
+                                                  
+-------
+──(root㉿kali)-[/home/mo]
+└─# systemctl status cron
+● cron.service
+     Loaded: masked (Reason: Unit cron.service is masked.)←←←←←←←←←←←←←←←masked
+
+to unmask use :
+
+systemctl unmask service-name
+
+──(root㉿kali)-[/home/mo]
+└─# systemctl unmask cron
+Removed "/etc/systemd/system/cron.service".
+
+-------------------------------------------------------------------------------
+# to list all units of some target :
+
+[ command : systemctl list-unit --type=target ]
+
+q
+~
+~
+[root@server ~]# systemctl list-units --type=target
+  UNIT                   LOAD   ACTIVE SUB    DESCRIPTION
+  basic.target           loaded active active Basic System
+  cryptsetup.target      loaded active active Local Encrypted Volumes
+  dirsrv.target          loaded active active 389 Directory Server
+  getty.target           loaded active active Login Prompts
+  graphical.target       loaded active active Graphical Interface
+  integritysetup.target  loaded active active Local Integrity Protected Volumes
+  local-fs-pre.target    loaded active active Preparation for Local File Systems
+  local-fs.target        loaded active active Local File Systems
+  multi-user.target      loaded active active Multi-User System
+  network-online.target  loaded active active Network is Online
+  network-pre.target     loaded active active Preparation for Network
+  network.target         loaded active active Network
+  nfs-client.target      loaded active active NFS client services
+  nss-lookup.target      loaded active active Host and Network Name Lookups
+  nss-user-lookup.target loaded active active User and Group Name Lookups
+  paths.target           loaded active active Path Units
+  pki-tomcatd.target     loaded active active PKI Tomcat Server
+  remote-fs-pre.target   loaded active active Preparation for Remote File Systems
+  remote-fs.target       loaded active active Remote File Systems
+  rpc_pipefs.target      loaded active active rpc_pipefs.target
+  rpcbind.target         loaded active active RPC Port Mapper
+  slices.target          loaded active active Slice Units
+  sockets.target         loaded active active Socket Units
+  sound.target           loaded active active Sound Card
+  sshd-keygen.target     loaded active active sshd-keygen.target
+  swap.target            loaded active active Swaps
+  sysinit.target         loaded active active System Initialization
+  timers.target          loaded active active Timer Units
+  veritysetup.target     loaded active active Local Verity Protected Volumes
+
+LOAD   = Reflects whether the unit definition was properly loaded.
+ACTIVE = The high-level unit activation state, i.e. generalization of SUB.
+SUB    = The low-level unit activation state, values depend on unit type.
+29 loaded units listed. Pass --all to see loaded but inactive units, too.
+To show all installed unit files use 'systemctl list-unit-files'.
+
+
+
+-----------------------
+# to list all dependencies of any target :
+
+[ command : systemctl list-dependencies target-name.target ]
+
+
+
+[root@server ~]# systemctl list-dependencies multi-user.target
+multi-user.target
+● ├─atd.service
+● ├─auditd.service
+● ├─avahi-daemon.service
+● ├─certmonger.service
+● ├─chronyd.service
+● ├─crond.service
+● ├─cups.path
+● ├─cups.service
+● ├─dhcpd.service
+● ├─firewalld.service
+○ ├─insights-client-boot.service
+● ├─ipa.service
+● ├─irqbalance.service
+● ├─kdump.service
+● ├─libstoragemgmt.service
+● ├─mcelog.service
+○ ├─mdmonitor.service
+● ├─ModemManager.service
+● ├─NetworkManager.service
+● ├─nfs-server.service
+● ├─oddjobd.service
+○ ├─ostree-readonly-sysroot-migration.service
+● ├─plymouth-quit-wait.service
+○ ├─plymouth-quit.service
+● ├─rhsmcertd.service
+● ├─rpcbind.service
+● ├─rsyslog.service
+● ├─run-vmblock\x2dfuse.mount
+○ ├─smartd.service
+● ├─sshd.service
+● ├─sssd.service
+● ├─systemd-ask-password-wall.path
+● ├─systemd-logind.service
+○ ├─systemd-update-utmp-runlevel.service
+● ├─systemd-user-sessions.service
+○ ├─tuned.service
+● ├─vmtoolsd.service
+● ├─vsftpd.service
+● ├─basic.target
+● │ ├─-.mount
+○ │ ├─low-memory-monitor.service
+○ │ ├─microcode.service
+● │ ├─paths.target
+● │ ├─slices.target
+● │ │ ├─-.slice
+● │ │ └─system.slice
+● │ ├─sockets.target
+● │ │ ├─avahi-daemon.socket
+● │ │ ├─cups.socket
+● │ │ ├─dbus.socket
+
+--------------------------------------------
+
+

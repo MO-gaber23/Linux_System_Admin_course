@@ -1,0 +1,126 @@
+.................................................................67.67-Day-36 iSCSI_Server.....................................
+
+
+
+# ISCSI 
+
+- as we have limited disks to access with servers so we compine diskes in rakes and make what we call ( shared storage )
+
+- so now we can access large size of storage by many servers too
+
+-NOTE : if we have VMs in our server and the storage was local we will not have the high avilablety like if we connected to shared storage 
+
+
+-----------------------------
+
+- to do that and connect with the shared storage we have many implemintations
+
+like :
+
+1-fiber channel : need spacifice swetches to work
+
+========
+2-fiber channel over ethernet : dont need spacific switches to work with
+=========================================================
+
+3-iscsi (internet small computer system interface ) ←←←←←←←←←←←←←←←←←←←← : us IP network to connect with servers and transfer data as it use the language of love that used to deal with servers over ip network
+
+so if we have machine connected to storage this storage will appers in that machine like its an local storage 
+
+- that protocole constructed with (internet + commands of data trasfer to disks( scsi ) )
+
+[ iscsi uses TCP at port 3260 ]
+
+
+
+
+
+
+---------------------------------------
+
+# the implementation used in linux to use iscsi is ( LIO )
+
+-we will have client machine and server machine  
+
+- the iscsi server always named ( target )
+
+- the iscsi client alaws named ( initiator )
+
+# we have to install pkg ( targetcli )
+
+[ command : yum install targetcli ]
+
+and start ,enable it.
+
+------------------------------------------
+
+# in the frist we add an scasi disk 
+
+# then make an logical volume from that scasi disk 
+
+=============================
+
+- now we will use targetcli shell :
+
+[ command : targetcli ]
+
+- this shell has its own commands like bash-shell
+
+
+- if we list the files we could find many files to use each one is for different usage like :
+
+
+/> ls
+o- / ..................................... [...]
+  o- backstores .......................... [...] <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<this file is used to save what we export as we can export ( blocks , fileio , pscsi , ramdisk ) so it work like the containar of the storage we export .
+  | o- block .............. [Storage Objects: 0]<<<<<<<< to export block device 
+  | o- fileio ............. [Storage Objects: 0] <<<<<<<<<<<<<<<<<< to export fileio as we can touch file and export it as block device  
+  | o- pscsi .............. [Storage Objects: 0]
+  | o- ramdisk ............ [Storage Objects: 0]
+  o- iscsi ........................ [Targets: 0]
+  o- loopback ..................... [Targets: 0]
+ 
+======================
+ 
+# we can export blocks in the dir ( backstores/block ) by entring that file and do command :
+
+
+[ command : create blocks-name path-of-logicalvolume - we export blocks from it ]
+
+
+/backstores/block> create oracle /dev/data/oracle
+
+Created block storage object oracle using /dev/data/oracle.
+
+
+/backstores/block> ls
+
+o- block .................. [Storage Objects: 1]
+  o- oracle  [/dev/data/oracle (8.0MiB) write-thru deactivated]
+    o- alua ................... [ALUA Groups: 1]
+      o- default_tg_pt_gp  [ALUA state: Active/optimized]
+
+
+/backstores/block> ls
+o- block .................. [Storage Objects: 1]
+  o- oracle  [/dev/data/oracle (8.0MiB) write-thru deactivated]
+    o- alua ................... [ALUA Groups: 1]
+      o- default_tg_pt_gp  [ALUA state: Active/optimized]
+
+# now we could find blocks allocated in the block file .
+
+--------------------
+
+# the iscsi server and client use an unique number like ip-in network communication to communicate with each others 
+
+[ that number is (IQN): Iscsi Qualified Number ]
+
+- syntaks is : iqn.date.reverse-domain-name.server-name
+
+if we have server named storage.medo.com and my compny was opened in 2013-05 so the IQN :
+
+[ { iqn.2013-05.com.medo.storage } ]
+
+-------------------------------
+
+

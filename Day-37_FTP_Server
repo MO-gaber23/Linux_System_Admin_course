@@ -1,0 +1,359 @@
+
+............................................68.68-Day-37 FTP_Server.........................................
+
+
+# at the frist we will see if the serves is installed or not 
+to see installed or not command :
+
+[rpm -qi vsftpd ]
+
+if not installed :
+for server :
+[ command : yum install vsftpd ]
+
+for client:
+
+[ command : yum install ftp ]
+
+###################################
+# to start the services :
+
+[ command : systemctl start --now vsftpd ]
+
+
+IN client :
+
+[ command : systemctl start --now ftp]
+
+################################################################
+
+# see if firewall allow that service 
+
+
+
+[root@server ~]#   firewall-cmd --add-service=ft
+p
+success
+
+
+
+[root@server ~]# firewall-cmd --list-all
+trusted (active)
+  target: ACCEPT
+  icmp-block-inversion: no
+  interfaces: ens224
+  sources:
+  services: ftp <<<<<<<<<<<<<<<<<<<<<<<< 
+
+#####################################################################
+
+# ftp is an server allow us to host files in the server and user can connect from another machine to download that files that the server host
+
+[ ftp work on two ports : port 20 and port 21]
+
+- port 20 : is for control
+- port 21 : is for data transfer
+
+-NOTE : ftp work with (TCP protocol);
+
+------------------------------------------
+- ftp allow users to upload to the ftp-server 
+
+- allow users to access home dirs remotly
+
+ --------------------------------------------------
+
+# now we will try to connect to the server using ( anonymous ) username
+
+ip for server is : 192.168.233.16
+
+
+[root@client ~]# ftp 192.168.233.16
+Connected to 192.168.233.16 (192.168.233.16).
+220 (vsFTPd 3.0.5)
+Name (192.168.233.16:root): anonymous
+331 Please specify the password.
+Password:
+230 Login successful .
+Remote system type is UNIX.
+Using binary mode to transfer files.
+
+# now we connected and can do some command 
+
+ftp> ls
+
+227 Entering Passive Mode (192,168,233,16,204,204).
+150 Here comes the directory listing.
+drwxr-xr-x    3 0        0              22 Jul 10 15:03 pub
+226 Directory send OK.
+
+
+- NOTE  now we are in the ftp shell we can do some commands like ls to list files in the ftp-server
+-NOTE : if we can't connect as anonymous to the server that means the server reject anonyous clients as it configured in file ( /etc/vsftpd/vsftpd.conf ) in line anonymous_enable=NO 
+
+..............
+# to download file from ftp-server we connect with use:
+[ command : get file-name ]
+
+
+------------------------------------------------------------------
+
+# the configration on this file will be an varible assigned to value
+
+
+the var be in smalle litters 
+
+th value be in capital litters
+
+[ NOTE : we can connect with the user-name of users created on the server (local-user on the server) and its passwd ]
+
+- so i have user in the server named gaper so i can connect ftp with that user and the previlege of that user with the system will be applied to the ftp-service too
+-but we will go only to the home dir of that user on the server
+----------------
+# to upload file into the ftp-server we connwcted with use:
+
+
+[ command : put file-path ]
+
+
+NOTE : we can do upload files as the option ( write_enable=Yes ) in the configration file ( /etc/vsftpd/vsftpd.conf ) in the ftp-server.
+
+----
+
+NOTE : the uploaded files permissions depende on the umask of the server and we can set that with the var ( local_umask=022 ) in the config file on the server
+
+----
+
+NOTE : we can find many configration to have with users and anonymus like the upload perm and so.
+
+
+- the conf-file commented with the related configrations we can have
+
+----------------------------------
+
+NOTE : we can change the owner of uploaded files into user on the server with var 
+
+[ ( chown_uploads=YES ) ]
+
+- so to control that we will make special user have no permission on the file-system but related to the ftp-server only we can call him  ( FTP-USER )  with var :
+
+
+[ chown_username= ftp-user-name ]
+
+--------------------------------------------
+
+# we can determine the ftp-server session_timeout to control the time of users session to increas avilablity.
+
+[ idle_session_timeout=300 ]
+
+-------------
+
+# we can controle the connection timeout witch make process of downloads pused after some time and need to resume by the user 
+
+[var : data_connection_timeout=120 ]
+
+to avoid one user to have all pandwidth in dounloading 
+
+---------------------
+# to have more security on that ftp-server we can make it have no privlage to our system so an one attacked the ftp-server will can only work with the ftp-files and can't do any thing on the system of the server
+
+[ var : nopriv_user=ftpsecure ]
+
+----------------------------
+
+# note : in the file ( /etc/vsftpd/users ) we will find the users not allowed to connect with the ftp-server
+
+- we can add not allowed users and remove from that file .
+
+---------------------------------------
+
+# NOTE : ftp-protocole is nonplain-txt encrypted 
+
+  -----------------------------------------
+
+# if we connect with an local user we see that the local user can go to the file system easly unlike anonymous-user 
+
+
+as anonymous :
+
+ftp> cd /
+
+250 Directory successfully changed.
+
+ftp> ls
+
+227 Entering Passive Mode (192,168,233,16,57,92).
+150 Here comes the directory listing.
+drwxr-xr-x    3 0        0              22 Jul 10 15:03 pub
+226 Directory send OK.
+
+- we see anonymous can't see content of the ( / ) dir 
+only see the shared dir located in ( /var/ftp/ ) on the server 
+
+
+
+as local user ( gaper ) :
+
+
+[root@client ~]# ftp 192.168.233.16
+Connected to 192.168.233.16 (192.168.233.16).
+220 (vsFTPd 3.0.5)
+Name (192.168.233.16:root): gaper
+
+331 Please specify the password.
+Password:
+230 Login successful.
+
+- we see what in the home dir of the local user
+
+and access the ( / ) filesystem 
+
+ftp> cd /
+
+250 Directory successfully changed.
+
+ftp> ls
+
+227 Entering Passive Mode (192,168,233,16,94,133).
+150 Here comes the directory listing.
+dr-xr-xr-x    2 0        0               6 Aug 09  2021 afs
+lrwxrwxrwx    1 0        0               7 Aug 09  2021 bin -> usr/bin
+dr-xr-xr-x    5 0        0            4096 Jul 08 21:42 boot
+drwxr-xr-x   21 0        0            3500 Aug 04 06:44 dev
+drwxr-xr-x  158 0        0            8192 Aug 05 08:45 etc
+drwxr-xr-x    6 0        0              55 Aug 01 12:56 home
+lrwxrwxrwx    1 0        0               7 Aug 09  2021 lib -> usr/lib
+lrwxrwxrwx    1 0        0               9 Aug 09  2021 lib64 -> usr/lib64
+drwxr-xr-x    2 0        0               6 Aug 09  2021 media
+drwxr-xr-x    3 0        0              18 Jul 03 19:14 mnt
+drwxr-xr-x    2 0        0               6 Aug 09  2021 opt
+dr-xr-xr-x  430 0        0               0 Aug 04 06:41 proc
+dr-xr-x---    7 0        0            4096 Aug 05 09:59 root
+drwxr-xr-x   57 0        0            1660 Aug 04 06:42 run
+lrwxrwxrwx    1 0        0               8 Aug 09  2021 sbin -> usr/sbin
+drwxr-xr-x    2 0        0               6 Aug 09  2021 srv
+dr-xr-xr-x   13 0        0               0 Aug 04 06:41 sys
+drwxrwxrwt   28 0        0            4096 Aug 05 09:54 tmp
+drwxr-xr-x   12 0        0             144 Jul 03 19:10 usr
+drwxr-xr-x   23 0        0            4096 Jul 18 18:45 var
+drwxrwxrwx    2 1001     1004           18 Jul 08 19:35 work
+226 Directory send OK.
+
+
+- NOTE : to make any one connect as local user can't see the file system and see only in its dir :
+
+set the var :
+
+[ chroot_local_user=YES ]
+
+on the config-file;
+
+if we want to make local users cant see the ( / ) file system
+-------------------------------------------------------
+
+- NOTE: to make some list of chroot users uncomment  
+the var  :
+
+
+[ chroot_list_enable=YES ]
+
+and uncomment var :
+
+[ chroot_list_file=/etc/vsftpd/chroot_list ]
+
+and add user-name that chrooted in the file ( /etc/vsftpd/chroot_list)
+
+
+[root@server ~]# echo gaper > /etc/vsftpd/chroot_list
+
+
+- if the file not exist exist it by yourself .
+
+
+
+[root@client ~]# ftp 192.168.233.16
+Connected to 192.168.233.16 (192.168.233.16).
+220 (vsFTPd 3.0.5)
+
+
+Name (192.168.233.16:root): gaper
+
+331 Please specify the password.
+Password:
+
+230 Login successful.
+
+- now i connected with the user on the chroot_list 
+
+
+and now i can't see the file-system on ( / )
+
+
+- NOTE:  some problem has happined as the user gaper is on the group wheel the group of root users and we set configrations to denie to local user to be root on connecting with ftp it interrubt the server so we must use user not on the sudoers group wheel
+
+- so i will use user1 that is local user on machine server
+
+1- uncomment var
+[ chroot_local_user=NO]
+
+2-uncomment var
+[chroot_list_enable=YES]
+
+3-uncomment var
+
+[ chroot_list=/etc/vsftpd/chroot_list ]
+
+4- add local-username on file  ( chroot_list)
+
+[ echo user1 > /etc/vsftpd/chroot_list ]
+
+5- add to the conf-file the var :
+[ allow_writeable_chroot=YES ]
+
+6- restart vsftpd.servic
+
+-------------------------
+
+another problem :500 OOPS: vsftpd: refusing to run with writable root inside chroot()
+Login failed.
+
+# this problem comes from we not set the var [ allow_writeable_chroot=YES ]
+
+- or by the SELINUX  we will see it soon.
+----
+- now we can connect to ftp-server useing the local-user use1
+
+
+[root@client ~]# ftp 192.168.233.16
+Connected to 192.168.233.16 (192.168.233.16).
+220 (vsFTPd 3.0.5)
+
+Name (192.168.233.16:root): user1 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+331 Please specify the password.
+Password:
+
+230 Login successful.
+
+--------
+- and now he can't see the file system on ( / )
+it only see the content of it's home dir
+
+ftp> cd /
+250 Directory successfully changed.
+ftp> ls
+227 Entering Passive Mode (192,168,233,16,190,110).
+150 Here comes the directory listing.
+drwxr-xr-x  158 0        0            8192 Aug 05 15:29 etc
+-rw-r--r--    1 1001     1004            0 Jul 08 19:15 file1
+-rw-r--r--    1 1001     1004            0 Jul 08 19:22 file2
+226 Directory send OK.
+
+----------------------------------
+
+
+
+
+
+
+

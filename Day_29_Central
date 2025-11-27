@@ -1,0 +1,384 @@
+....................................60.60-Day-29_Central Authentication_IPA.....................................................
+
+[ IPA : Identity , Policy , Audit ]
+
+IPA : is a centralized data base for users 
+
+in some company network this data base can 
+contains users names password and some 
+other data
+
+so it like an directory service (active directory in windows)
+
+
+- so we will have an server that contains 
+Directory service (IPA) connected to the 
+network of that compny
+
+
+- so if any user trayed to connect to any 
+machine in that network this machine will 
+ask the (IPA SERVER) about that user can 
+login or not and its polices ( previleges )
+he have in that network or machines
+
+
+
+- we can install another ( IPA SERVER) work 
+as secondry server takes it polices and 
+data from the primary server and if the 
+primary goes down the secondry server will 
+work insted of the primary server
+so we achive redundancy 
+
+--------------------------------------------------------------
+so we have 
+
+1- an ipa-server :contains users data polices
+
+2- client machins that users try to connect with
+
+3- users try to connect to some machine from any ware ,that machine is an client to the ipa-server so if user try to connect this machine it will ask the ipa-server about his polices and data to authenticat him
+
+
+ 
+
+----------------------------------------------------------------------------------
+
+
+# - we will two machins 
+
+[ frist machine work as server ]
+
+- so this machine have backage of ( free IPA ) installed
+
+ free IPA : is an integrated solution ( central authentication server)  
+
+-it integrat (NTP) to have accurate timeing between machines 
+-it have DNS ,LDAP service,Kerberos service ,Http/s gui
+--------------------------------------------------------------
+
+[ (NTP SERVICE ) : integrat time between machins so the machines that talk to each other must have the same time in the same network]
+
+
+NOTE: time must be syincronized between clint and server in same network as if clint pass any backets it will add time to it determin how mutch it will be can use that backets
+
+
+--------------------------------------------------------------------------------------------------------
+
+
+[DNS : to maks machins connects by its names as it resolve its ip to names]
+
+not mindatory
+------------------------------------------------------
+
+
+[ LDAP : light whigt directory access protocole : this servic is to save all about users as it is the data base like names passwords polices ]
+
+--------------------------------------------------------------------------------------
+
+[HTTP/S gui :management interface to manage evry thing]
+
+
+---------------------------------------------------------------------
+[Kerberos : it's an authentecation system to authenticat users ]
+
+
+you can make your implementation of kerbros as it open source
+
+
+---------------------------------------------------------------------------------------------
+
+
+NOTE: in setup any server give him an ip-address
+
+NOTE: dont let connections with its usual names set meningful names for it 
+---------------------------------------------------------------------------
+
+
+to have ipa :
+
+1- install ipa-clint package in the clint-machine
+
+[command : yum install ipa-clint]
+
+
+2- install ipa-server package in the server-machine
+
+[command : yum install ipa-server]
+
+-------------------------------------------------------------------------------------------------------------
+
+# we must have dns-server or hosts file to resolve names
+
+
+-------------------------------------------
+
+# frit of all we will install the ipa-server
+
+[ command : ipa-server-install --skip-mem-check]
+
+
+The log file for this installation can be found in /var/log/ipaserver-install.log
+==============================================================================
+This program will set up the IPA Server.
+Version 4.11.0
+
+This includes:
+  * Configure a stand-alone CA (dogtag) for certificate management
+  * Configure the NTP client (chronyd)
+  * Create and configure an instance of Directory Server
+  * Create and configure a Kerberos Key Distribution Center (KDC)
+  * Configure Apache (httpd)
+  * Configure SID generation
+  * Configure the KDC to enable PKINIT
+
+To accept the default shown in brackets, press the Enter key.
+
+Do you want to configure integrated DNS (BIND)? [no]: no
+
+Enter the fully qualified domain name of the computer
+on which you're setting up server software. Using the form
+<hostname>.<domainname>
+Example: master.example.com
+
+
+Server host name [server.medo.com]:
+
+The domain name has been determined based on the host name.
+
+Please confirm the domain name [medo.com]:
+
+The kerberos protocol requires a Realm name to be defined.
+This is typically the domain name converted to uppercase.
+
+Please provide a realm name [MEDO.COM]:
+Certain directory server operations require an administrative user.
+This user is referred to as the Directory Manager and has full access
+to the Directory for system management tasks and will be added to the
+instance of directory server created for IPA.
+The password must be at least 8 characters long.
+
+Directory Manager password:            ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←← ←←←←←←←←←←←←←←←← this passwd is to manipulate data base if we want to edite the data base
+Password (confirm):
+
+The IPA server requires an administrative user, named 'admin'.                          ←←←←←←←←←←←←←←←←←←← the ipa server always add that user to work as an addministrator so in setup the ipa-client on the client machine it will ask us about that user-admin (admin) and its passwd
+This user is a regular system account used for IPA server administration.
+
+IPA admin password: ←←←←←←←←←←←← this passwd is used in login to gui
+
+
+
+
+--------------------------------------
+
+
+ 
+Setup complete
+
+Next steps:
+        1. You must make sure these network ports are open:
+                TCP Ports:
+                  * 80, 443: HTTP/HTTPS
+                  * 389, 636: LDAP/LDAPS
+                  * 88, 464: kerberos
+                UDP Ports:
+                  * 88, 464: kerberos
+                  * 123: ntp
+
+        2. You can now obtain a kerberos ticket using the command: 'kinit admin'
+           This ticket will allow you to use the IPA tools (e.g., ipa user-add)
+           and the web user interface.
+
+Be sure to back up the CA certificates stored in /root/cacert.p12
+These files are required to create replicas. The password for these
+files is the Directory Manager password
+The ipa-server-install command was successful
+
+-------------------------------
+# to take an ticket from the kerberos for authentecation 
+[ command: kinit admin ]
+
+
+[root@server ~]# kinit admin
+Password for admin@MEDO.COM: ←←←←←←←←← enter the admin passwd 
+
+- to list the kerberos tekets 
+[ command : klist ]
+
+
+[root@server ~]# klist
+Ticket cache: KCM:0
+Default principal: admin@MEDO.COM
+
+Valid starting       Expires              Service principal
+07/09/2024 12:07:14  07/10/2024 11:29:58  krbtgt/MEDO.COM@MEDO.COM
+
+
+#$ now he give us an ticket avilable for one day only as ( admin )
+
+
+---------------------------------------------------
+
+# to see the ipa status with its services 
+
+[ command : ipactl status ]
+
+
+[root@server ~]# ipactl status
+
+Directory Service   : RUNNING
+krb5kdc Service     : RUNNING
+kadmin Service      : RUNNING
+httpd Service       : RUNNING
+ipa-custodia Service: RUNNING
+pki-tomcatd Service : RUNNING
+ipa-otpd Service    : RUNNING
+ipa: INFO: The ipactl command was successful
+
+
+[ we see that evry thing is running ok ]
+
+-----------------------------------------------------
+
+# to add user into the data base of the ipa-server : 
+
+[ command : ipa user-add user-name ]
+
+
+[root@server ~]# ipa user-add
+First name: client
+Last name: medo
+User login [cmedo]:
+------------------
+Added user "cmedo"
+------------------
+  User login: cmedo
+  First name: client
+  Last name: medo
+  Full name: client medo
+  Display name: client medo
+  Initials: cm
+  Home directory: /home/cmedo
+  GECOS: client medo
+  Login shell: /bin/sh
+  Principal name: cmedo@MEDO.COM
+  Principal alias: cmedo@MEDO.COM
+  Email address: cmedo@medo.com
+  UID: 222800003
+  GID: 222800003
+  Password: False
+  Member of groups: ipausers
+  Kerberos keys available: False
+
+-------
+# now we will add an passwd for that user
+
+[ command : ipa passwd login-name ]
+
+
+[root@server ~]# ipa passwd cmedo
+
+
+New Password:cmedo@123
+Enter New Password again to verify:cmedo@123
+-------------------------------------
+Changed password for "cmedo@MEDO.COM"
+-------------------------------------
+
+----------------------------------------------
+#now we will install the ipa-client on the client machine
+
+
+[ command: ipa-client-install ]
+
+
+
+
+[root@client ~]# ipa-client-install
+This program will set up IPA client.
+Version 4.11.0
+
+DNS discovery failed to determine your DNS domain
+Provide the domain name of your IPA server (ex: example.com): medo.com
+Provide your IPA server name (ex: ipa.example.com): server.medo.com
+The failure to use DNS to find your IPA server indicates that your resolv.conf file is not properly configured.
+Autodiscovery of servers for failover cannot work with this configuration.
+If you proceed with the installation, services will be configured to always access the discovered server for all operations and will not fail over to other servers in case of failure.
+Proceed with fixed values and no DNS discovery? [no]: yes
+Do you want to configure chrony with NTP server or pool address? [no]:yyes
+Enter NTP source server addresses separated by comma, or press Enter to skip:
+Enter a NTP source pool address, or press Enter to skip:
+Client hostname: client.medo.com
+Realm: MEDO.COM
+DNS Domain: medo.com
+IPA Server: server.medo.com
+BaseDN: dc=medo,dc=com
+
+Continue to configure the system with these values? [no]: yes
+Synchronizing time
+No SRV records of NTP servers found and no NTP server or pool address was provided.
+Using default chrony configuration.
+Attempting to sync time with chronyc.
+Process chronyc waitsync failed to sync time!
+Unable to sync time with chrony server, assuming the time is in sync. Please check that 123 UDP port is opened, and any time server is on network.
+User authorized to enroll computers:
+ admin
+Password for admin@MEDO.COM:
+Successfully retrieved CA cert
+    Subject:     CN=Certificate Authority,O=MEDO.COM
+    Issuer:      CN=Certificate Authority,O=MEDO.COM
+    Valid From:  2024-07-09 15:42:39+00:00
+    Valid Until: 2044-07-09 15:42:39+00:00
+
+Systemwide CA database updated.
+DNS query for client.medo.com. A failed: The resolution lifetime expired after 45.211 seconds: Server 8.8.8.8 UDP port 53 answered The DNS operation timed out.; Server 192.168.233.2 UDP port 53 answered The DNS operation timed out.; Server 8.8.8.8 UDP port 53 answered The DNS operation timed out.; Server 192.168.233.2 UDP port 53 answered The DNS operation timed out.
+DNS resolution for hostname client.medo.com failed: The resolution lifetime expired after 45.211 seconds: Server 8.8.8.8 UDP port 53 answered The DNS operation timed out.; Server 192.168.233.2 UDP port 53 answered The DNS operation timed out.; Server 8.8.8.8 UDP port 53 answered The DNS operation timed out.; Server 192.168.233.2 UDP port 53 answered The DNS operation timed out.
+
+---------------
+
+after the complete of installing ipa-clint on the machine ( 192.168.233.159 ) now we can authenticat with that client machine by using user-name and passwd created and saved in the ipa-server
+---------------
+
+# after authenticating to the clint machine : we see that ther is no home dir so we will make one at the client machine
+
+[ command : authconfig --enablemkhomedir ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

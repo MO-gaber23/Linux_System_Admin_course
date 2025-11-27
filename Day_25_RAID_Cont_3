@@ -1,0 +1,276 @@
+..........................................53.53-Day-25_RAID_Cont_3........................................................
+
+
+NOTE: in hard-ware RAID to add disk in the array we must add all of the disk 
+
+as hard ware RAID taks all of the disk 
+
+-in soft-ware RAID  we can use partitions of from the disk to biuld the RAID array 
+
+as soft ware RAID can deal with partitions so we can take partion from disk and another partiton from another disk
+
+
+NOTE: softwar RAID is stable but not efficent lik hardware RAID
+
+
+----------------------------------------
+now we will creat array from partitions of some disks
+
+-so we will creat partition in the disk but :
+
+NOTE: the partiton type must be (RAID partition) to allow add it in RAID array
+
+in the (fdisk) command after creating partition click:
+
+
+(t) to change partiton type : then write (raid)
+
+ommand (m for help): t
+
+Selected partition 1
+
+Hex code or alias (type L to list all): L
+
+
+
+Aliases:
+
+   linux          - 83
+
+   swap           - 82
+
+   extended       - 05
+
+   uefi           - EF
+
+   raid           - FD
+
+   lvm            - 8E
+
+   linuxex        - 85
+
+Hex code or alias (type L to list all): raid
+
+Changed type of partition 'Linux' to 'Linux raid autodetect'.
+
+
+
+Command (m for help): p
+
+Disk /dev/sdb: 15 GiB, 16106127360 bytes, 31457280 sectors
+
+Disk model: VBOX HARDDISK   
+
+Units: sectors of 1 * 512 = 512 bytes
+
+Sector size (logical/physical): 512 bytes / 512 bytes
+
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+Disklabel type: dos
+
+Disk identifier: 0xbd6d884d
+
+
+
+Device     Boot Start      End  Sectors Size Id Type
+
+/dev/sdb1        2048 10487807 10485760   5G fd Linu
+
+
+
+Filesystem/RAID signature on partition 1 will be wiped. <<<<<<<<<<<< we  see now that it is raid partition
+
+
+
+--------------------------------------------------------------------------------------------------------
+
+
+to typr outodetected RAID 
+
+Command (m for help): t
+
+Selected partition 1
+
+Hex code or alias (type L to list all): fd
+
+Changed type of partition 'Linux raid autodetect' to 'Linux raid autodetect'.
+
+
+
+-------------------------------------------------------------------------------------------------------
+
+now we have bartitions of raid type :
+
+
+[root@fedora medo]# lsblk
+
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+
+sda      8:0    0   15G  0 disk 
+
+├─sda1   8:1    0  600M  0 part /boot/efi
+
+├─sda2   8:2    0    1G  0 part /boot
+
+└─sda3   8:3    0 13.4G  0 part /home
+
+                                /
+
+sdb      8:16   0   15G  0 disk 
+
+└─sdb1   8:17   0    5G  0 part <<<<<<<<<<<<<<<<<<
+
+sdc      8:32   0  1.1G  0 disk 
+
+└─sdc1   8:33   0  512M  0 part  <<<<<<<<<<<<<<<<<
+
+sdd      8:48   0  1.5G  0 disk 
+
+zram0  252:0    0  1.9G  0 disk [SWAP]
+
+---------------------------------------------------------------------------
+
+
+-now we will create the raid device and array by mdadm tool:
+
+
+[root@fedora medo]# mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/sdb1 /dev/sdc1
+
+mdadm: Note: this array has metadata at the start and
+
+    may not be suitable as a boot device.  If you plan to
+
+    store '/boot' on this device please ensure that
+
+    your boot-loader understands md/v1.x metadata, or use
+
+    --metadata=0.90
+
+mdadm: largest drive (/dev/sdb1) exceeds size (519168K) by more than 1%
+
+Continue creating array? 
+
+NOTE:this worrning to tell us that data still in the disks and it will remove it 
+----------
+
+Continue creating array? yes
+
+mdadm: Defaulting to version 1.2 metadata
+
+mdadm: array /dev/md0 started.
+
+--------------------------------------------------------------------------------------------------
+
+-NOW WE will make file system in the raid device :
+
+mkfs.ext4 /dev/md0
+
+---------------------------------------------------------------------------------------------------------------------------
+
+now we can mount the raid device md0
+
+[root@fedora medo]# mount /dev/md0 /media/
+
+[root@fedora medo]# lsblk
+
+NAME    MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINTS
+
+sda       8:0    0   15G  0 disk  
+
+├─sda1    8:1    0  600M  0 part  /boot/efi
+
+├─sda2    8:2    0    1G  0 part  /boot
+
+└─sda3    8:3    0 13.4G  0 part  /home
+
+                                  /
+
+sdb       8:16   0   15G  0 disk  
+
+└─sdb1    8:17   0    5G  0 part  
+
+  └─md0   9:0    0  507M  0 raid1 /media
+
+sdc       8:32   0  1.1G  0 disk  
+
+└─sdc1    8:33   0  512M  0 part  
+
+  └─md0   9:0    0  507M  0 raid1 /media
+
+sdd       8:48   0  1.5G  0 disk  
+
+zram0   252:0    0  1.9G  0 disk  [SWAP]
+
+--------------------------------------------------------------------------------------------------------
+
+ 
+NOTE: we can use deffirent partiton spaces and disks to make an array of RAID
+
+
+but we must know that in RAID1 it makes the lowist size disk to mirroring 
+
+
+-----------------------------------------------------------
+
+NOTE: we cann't use partition in two arrays of RAID
+
+ --------------------------------------------------------------------------
+
+
+- in installing operating system we note that it ask to install in
+
+1-normal  hard disk
+
+
+2- RAID array 
+
+3- LVM
+
+
+note: if we chose to install in RAID array in raid device md0
+
+and create new raid device (md1) and reboot 
+
+raid device name will be md127 not md1 as system will taks the frist 127 raid array in instlation
+
+-so in mounting witch device we will mount by md1 or md127 ?
+
+to solve that problem we will mount the created raid device with its array by using UUID of it from command: blkid
+
+mount mount 
+
+
+[root@fedora medo]# mount --uuid 'c249e1ec-fbc7-44de-8bd6-2eb01b57b190' /media/
+
+
+
+
+
+
+
+
+
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

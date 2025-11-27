@@ -1,0 +1,74 @@
+................................................31.31-Day-15_Grub_BootLoader.............................................
+
+NOTE:bootloader will call the kernal
+
+bootloader is two stage :
+
+1-frist stage is 446byte located in MPR
+
+2-second stage located in /boot/ 
+
+-------------
+linux bootloader is called Grub or Grub2 in RHEL7
+
+NOTE: Grub contains in conf-file menuo entry wich is an selection appers in booting the machin from wich we can deside to bootup operating system (linux or windos or mac)
+
+NOTE :any operating system can have more than one kernal as we have mach vergens of kernal 
+
+so we can boot from any kernal we have installed
+ 
+
+-NOTE : each kernal can have its menuo entry 
+
+-NOTE: each kernal have its (initramfs) that contains moduls and drivers
+
+-------------------------
+NOTE :Grub start befor the kernal and name the disks onther names like (hd0 , hd1 ,hd2)
+
+and it name the partitions as like (msdos1 , msdos2 , msdos3)
+
+if we have disk contains MPR and 3 partitions its nams by grub be like 
+
+      ⬇from kernal           ⬇️from Grub
+
+for   sda1        ->        hd0,msdos1
+
+for   sda2        ->        hd0,msdos2
+
+if its gpt not mpr it will be hd0,gpt1
+----------------------------------
+ differenc bet MPR and gpt
+
+MPR : located in the frist of the disk partion and 512 byte and allow to have 4 primary partition ,partition taple is 64byte
+
+so if mpr coraptted the partitions will corrabte too
+
+-each block has address of 32 bit only so each block contains 2 power 32 and each sector is 512 byte so we will have 2 tera byte allowed limite
+so if we have disk has large space than 2tera byte mpr wont read all of it
+
+
+GPT : 
+
+|-allow (128)partitions
+
+search in google 
+
+good zan mpr
+
+NOTE: 
+
+MPR == LBA == msdos
+
+GPT == GUID
+       EFI (extensable firmware interface)
+      UEFI (universal extendable firmware interface)
+---------------------------------------------------
+ 
+to return evrey thing agian if we corrapt grub conf-file we can use command :
+
+grub2-mkconfig -o /boot/grub2/grub.cfg
+
+NOTE: note the name of grub file some times it chang
+
+
+if we reinstall grub or another version of it it will override the conf-file 

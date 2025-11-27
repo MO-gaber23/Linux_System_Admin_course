@@ -1,0 +1,90 @@
+WNote :
+
+
+when using symbols to chang permission like u g o with rwx
+
+
+this method is :sympolic method
+
+
+ther is another method called numerical method :
+
+
+we assigne valuse to the sympoles to use insted:
+
+r = 4
+
+w = 2
+
+x = 1
+
+
+the full numper of rwx is :7
+
+
+note that rw = 4 + 2 = 6
+          rx = 4 + 1 = 5
+          
+so we cant conflect between it
+
+
+if we have file its perm:
+
+rw-r--r--
+6 -4--4--
+
+
+to change permissions with numrical :
+
+command:
+
+chmod  Numper for user group other
+
+chmod 7 mana
+it will make user have rwx perm
+
+chmod 64 mana
+
+it will make user have rw group r 
+
+
+chmod 400 mana
+
+user have r group have no perm other have no perm
+
+
+setting permissions :
+
+
+
+command chmod ug=rw,o=rx file1
+
+it will set that permissions only
+
+
+Note ; in numeric we must detemine the perm of user and group and others in the command 
+
+but we can in sympolic
+
+
+
+
+.........................................................................................
+
+
+command :
+chmod a=r file1
+
+a :for all user group other
+
+-rw-r--r--  1 root root 2735 Mar 18 19:26 ubunto
+
+
+
+
+
+
+
+
+
+

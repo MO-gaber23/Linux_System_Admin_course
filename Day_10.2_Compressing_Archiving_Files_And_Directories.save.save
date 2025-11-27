@@ -1,0 +1,230 @@
+.....................................................21.21-Day-10_Compressing_Archiving_Files_And_Directories............................................................................
+
+to compress files we have some algorismes :
+
+1-gzip : more fast 
+
+2-bzip2 :more compression ratio
+
+compress text
+.........................................................................................................................................................................
+
+
+we can use command : gzip [filename]
+
+
+                                                                             
+┌──(root㉿kali)-[/home/mo]
+└─# ls -lah myfile        
+-rw-r--r-- 1 root root (49M) May 11 10:41 myfile
+                                                                              
+┌──(root㉿kali)-[/home/mo]
+└─# gzip myfile
+                                                                              
+┌──(root㉿kali)-[/home/mo]
+└─# ls -lah myfile.gz
+-rw-r--r-- 1 root root (4.6M) May 11 10:41 myfile.gz
+                                    
+.........................................................................................................
+ 
+to decompress file with gzip algorizem:
+
+gunzip [filename]
+
+─(root㉿kali)-[/home/mo]
+└─# gunzip myfile.gz 
+                             
+
+
+........................................................................................................
+
+NOTE: to read compressed file we have to decompress it fristly
+
+in windows when we open compressed file it will be uncompressed in temp folder
+
+ .....................................................................................................................................................................................
+
+
+─(root㉿kali)-[/home/mo]
+└─# bzip2 myfile
+                                                                              
+┌──(root㉿kali)-[/home/mo]
+└─# ls
+Desktop    Downloads  Music    myfile.bz2  partitions  Public     Videos
+Documents  hack       myfile2  nmcli.txt   Pictures    Templates
+                                                                              
+┌──(root㉿kali)-[/home/mo]
+└─# ls -lah myfile.bz2
+-rw-r--r-- 1 root root (2.9M) May 11 10:41 myfile.bz2
+
+NOTE: it will remove the source file and put the comppressed one in its path insted of him
+
+........................................................................................................................................................................................................
+# to unzip files compressed with bzip2 use :
+
+[ command : bunzip file_name/path ]
+or
+[ bzip2 -d file_name/path ]
+
+[root@server bash]# ls
+Lab1.sh.bz2     
+
+[root@server bash]# bzip2 -d Lab1.sh.bz2 
+
+[root@server bash]# ls
+
+ Lab1.sh        
+--------------------------------------------------------------------
+
+
+to see how much time the algorizem will take 
+
+
+root@server # time gzip myfile
+YS
+Omo. 367s
+Omo .352s
+Omo.014s
+---------------------
+[root@server time bzip2 myfite
+real
+user
+sys
+Om4.492s
+Om4.449s
+Omo. 025s
+
+........................................................................
+
+look the compression operation is deferent in text from audio and vedio
+
+...................................................................................
+
+
+directories compression :
+
+the operation of compressing directory is called (archiving):
+
+that operation is want to collect (compine) the (files) on (one file) 
+
+NOTE :the space wont decrease in archiving dirs
+
+..............................
+
+that command will archive the viles on dir etc into (etc-backup.tar)
+
+─(root㉿kali)-[/home/mo]
+└─# tar cf etc-backup.tar etc/
+                                                                              
+──(root㉿kali)-[/home/mo]
+└─# ls -lah etc-backup.tar 
+-rw-r--r-- 1 root root (9.4M) May 11 11:08 etc-backup.tar
+                                              
+NOTE: the compressed and achived files will be in red line if we command (ls)
+
+..............................................................................................................................
+
+to extract archived files 
+
+command : tar xf filename.tar
+
+                                                                            
+┌──(root㉿kali)-[/home/mo]
+└─# tar xf etc-backup.tar     
+                                                                              
+┌──(root㉿kali)-[/home/mo]
+└─# ls                    
+Desktop    etc ←←←←←←←             Music       nmcli.txt   Public
+Documents  etc-backup.tar  myfile2     partitions  Templates
+Downloads  hack            myfile.bz2  Pictures    Videos
+                                       
+...................................
+NOTE:
+ 
+to show the files in extracting dir use option xvf
+
+tar xvf filename
+
+
+                                                                              
+┌──(root㉿kali)-[/home/mo]
+└─# tar xvf etc-backup.tar 
+etc/
+etc/python2.7/
+etc/python2.7/sitecustomize.py
+etc/ettercap/
+etc/ettercap/etter.nbns
+etc/ettercap/etter.dns
+etc/ettercap/etter.mdns
+etc/ettercap/etter.conf
+etc/ModemManager/
+etc/ModemManager/connection.d/
+etc/ModemManager/fcc-unlock.d/
+...............................................................................................................................
+
+tar (tapse archive)
+
+to archive and compress dires with (tar command)
+
+1-with (gzip)
+
+tar cvfz  filename(after archived) filename(befor archived)
+
+--------
+
+to unarchive and extract
+
+tar xvfz archivedfile
+
+
+─(root㉿kali)-[/home/mo/etc]
+└─# tar cvfz etc-backup.tar.gz etc/
+
+──(root㉿kali)-[/home/mo]
+└─# ls -lh
+total 55M
+drwxr-xr-x   2 mo   mo   4.0K Apr 15 07:27 Desktop
+drwxr-xr-x   2 mo   mo   4.0K Apr 14 01:39 Documents
+drwxr-xr-x   2 mo   mo   4.0K Apr 20 06:55 Downloads
+drwxr-xr-x 179 root root  12K May 11 13:45 etc
+-rw-r--r--   1 root root 2.4M May 11 13:45 etc-backup.tar.gz   ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+
+
+                                                                             
+┌──(root㉿kali)-[/home/mo]
+└─# tar xvfz etc-backup.tar.gz
+etc/
+etc/python2.7/
+
+┌──(root㉿kali)-[/home/mo]
+└─# ls -lh
+total 55M
+drwxr-xr-x   2 mo   mo   4.0K Apr 15 07:27 Desktop
+drwxr-xr-x   2 mo   mo   4.0K Apr 14 01:39 Documents
+drwxr-xr-x   2 mo   mo   4.0K Apr 20 06:55 Downloads
+drwxr-xr-x 179 root root  12K May 11 11:06 etc ←←←←←←←←←←←←←←←←←←←←← 
+
+
+------------------------------------------------------------------------------------
+
+2- with bzip2
+
+tar cvfj etc-backup.tar.bz2 /etc/
+
+
+to extract 
+
+tar xvfj etc-backup.tar.bz2
+
+................................................................................................................................................................................................................
+
+to listfiles archived and compressed in dir without extracting it:
+
+
+command:
+
+tar tvfz filname.tar.gz 
+
+
+[root@server]# tar tvfz etc-backup.tar.gz
+

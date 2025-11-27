@@ -1,0 +1,107 @@
+.........................................26.26-Day-13_VIM_Editor....................................................
+
+
+as we will work with configration files wwe had to have simple txet editor 
+
+so we have nano 
+
+and we have advanced txet editor like :vim
+
+NOTE:the frist virtion was vi and vim is the advanced virsion of vi
+
+...................................
+
+---  in vi and vim we have three modes 
+1-command mode (defult mode when openning )
+
+it allow you to navigate the file opend by vi or vim
+
+NOTE: we can search about word in command mode by clicking (/) then write the word you search for and click n to next result and N to previos result
+ 
+in command mode we can move carsure by botons h j k l
+
+NOTE: to enter insert mode but in new line under the line we in click boton (o) ,(O) to enter insert mode in uper new line
+
+----
+to yank(copy) line click (yy) to past click (p)
+
+we can yank(copy ) more lines click (numberyy)
+like yanking 4 lins :(4yy)
+-------
+
+to cut line use (dd) to past use (p)
+
+more lins to cut (number dd)
+
+like :3dd 
+ 
+-----------------
+to undo edite click (u)
+-----------------------
+to delet word (dw)
+
+to delet letter (dl)
+
+to delet line (dd)
+
+-to be in the frist line use (gg) to move to the end of file click (G)
+...............................................................................................................................................................................
+
+2-insert mode:
+ 
+to edit text in the opend file
+
+--to enter insert mode click poton (insert or i)
+
+--to return to command mode enter boton (Esc)
+.........................................................................................................................
+
+3-execution mode:
+
+to enter exexution mode enter boton (Shift+;) (:)
+
+here we can save changes by cliking in boton (w) write
+
+to quit enter q
+
+write and quit enter (wq)
+
+NOTE : TO quit without saving changes we done in exe-mode click (q!)
+
+
+to save changes in the opend file
+----------
+to jump into N line we must be in execution mode and enter the number of that line
+
+-----------------
+to show number of lines we must be in exe-mode and enter (set number) 
+
+to unshow it (set nonumber)
+
+---------------------------------
+NOTE : in exe-mode we can delet lines too 
+
+like :
+
+7,10d 
+this will delet lins from line number 7 to line number 10
+
+to delet from line we in to the end of the file as we in exe-mode
+
+click (.,$d)
+
+this will delet to the end of the file
+
+
+to delet from start to the end of file (1,$d)
+
+. redo what we was doing
+
+
+NOTE : we can search for word and replicate in exec-mode by :%s/word we search for / word we want to replicate 
+
+to repliicate all wordes we find %s /word/replicatedword/g
+
+this will replase all words we find in the file
+
+

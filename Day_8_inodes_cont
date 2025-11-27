@@ -1,0 +1,162 @@
+
+............................inodes_cont............................................
+
+
+file system is the state ,inode is the government
+
+
+
+note :ther is no deffirent blocks have the same inode 
+
+
+
+note : if i copyed some files in the same partetion it will hold some blocks and inode table and pointer to point in the new data 
+
+
+each block will have inode number and the frist one will point on the file
+
+
+the smae in coping in another partetion 
+.....................................................
+
+
+note :whene cutting file into the same file system it will have 
+the same inode number
+the pointer will be changed
+the blocks will be the same 
+
+...............
+note :
+in moving file into another partetion 
+the file system will copy the blocks and 
+assigne new inode number 
+and will remove the inodenumber that pointing on the old data
+the flage of inode will be free
+....................................
+
+note : we can have files of the same inode number but in deffirent partetions
+..........................................
+
+softlink:is an shortcut
+by making file point on another filename not pointing on its inodenumber
+
+if removing reference name of file1 ,file2 willnot access file1
+
+notr:in creating file2 it will have its own inodenumber
+
+.............................
+note : we can do softlinks between deffirent partitions and deffirent file systems
+......................................
+but hard links cant it must be in the same parition and file system
+.....................................
+to make soft link use command ln with option -s
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo/work]
+└─# ln -s /home/medo/work/ls.txt /tmp/
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo/work]
+└─# ls -li
+
+4521 -rw-r--r-- 3 root root 1007 Apr 16 11:54 ls.txt
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo/work]
+└─# ls -li /tmp/
+total 0
+4718 lrwxrwxrwx 1 root root 6 Apr 23 19:48 ls.txt -> ls.txt
+
+point on reference have deffirent inodenumber
+
+
+we must give the abselute path of the file and >
+.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+in hard links the same inodenumber point on two files in the same parition
+
+if i removed the reference name file1 the reference name file2 will work  
+
+hard link have the same inode number
+.........................................................
+
+to make hard link we have command :ln
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo/work]
+└─# ln ls.txt ls_man
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo/work]
+└─# ls -i
+4521 ls_man  4521 ls.txt
+
+
+┌──(root㉿ENGMohamedGaber)-[/home/medo/work]
+└─# ls -li
+total 8
+4521 -rw-r--r-- 3 root root 1007 Apr 16 11:54 ls_man
+4521 -rw-r--r-- 3 root root 1007 Apr 16 11:54 ls.txt
+
+
+.........................................................................
+
+soft link is allaowed for directories
+
+hard links not allaowed for irectoris as it contains point in references (files names)
+
+
+..............................................
+to remove link
+
+rm file path -rf
+
+...............
+not in both soft and hard links when we edit in we edit in the source file too
+
+
+but if deleting its softlink sourc file will not deleted but deleted if removed hard link
+
+
+..........................................................
+
+we can estimate file space usege using command:
+
+du [option]  [file]
+
+we can samarizeand humanize the output by using option -sh:
+
+du -sh filename
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

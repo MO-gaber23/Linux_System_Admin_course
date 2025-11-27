@@ -1,0 +1,274 @@
+.....................................66.66-Day-35 DHCP_Server..............................
+
+
+# we will install pkg ( dhcp )
+
+[ command : yum install dhcp ]
+
+#now we will enable and start the service dhcpd on our machine
+
+
+
+[ command : systemctl enable dhcpd ]
+
+[ command : systemctl start dhcpd  ]
+[root@server ~]# systemctl start dhcpd
+Job for dhcpd.service failed because the control process exited with error code.
+See "systemctl status dhcpd.service" and "journalctl -xeu dhcpd.service" for details.
+
+-check status :
+[ command : systemctl status dhcpd  ]
+[root@server ~]# systemctl status dhcpd
+
+dhcpd.service - DHCPv4 Server Daemon
+     Loaded: loaded (/usr/lib/systemd/system/dh>
+     Active: failed (Result: exit-code) since F>
+       Docs: man:dhcpd(8)
+             man:dhcpd.conf(5)
+    Process: 38434 ExecStart=/usr/sbin/dhcpd -f>
+   Main PID: 38434 (code=exited, status=1/FAILU>
+        CPU: 9ms
+
+Jul 19 08:18:48 server.medo.com dhcpd[38434]: o>
+Jul 19 08:18:48 server.medo.com systemd[1]: dhc>
+Jul 19 08:18:48 server.medo.com dhcpd[38434]: h>
+Jul 19 08:18:48 server.medo.com systemd[1]: Fai>
+Jul 19 08:18:48 server.medo.com dhcpd[38434]: i>
+Jul 19 08:18:48 server.medo.com dhcpd[38434]:
+Jul 19 08:18:48 server.medo.com dhcpd[38434]: P>
+Jul 19 08:18:48 server.medo.com dhcpd[38434]: h>
+Jul 19 08:18:48 server.medo.com dhcpd[38434]:
+Jul 19 08:18:48 server.medo.com dhcpd[38434]: e
+
+-NOTE : service is enabled but have failure
+-----
+- to solve this problem we see the conf-file and see its empty and tell us to see 
+the conf-file in ( /usr/share/doc/dhcp*/dhcp.conf.example )
+
+from this file we can see some examples to lerne and try to write like it to work 
+
+
+lets copy that file ( /usr/share/doc/dhcp*/dhcpd.conf.example ) into ( /etc/dhcp/dhcpd.conf )
+
+
+- and now we will edit file ( /etc/dhcp/dhcpd.conf ) to work with our machine and network 
+pdp
+
+[1- edit  > domain-name : in our case it is ( medo.com ) ]
+
+[2- edit  > domain-name-server : we can use open dns ips ( 208.67.222.222 , 208.67.220.220 ) ]
+
+[3- edite > default-lease-time by seconds to : 7200 ( after this time we return to dhcp to renew ip )]
+
+[4- edite > max-lease-time by seconds to 10800 ( this time that you will keep the same ip if dhcp server dont respods )]
+
+[5- edit  > #authoritative by removing the hash from that line ( that edit will make that server is the dhcp server of our network )]
+
+# if we havw more than one DHCP server the option authoritative is good to make one is the main DHCP server 
+
+[6- edit your subnet and subnetmask : in our case subnet is (192.168.233.0) netmask ( 255.255.255.0 )]
+
+in the subnet in the curly {
+
+range 192.168.233.5 192.168.233.250 ;     < chose your range of ips in your network >use that range of ips as network admins set the frist and last ips for Gatway
+
+option domain-name-server   dns-name;                < to chose our dns if we have 
+
+option domain-name      "domain-name";       < to set domain name
+
+option routers   "ip" ;                      < for our router
+
+default-lease-time  600 ;
+
+max-leas-time 7200 ;
+
+}
+
+
+
+# NOTE : any configration we write in the frist of the ( dhcpd.conf ) will be applied on all subnet we add after it
+
+but any configration internal any subnet is local for it only 
+
+the applied configration is the local config for the subnet
+
+=======
+now restart the service dhcpd 
+
+[command : systemctl restart dhcpd ]
+
+[root@server ~]# systemctl restart dhcpd
+
+[root@server ~]# systemctl status dhcpd
+● dhcpd.service - DHCPv4 Server Daemon
+     Loaded: loaded (/usr/lib/systemd/system/dh>
+     Active: active (running) since Fri 2024-07>
+       Docs: man:dhcpd(8)
+             man:dhcpd.conf(5)
+   Main PID: 4735 (dhcpd)
+     Status: "Dispatching packets..."
+      Tasks: 1 (limit: 10771)
+     Memory: 4.7M
+        CPU: 22ms
+     CGroup: /system.slice/dhcpd.service
+             └─4735 /usr/sbin/dhcpd -f -cf /etc>
+
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Co>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Al>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Fo>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: So>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Wr>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Li>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Se>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Se>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Se>
+Jul 19 17:21:31 server.medo.com systemd[1]: Sta>
+lines 1-23
+
+now running and enabeld 
+====================================
+
+[root@server ~]# systemctl status dhcpd
+
+● dhcpd.service - DHCPv4 Server Daemon
+     Loaded: loaded (/usr/lib/systemd/system/dh>
+     Active: active (running) since Fri 2024-07>
+       Docs: man:dhcpd(8)
+             man:dhcpd.conf(5)
+   Main PID: 4735 (dhcpd)
+     Status: "Dispatching packets..."
+      Tasks: 1 (limit: 10771)
+     Memory: 4.7M
+        CPU: 22ms
+     CGroup: /system.slice/dhcpd.service
+             └─4735 /usr/sbin/dhcpd -f -cf /etc>
+
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Co>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Al>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Fo>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: So>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Wr>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Li>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Se>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Se>
+Jul 19 17:21:31 server.medo.com dhcpd[4735]: Se>
+Jul 19 17:21:31 server.medo.com systemd[1]: Sta>
+lines 1-23
+
+
+=======================
+
+now on the client machine 
+
+[ command : dhclient ]
+
+we could know how is the dhcp server that client used to have its ip from 
+file ( /var/lib/NetworkManager/dhclient-uuid ) - NOTE : vm ware set up its 
+own dhcp we must off it to run our dhcp server
+
+
+to see what happening on server use :
+
+[ command : tailf /var/log/messages ]
+
+now we see that the ip dhcp decided to the client used by the client 
+------------------------------------------------------------------------
+
+
+# what is dhcp service 
+
+-in any network each device must have its ip number to communicate with the other devices have its ips 
+
+- but it is more defficult to set the ips to all devices in large network 
+
+- so to solve this problem we make an server do that automaticly this server called :DHCP server ( Dynamic Host Configration Protocol)
+
+-------------------------------------------------
+
+# ( DHCP )  : is an protocole used to make auto configuration in the network settings on network devices
+
+- so we makes an server has the DHCP installed in it and work in otuconfigating the network setting 
+
+- and we have the clients have the DHCP too
+
+-----------------------------------------------------
+
+# for the client to have its network configuration settings like ip : it do four steps ( DORA )
+
+- DORA ( Discover Offer reqest Ack )
+
+1- the client ( Discover wich server work as dhcp ) as clinent send broadcast on MAC-ADDRESS ( FF:FF:FF:FF:FF:FF:FF )
+
+2- The DHCP server resive that request and ( Offer ) an IP avilable and Netmask and Gatway and Dns ( witch is the settings of that network  client needs )
+
+usenig unicast packet to the mac address witch make discover broadcast
+
+
+3- the client sends an broadcast Request to tell that server that he accepts that settings
+
+4- the DHCP SERVER 	ACKNOWLADGE 	that settengs is for that client 
+
+
+-------------------------------------------------------------------------------
+
+# to know witch ip our device use ( static or DHCP )
+
+
+- if this machine not work with Network Manager :
+
+
+we could find that in file ( /var/lib/dhclient/lease_file )
+
+
+- but if we work with Network manager :
+
+[file :  /var/lib/NetworkManager/dhclient-uuid-interfacename.lease ]
+
+
+if we dont fiend that file of lease so the machine is not configured to take settings from DHCP server
+
+-NOTE: the taken ip is avilable for some time then it will be unavilable 
+
+-wrist cassw : if the client tryed to renw its ip but the DHCP server is unavilable :
+
+the DHCP server give us a chance to have the same ip if we tryed to renew it and it never renew so we keep that ip for period of time till the dhcp run and renew it for us
+
+that period of time we keep the ip is configured in file ( /var/lib/NetworkManager/dhcp-uuid-if-name .lease )
+============================
+-NOTE : we must configure the clients to renew its ips with kept period that is not very long time or short time period
+
+as if it was for long time we will need long number of ips as if we has large variable number of client evry day we will see that each client will have long time of keeping its ip-address
+
+is we shrink it we will find a Broadcast-storm in our network as each client will try to have its ip evry sort time
+=============================
+
+- in wired connection try to make it renew after 8 hours
+
+and expire after 12 hours
+
+-in wireless 
+
+renew evry tow hours 
+
+expire evry 2.30 hours
+--------------------------------------------------------------------------
+
+ 
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,145 @@
+.............................33.33-Day-16_Systemd_Cont-Network_Basics...........................................
+
+
+NOTE : if we clicked Alt+ctrl+Deletit will reboot the machine
+
+so we have to disable that feature : 
+
+as we know in systemd the targets are soft-link files from /usr/lib/systemd
+
+in /etc/ to work so to find the file concerned of Alt+Ctrl+Delet we enter the dir /usr/lib/systemd/system/
+
+
+commands: ls -l | grep -i del
+
+┌──(root㉿kali)-[/usr/lib/systemd/system]
+└─# ls -l | grep -i del                
+lrwxrwxrwx 1 root root    13 Nov  8  2022 ctrl-alt-del.target -> reboot.target
+
+
+we finde the file of reboot.target as soft-link to file ctrl-alt-del.target
+.................................................................................................................
+
+NOTE : in target we can start more than one service it's like directory as its a file contains pathes or links of more than one file
+
+..................................................................................................................................
+ 
+
+to disable ctrl+alt+del we can use mask with systemctl it will make the file pointing on (/dev/null) as a soft-link
+
+
+──(root㉿kali)-[/usr/lib/systemd/system]
+└─# systemctl mask ctrl-alt-del.target 
+Created symlink /etc/systemd/system/ctrl-alt-del.target → /dev/null.
+
+now we can't use ctrl+alt+del to reboot
+
+-------
+
+NOTE : the mask didn't edit in the source in (/usr/lib/systemd/system/) file it edite the  file in (/etc/systemd/system) the soft-link 
+
+......................................................................................................................................................
+
+NOTE: after editing any target we must make system reload targets to know the changes 
+
+system will reread conf-files again 
+command : systemctl daemon-reload
+...........................................................................................................................
+   
+NOTE: systemd will do conf-file located in /etc/systemd/ fristly
+
+if the conf-file note located in /etc/systemd/ or corrabted
+
+it will run conf-file located inthe source /usr/lib/systemd/system/
+
+so systemd search fristly in /etc/systemd/
+
+then in /usr/lib/systemd/
+
+.............................................................................................................................
+
+NETwork manger : appers in fedora10  it has bugs but in fedora16 it becom more good
+
+
+
+each dev connected to internet must has logical number called (IP address)
+
+so it must has ip to connect to enternet 
+
+as admine we must config - network in that devic (configering ip address)
+
+----------------------------------------
+
+
+
+in linux we have two network implementations :
+
+1- network : is an configration file we can edit it easly
+
+------
+
+2- network manager  : is an bulding blocks (modular system) allow basic setings and advanced setings 
+
+we edit only the module we want to edit not all the system to do some thing 
+
+like to config teaming/bond we edite modul of it only
+--------------
+
+-we can manage all moduls by one command : nmcli
+
+------------------------------
+ 
+to show ip address :
+
+ip address show  
+
+┌──(root㉿kali)-[/home/mo]
+└─# ip address show
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:0c:29:93:bd:09 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.233.133/24 brd 192.168.233.255 scope global dynamic noprefixroute eth0
+       valid_lft 1355sec preferred_lft 1355sec
+    inet6 fe80::20c:29ff:fe93:bd09/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+the command shows:
+
+1-LOOPBACK : its software interface (virtual interface) to tell us that (TCP/IP)(network implementation) is working eficently 
+
+any network services must listen in interface in our machin like (mysql , apache .els)
+ 
+so we have the loopback to make services not fail if we not have any network-interface  
+
+each machin has its lockal ip address 127.0.0.1 for loopback
+2- ethernet
+
+3-briges
+
+
+
+
+-NOTE: we can writ address as addr as akhtesar 
+
+we can write it as : ip a s
+
+-----------
+
+we can up and down network interface by using command : 
+
+ifup interface-name 
+
+ifdown interface-name
+
+
+                                                
+--------------------
+
+
+
+
+what is network-manager :  

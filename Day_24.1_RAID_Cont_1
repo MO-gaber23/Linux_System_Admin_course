@@ -1,0 +1,212 @@
+......................................51.51-Day-24_RAID_Cont_1.....................................................
+
+
+
+ther are many methods that RAID work with : called RAID Levels
+
+
+
+like : 
+
+RAID0 -> do strpping : cutting data into the diskes connected with 
+
+
+if we have three disks each is 5Giga and data is 12Giga
+
+so it will full the frist and the second and write 2G into the therd one
+
+
+-so its not redundant .
+
+the total storage of RAID0 is the compine of all disks = 5G +5G +5G = 15G
+
+
+-we can start RAID0 with one disk and add more disks in fututer
+
+
+-the reading and writing process is fast as it read from all disks at the same time
+
+
+------------------------------------------------------------------------------
+
+
+RAID1 :
+
+
+if we have two or more disks it will write the same data at the two disks :its like mirroring 
+
+
+-the process of  writing is slow
+
+-the proces of reading data is ultimate as it read from all disks
+
+
+-minmum disks is two 
+
+- data will not be losted if one disk down but if all down
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+RAID5 -> stripping with distributed parity (checksum)
+
+-here we store the data and checksome(parity) so if any part of data has been losted we can return it from the parity that work with xoring the data
+
+
+if we have 4 disks and want to stor data like (abc) so we will find the parity of that data 
+
+ 
+and store it like that 
+
+p for parity
+
+disk0 disk1 disk2 disk3
+  a     b     c     p
+
+  a     b     p     c
+ 
+  a     p     b     c
+
+  p     a     b     c
+
+
+so from that if any disk fall (down) or corrabted we can restor all the data
+
+
+from other disks
+
+-minmum number of used is three disks
+
+-read  and writing speed is moderate 
+
+-allow one disk failur
+
+-space is the total disks space - one disk space
+-------------------------------------------------------------------
+
+RAID6 -> do stripping with dual distributed parity
+
+-minmum disks used is 4 disks
+
+-alloaw 2 disks to fail
+
+-number of disks must be even
+
+-space will used is total disks space - two disk space of parity
+--------------------------------------------------------------------------------------------
+
+RAID10 -> complex RAID as it use RAID0 and RAID1
+
+- do miroring as raid1 as it taks disk and mirore it in array and another disk and mirror it in array of two disks 
+and compin the two arrays of disks like raid0
+
+if disk one in array one failed data won't lost as it mirrored in disk in the same array
+
+and the disk in the onther array failed it won't lose data
+
+
+---but if disk and its mirror failed data will lost and belshefaaaaaaa
+
+
+-minmum disks used with RAID10 is 4 disks
+
+-number of disks must be even number
+
+-space will used is half of disks 
+---------------------------------------------------------------------------------------------------------------
+
+
+NOTE: to manage data that will be written in disks of arry with RAID0 : we have RAID device witch is an vertual device that controll witch disk to start writing data in it
+
+
+-----------------------------------------------------------------------------------
+
+the tool that manage all of this is mdadm
+
+multi disk admin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

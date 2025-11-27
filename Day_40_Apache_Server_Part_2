@@ -1,0 +1,117 @@
+..........................................71.71-Day-40 Apache_Server_Part_2.....................................
+
+
+
+# the virtual hosts configrations  
+
+- to configur virtual host :
+
+1- go to dir ( /etc/httpd/conf.d/ )
+
+2- touch file with the name and number of the virtual host so the frist one is ( 01-vhost.conf )
+
+3- we will set the configrations 
+
+* we will writ VirtualHost in < > and end with </VirtualHost> its like html
+
+* to overrid the main config we writ `_default_80` or `*:80` on the frist line after VirtualHost like: <VirtioalHost _default_:80>
+
+* in this section <VirtualHost *:80> </VirtualHost> we will write many configrations like:
+
+   - { DocumentRoot  /srv/main/www } the place witch the apache will serve from
+
+   - {CustomLog "logs/default-vshos.log" combined }
+   
+   - now create the file to serve from it :
+      [root@server conf.d]# mkdir -p /srv/main/www
+  
+   - now we will touch the index.html file in the dir ( /srv/main/www/ ) 
+     [root@server conf.d]# touch /srv/main/www/inex.html
+   
+   - restart the service httpd 
+   
+   - we will see that if we enter the server ip on browser it give the testing page : as we don't set the directory permition to access the dir ( /srv/main/www/ ) and serve the file ( index.html )
+
+     so we will set that permission with the config file of the Vhost with conf-line :
+
+      <Directory /srv/main/www>
+       Require all granted
+       </Directory>      
+
+   -and restart the service
+
+   - NOTE : the VirtualHost configration will make the apache ignore the main configration and work with the Vhost config if it exist 
+            as we see we didn't set the Directory config to allow to serve from ( /srv/main/www/ ) so it go to the main config and see its Directory config and applyed it 
+
+
+- we have some methods to have virtual-hosts like : 
+
+[ nameBased virtualHosts ]
+
+ which allow the apache web server to have many virtual hosts but it see its names to know what directory will serve from 
+
+so if we make request to the apachy server like : 192.168.233.16/~mo/ it will serve the web-site in the home dir for user mo
+
+but if the request was : 192.168.233.16/~gaber/ it will serve the web-site in the home dir of user gaber
+
+from this we know that server know from whare it will serve by the name of the virtual host 
+
+as it will deffer between them by the names.
+# to make the web site be serverd by its name we add [ ServerName web-name ] to the config file of our virtual host 
+
+
+[ ipBased virtualHost ]
+
+- the apache server will know frome wahre it will serve debending on the ip on the request
+
+not practical as it need public ips and we dont havy many ips
+
+
+
+
+
+
+
+# host the web site ( www.za3bola.com ) 
+
+1- in dir ( /etc/httpd/conf.d/ ) touch file for the VHost configrations
+
+
+
+2- configure the configrations 
+ 
+ <VirtualHost>
+ServerName www.za3bola.com
+ServerAlias za3bola.com za3bola 
+DocumentRoot /srv/www.za3bola.com/www/
+CustomLog "logs/za3bola-vhost.log" combined
+
+</VirtualHost>
+
+<Directory /srv/www.za3bola.com/www/>
+Require all granted
+</Directory>
+
+[ NOTE : the onther config that not writen on the Vhost.conf the server set them from the main configrations ]
+3- create dir ( /srv/www.za3bola.com/www/) and touch the index.html file
+
+[root@server /]# mkdir -p /srv/www.za3bola.com/www/
+
+[root@server /]# vim /srv/www.za3bola.com/www/index.html
+
+
+4- now to access the web-site za3bola we must searche about it by its name or aliasname 
+
+as if we search by the ip it will show the default one who work with the ip and we dont set name to him
+
+- but as we know the name of the site must be resolved by DNS or set the name and ip in the hostes file on the client-machine 
+
+
+
+
+
+
+
+
+
+

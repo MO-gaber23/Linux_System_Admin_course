@@ -1,0 +1,128 @@
+.......................................................50.49-Day-24_RAID..........................................................
+
+
+RAID :Redundant Array of independant Disks 
+
+-its an additional disks in the server to avoid lossing data if the peminant disk has corrated
+
+-its used to be an backup disk 
+
+-so developers decided to add an disk to the main disk any thing written in the main disk will be written in the second disk too
+
+-if the frist failled the second will work insted of the frist one that has corrabted
+
+
+------------------------------------------
+
+-Redundent : means that data will be written more than one time
+
+-array : list of disks
+
+-independant : means not related to the main disks
+
+
+
+so (RAID) : means we have a list of separated disks to make redundancy of data 
+--------------------------------------------------
+ fristly we make Hard Ware RAID (RAID controller) that hardware card 
+
+
+-is used to connect the RAID disks to the device 
+-so we hve to configer the RAID controller to determine how many times we want to write copies of the data
+if we have 3 disks so we configure it to writ data three times on the disks
+
+
+
+-the load of writing data is on the card not on the operating system
+
+NOTE :each disk has its own speed of writing data 
+
+
+
+---------------------------------------------------------------------------------------
+
+NOTE:the RAID controller has (fast speed cach ) in this we write data speedly befor writing it in the RAID disks
+
+it is 12Giga size or lower than it
+
+-NOTE: RAID controller has its battery to not down if electrcty gone to save the data and write it after that
+
+
+-----------------
+
+-NOTE: each RAID controller has its own nmber og disks that can support 
+
+
+so if we have server of 6 disks and controller of 4 disks 
+we will add another controller to suport the other two disks
+
+so now we know that servers can support more than one RAID controller cards
+
+
+---------------------------------
+
+if we have two controller of 4 diskes suported for each card 
+
+we can not compine disks into an array of 
+disks from the two cards the disks must be on the same controller.
+
+as each one has its own cash separated 
+-------------------------------------------
+-as the hw controller are expensive :
+
+we developed an software RAID controller
+
+but note like hardware as no battery no cach.
+
+
+-------------------------------------------------------
+
+Redundant Array Indebendant disks : Hard ware RAID
+
+Redundant Array inexpensive disks : software RAID
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

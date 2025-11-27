@@ -1,0 +1,154 @@
+			.............................................44.44-Day_21_Network_Bridging.............................................
+
+if we have server with two links with two switches and the frist switche is better than the second one 
+
+so we can give periority to the frist switche to run and active with the trafice but if it come down the second one will up and run
+
+----------
+to disply ports we use in teaming :
+
+[ command : teamnl interfacename ports ]
+
+remnux# teamnl team0 ports
+
+---
+to display options of team links:
+
+[command : teamnl ifname options]
+
+remnux# teamnl team0 options
+----------
+
+[ root@test teamnl team0 ports
+3: en033554992: up IOOOMbit FD
+4: en050332216: up IOOOMbit FD
+
+[ root@test]# teamnl team0 options
+
+queue id (port :en033554992) 0
+priority (port:en033554992) O
+user_linkup_enabled (port :en033554992) false
+user linkup (port: en033554992) true
+enabted (port :en033554992) true
+queue_id (port :en050332216) O
+Oriority (port :en050332216) O
+user_linkup_enabled (port :en050332216) false
+user linkup (port:en050332216) true
+enabled (port:en050332216) false
+activeport 3
+mcast_rejoin interval O
+mcast rejoin count 1
+notify _ peers interval O
+notify _ peers count 1
+mode activebackup
+
+
+
+
+-----------
+to change priority :
+
+[teamnl interface-name -p port setoption priority 100]
+
+[ root@test ~]# teamnl team0 -p en050332216 setoption priority 100
+
+---------------------------------------------------
+
+bridging :
+
+by example if we have an virtual machine that have more than one port in one inteface or more interfaces 
+
+and we have to connect all ports with the phisical interface we can use the (pridge) to do that its like an switche (multi-bridge)
+
+so we can conntrole the trafics of all the machines 
+
+----------
+
+we can make an bridge connection in our machine by the command nmcli :
+
+[ nmcli add type bridge con-name br0 ifname br0 ]
+
+┌──(root㉿kali)-[/home/mo]
+└─# nmcli connection add type bridge con-name br0 ifname br0
+Connection 'br0' (5ff4fb14-8d4d-4054-9f93-ad6025990c3b) successfully added.
+
+┌──(root㉿kali)-[/home/mo]
+└─# nmcli connection show
+NAME                UUID                                  TYPE      DEVICE
+br0                 5ff4fb14-8d4d-4054-9f93-ad6025990c3b  bridge    br0
+
+
+----------------
+
+now we will connect the ports with the bridge :
+
+by adding slaves (ifname : eth0,1,2,,,,)to the master connection named (br0)
+
+┌──(root㉿kali)-[/home/mo]
+└─# nmcli connection add type bridge-slave ifname eth1 con-name br-slave master br0                       
+
+
+┌──(root㉿kali)-[/home/mo]
+└─# nmcli connection show
+NAME                UUID                            >
+kali                0a8dd88f-ffec-44a6-ad78-eeb84086>
+br0                 5ff4fb14-8d4d-4054-9f93-ad602599>
+home                d1277c95-d2f9-4c9e-8071-4bf1e9b1>
+Wired connection 1  2f867655-78c3-491e-906c-dbd0ed09>
+work                9df01133-aca7-456a-b6aa-f4b665ed>
+br-slave            0581d311-2c57-41d6-bf63-800ee6d8>
+
+-----------------
+
+NOTE: if we reload the master the slaves will down but not up automaticly 
+
+it is like teaming
+
+--------------------------
+
+to show the bridges we have :
+
+[ command : brctl show ]
+
+bridge name bridge id STP enabled interfaces
+
+8åOO.OOOc2éee 36      yes en033S54992
+
+
+--------------------------------------------
+
+
+NOTE: to be agood master saye5 make an team connection and connect the bridge to him not to the phisical interface 
+
+
+so in creating the slave device connect him into the team device not to the phisical interface
+
+
+[ nmcli connection add type bridge-slave ifname team con-name slave-bridge master br0 ]
+
+-----------------------------------------------------
+
+NOTE: all of this we can do with an utilty tool named:
+
+(nmtui) by selecting what u need 
+
+- NOTE: this utility created by tool dialog
+----------------------
+
+task:
+1-creat 4 interfaces
+
+one for ethernet with piriorty 50
+
+one for bridge
+
+one for nic-team connected by  two interfaces with runner activebackup
+  
+
+
+
+
+
+
+
+

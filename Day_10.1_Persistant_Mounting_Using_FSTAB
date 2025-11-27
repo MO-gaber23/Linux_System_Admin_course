@@ -1,0 +1,147 @@
+.........................................20.20-Day-10_Persistant_Mounting_Using_FSTAB..............................................................
+
+to make system automaticaly mount partitions whene rebooting
+
+we must save some configrations in some configration file
+
+the configration file will be :
+
+/etc/fstab :this file contain configration to file system tables 
+
+-so it have table of file system that we want to mount in the system 
+
+file system table would be like :
+
+ <file system>     <mount point>    <type>    <options>                      <dump>                 <pass>
+                                                               
+   file system        /media/         type      read/write execute            backup from zero to 9 for the order of dumpe file                    to check file system        the order of checking partitions
+                                       of 
+                                      file 
+                                      system
+        path
+    /dev/nvme0n2p1
+
+
+
+NOTE: be cearfule in editing that file (/etc/fstab)
+
+
+NOTE: we can use command to have no broplem with booting the machine
+
+
+command: mount -a
+
+                                                                                
+┌──(root㉿kali)-[/dev]
+└─# mount -a                    
+mount: /etc/fstab: parse error at line 17 -- ignored
+                            
+this command tell us that we have error at line and ignored it 
+
+
+and tell kernl to mount the device i write in
+
+
+...................
+NOTE : if we reboot the system and have some sentax error in the fstab file the system can be ignore that error and enter you in mentainans moode to solve tha problme
+
+
+..........................................................................................................
+
+NOTE:
+
+NOTE:
+
+NOTE;
+
+
+each partition you mount will copied info about it in file :/etc/mtab (mounted filesystemtable)
+
+we can viwe that file and take the last line of it and place it into the file (/dev/fstab)
+
+to hvae no problem in that file so 
+
+1- creat partition
+2- creat file system for it 
+3-partprobe the partition
+4-mount the partition 
+5-cat /etc/mtab
+6-copy the line of the partition you mounted 
+7- place it into /etc/fstab
+........
+
+NOTE: to delet partition be sure that partition isnot in file (/etc/fstab)
+
+delet it from fstab too.
+
+
+.....................................................................................................................................................
+
+................................
+
+command : cfdisk [disk name] 
+
+it veiw the partitions info like that 
+
+┌──(root㉿kali)-[/home/mo]
+└─# cfdisk /dev/nvme0n2  
+
+                                                                                                Disk: /dev/nvme0n2
+                                                                                               Size: 6 GiB, 6442450944 bytes, 12582912 sectors
+                                                                                                     Label: dos, identifier: 0x8cc8e456
+
+    Device                               Boot                                          Start                         End                    Sectors                     Size                    Id Type
+>>  /dev/nvme0n2p1                                                                      2048                     2099199                    2097152                       1G                    83 Linux                                     
+    /dev/nvme0n2p2                                                                   2099200                     6293503                    4194304                       2G                    83 Linux
+    /dev/nvme0n2p4                                                                   6293504                     7342079                    1048576                     512M                     5 Extended
+    ├─/dev/nvme0n2p5                                                                 6295552                     6336511                      40960                      20M                    83 Linux
+    └─Free space                                                                     6338560                     7342079                    1003520                     490M
+    Free space                                                                       7342080                    12582911                    5240832                     2.5G
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+ │  Partition type: Linux (83)                                                                                                                                                                                                             │
+ │ Filesystem UUID: 6ad7490b-1ad4-4729-8131-96a451ea3432                                                                                                                                                                                   │
+ │Filesystem LABEL: hacking                                                                                                                                                                                                                │
+ │      Filesystem: ext4                                                                                                                                                                                                                   │
+ │      Mountpoint: /media (mounted)                                                                                                                                                                                                       │
+ └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+                                                                       [Bootable]  [ Delete ]  [ Resize ]  [  Quit  ]  [  Type  ]  [  Help  ]  [  Write ]  [  Dump  ]
+
+
+
+
+
+
+we can do evry thing we do with (fdisk) by (cfdisk)
+
+NOTE:we can find information about the partitions in command (cfdisk) like file system type info
+
+
+NOTE : we must unount the partitions to update it with the kernal or do anything new in it
+
+
+

@@ -1,0 +1,359 @@
+
+....................................55.55-Day-27_LVM_Cont...............................................
+
+
+NOTE : in shrinking removing expanding lv it must be unmounted
+
+
+note: to do list of things like removeing some dirs or lvs start  with the same leter and end differ we can use []
+
+like:
+
+# pvremove /dev/sd[cbd] 
+
+[it will remove all of sda and sdb and sdc]
+
+[note : we can use some featur of RAID with LVM]
+
+#NOTE: if LVM start writing in disk and contenue in another one as they are LV  and one has corrabted all data will be lost 
+
+[NOTE: dont resize any storage that not LVM ]
+
+ 
+
+[--------------------------------------------------]
+
+[the pest practic is to impelement LVM over RAID : so we have to make RAID disks arraies and compine them with LVM]
+
+
+
+#ex: if we make two Logical Volumes each made of two disks and we make RAID over the two LV 
+
+
+-so if the frist volume in frist LV has corrapted  we will lose all of the frist Logical volume 
+
+so we will remove all of volume group of the frist LV and rebuild it from the begining 
+
+
+
+#ex2 : if we made two RAID each made of two disks and we create Logical Volume over the two RAID 
+
+-so if the frist disk of the frist RAID has corrapted no data will be lost and LVM won't see any thing and we can reblace that disk and work like nothing happend
+ 
+-----------------------------------------------------------------------------------------------------------------------
+
+
+- in implementation :
+1-
+
+# we create two RAID devices md0 and md1
+
+
+[ md0 : for array of (sdb1 ,sdb2 ) ]
+
+[ md1 : for array of (sdc  ,sdd  ) ]
+
+......
+
+2- 
+
+#create logical volume by :
+
+1- creating pysical volume from (md0 ,md1)
+
+[root@fedora medo]# pvcreate /dev/md[01]
+
+  Physical volume "/dev/md0" successfully created.
+
+  Physical volume "/dev/md1" successfully created.
+
+
+2-create group-volume from md0 md1
+ 
+[root@fedora medo]# vgcreate data /dev/md[01]
+
+  Volume group "data" successfully created
+
+
+
+
+3-create logical volume from group-volume data
+
+[root@fedora medo]# lvcreate --size=6G --name hamasa data 
+
+  Logical volume "hamasa" created.
+
+
+#note : md0 is 5G as it level =1 so it size will be the half =10\2=5G so md1 =1G
+
+-so group-volume is 5+1=6G
+
+
+
+
+
+
+
+4- make file system :
+
+mkfs.ext4 /dev/data/hamasa
+
+ 
+
+[root@fedora medo]# mkfs.ext4 /dev/data/hamasa 
+
+mke2fs 1.46.5 (30-Dec-2021)
+
+Creating filesystem with 1572864 4k blocks and 393216 inodes
+
+Filesystem UUID: 1c2f1932-390f-4bb6-87d2-7ec973b699b1
+
+Superblock backups stored on blocks: 
+
+	32768, 98304, 163840, 229376, 294912, 819200, 884736
+
+
+
+Allocating group tables: done                            
+
+Writing inode tables: done                            
+
+Creating journal (16384 blocks): done
+
+Writing superblocks and filesystem accounting information: done 
+
+-------------------------------------------
+
+now in this storage our job with RAID is to change disk that corrapte if happend only 
+
+
+---------------------------------------------------------------------------------------
+
+
+#now we only deal with the LVM so we mount from it 
+
+
+[root@fedora medo]# mount /dev/data/hamasa /media/
+
+[root@fedora medo]# lsblk
+
+NAME              MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINTS
+
+sda                 8:0    0   15G  0 disk  
+
+├─sda1              8:1    0  600M  0 part  /boot/efi
+
+├─sda2              8:2    0    1G  0 part  /boot
+
+└─sda3              8:3    0 13.4G  0 part  /home
+
+                                            /
+
+sdb                 8:16   0   15G  0 disk  
+
+├─sdb1              8:17   0    5G  0 part  
+
+│ └─md0             9:0    0    5G  0 raid1 
+
+│   └─data-hamasa 253:0    0    6G  0 lvm   /media
+
+└─sdb2              8:18   0    5G  0 part  
+
+  └─md0             9:0    0    5G  0 raid1 
+
+    └─data-hamasa 253:0    0    6G  0 lvm   /media
+
+sdc                 8:32   0  1.1G  0 disk  
+
+└─md1               9:1    0  1.1G  0 raid1 
+
+  └─data-hamasa   253:0    0    6G  0 lvm   /media
+
+sdd                 8:48   0  1.5G  0 disk  
+
+└─md1               9:1    0  1.1G  0 raid1 
+
+  └─data-hamasa   253:0    0    6G  0 lvm   /media
+
+zram0             252:0    0  1.9G  0 disk  [SWAP]
+
+------------------------------------------------------------------
+
+
+# - now we will act as some disk has corrabted :
+
+mdadm /dev/md0 -f /dev/sdb1
+
+
+[root@fedora medo]# mdadm /dev/md0  -f /dev/sdb1
+
+[mdadm: set /dev/sdb1 faulty in /dev/md0]
+
+# if write data it will write data 
+
+
+[root@fedora medo]# cp -r /usr/ /data/
+
+
+
+
+
+
+
+[root@fedora medo]# ls -lahs /data/
+
+total 24K
+
+4.0K drwxr-xr-x. 4 root root 4.0K Jun 23 05:53 .
+
+   0 dr-xr-xr-x. 1 root root  166 Jun 23 05:50 ..
+
+ 16K drwx------. 2 root root  16K Jun 23 05:28 lost+found
+
+4.0K drwxr-xr-x. 7 root root 4.0K Jun 23 05:54 usr
+
+#we find that it had data written
+
+[#corrapte the onther disk]
+
+mdadm /dev/md1 -f /dev/sdc
+
+[root@fedora medo]# mdadm /dev/md1 -f /dev/sdc
+
+mdadm: set /dev/sdc faulty in /dev/md1
+
+[now we have two disks corrabted from the two arrays]
+
+NOTE: we can write data too as redundancy 
+
+-------------------------------------------------------------------------
+
+  # in LVM we can resize the volume 
+
+-to extend the volume :
+
+lvextend --size +n G path of the LV
+
+
+NOTE: the file system didn't understand that change 
+-so we have to ubdate the inode-table as to add inodes fore new blocks added to the volume
+
+# command: resize2fs path of the logical volume
+
+[ root@server ] resize2fs /dev/data/hamasa
+resize2fs 1.42.9 (28-Dec-2013)
+Filesystem at /dev/data/oracte is mounted on /data; on-line resizing required
+old desc blocks
+= 4, new desc blocks
+he¯filesystem on /dev/data/oracte is now 9175040 blocks long.
+
+-now the new space will appers 
+
+NOTE: WE don't have to unmount in extending volume 
+
+-----------------------------------------------------------------------------------------------------
+
+# to shrink the Logical Voume
+
+- here we must tell the file system that we will shrinke the volume
+
+# 0-umount file system
+
+[root@fedora sudo]# umount /data/
+
+# 1- check file system 
+
+[by using command: efsck -f path of lv]
+
+[root@fedora sudo]# e2fsck -f /dev/data/sampo
+
+e2fsck 1.46.5 (30-Dec-2021)
+Pass 1: Checking inodes, blocks, and sizes
+Pass 2: Checking directory structure
+Pass 3: Checking directory connectivity
+Pass 4: Checking reference counts
+Pass 5: Checking group summary information
+/dev/data/sampo: 11/524288 files (0.0% non-contiguous), 56207/2097152 blocks
+
+# 2- resize the file system 
+[by using command: resize2fs  path of lv that has file system the new size]
+
+
+[root@fedora sudo]# resize2fs /dev/data/sampo 6G
+
+resize2fs 1.46.5 (30-Dec-2021)
+Resizing the filesystem on /dev/data/sampo to 1572864 (4k) blocks.
+The filesystem on /dev/data/sampo is now 1572864 (4k) blocks long.
+
+now the file system has been resized from 8Gig to 6gig
+
+
+# 3- reduce the logical volume 
+
+[by using command :lvreduce -L -number of space caut from lv  path of lv]
+
+
+[root@fedora sudo]# lvreduce -L -2G /dev/data/sampo
+
+  WARNING: Reducing active logical volume to 6.00 GiB.
+  THIS MAY DESTROY YOUR DATA (filesystem etc.)
+Do you really want to reduce data/sampo? [y/n]: y
+  Size of logical volume data/sampo changed from 8.00 GiB (2048 extents) to 6.00 GiB (1536 extents).
+  Logical volume data/sampo successfully resized.
+
+# 4- be sure that the new space is enugh to use 
+
+now the LV become 6Giga 
+
+
+[root@fedora sudo]# lvs
+  LV    VG   Attr       LSize Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  sampo data -wi-ao---- 6.00g
+
+and we can mount it again
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

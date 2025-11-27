@@ -1,0 +1,91 @@
+.......................39.39-Day-19_IPV6_Cont..................
+
+
+NOTE : we have three ways to have ipv4 address 
+
+1- manualy -> static ip 
+
+2- Auto  by -> DHCP
+
+3- by APIPA -> 169.254.xx to some users connected by switche to communicate 
+
+named (zero conf)
+---
+
+NOTE: in ipv6 link-local == APIPA in ipv4 
+
+ creat Eui(Extended uniq identifire) by using the mac address of the device
+its 64 bit 
+
+Eui created by adding fffe at the middle of mac address 
+
+
+
+link-local created by adding fe80: at the frist of Eui and add zeros 
+
+
+and continue like the last video
+
+
+----this methodes work in linux and cisco 
+not work in windows as it generate random ipv6
+
+-------------------------------------------------------------------------------------------------------
+
+NOTE: IPV6 work with multicast not broadcast
+
+
+multicast in ipv4 start with 224.0.0.0 end with 239.255.255.255
+
+we must know that ps dont lesten to multicast come from routers as router maks multicast to news other routers that its ther 
+
+but if we send backets on ip 224.0.0.1 any one in network can see it but any other ip like 224.0.0.2/3/4 debend on the protocol 
+
+this help us in netowrk discovery by sending backets to ip 224.0.0.1
+-------------------
+in IPV6 multicast is any ipv6 start with (ff00:)
+
+we can do network disvovry in ipv6 by using ip ff02::1 when we send to this ip all hosts in our network will resbons to you
+---------------------
+
+private ip in ipv4
+
+10.0.0.0/8  so it start from 10.0.0.0 to 10.255.255.255
+
+172.16.0.0/16
+
+192.168.0.0/16
+
+-we use this ip's for local netowrk devices as in local network hostes can tak this aipes an it will be repeted in another network 
+
+but each network has publec ip in the interface of its router conected to the internet 
+
+so local network devices can communicat with privates ip with each other but communicate with the outer networks and enternet with public ip in the router inter face card 
+
+the method of this called (NATING)
+
+NAT is to have bublic ip and privet ip and communicat with the two of it in different nwtworks   
+
+--------------------------------
+
+-in IPV6 multicast can pass throughuot routers in our network but don't go to enternet 
+
+
+by using site local as if we send backets to ipv6 start with fd00::/8
+
+it will make sitelocal multicast 
+
+
+so if we have two switches connected by router and each swithe has his hostes and some host send backets to fd00::/8 it will multi cast to all hostes in this network and bass throughout the router to the other switch hostes
+---------------------
+
+in IPV6  we dont use dhcp to has our ip 
+
+to come with ip the host will send backets (SLAAC Discovery ) to searche about router and router will resbonds with his ip and name-server for the dns as we must know it to up in internet
+
+the host will take its subnet and use supnet+Eui 
+
+
+ 
+
+

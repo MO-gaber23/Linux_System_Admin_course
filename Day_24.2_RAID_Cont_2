@@ -1,0 +1,203 @@
+..........................................52.52-Day-24_RAID_Cont_2...........................................
+
+we will use tool (mdadm):
+
+to create (RAID device) control the RAID disks
+
+-from level five (RIAD5) witch maks one of disks will contains parity(checksome)
+
+
+-and we will determine the disks that will be In RAID array and its number
+
+
+
+mdadm --create /dev/md0 --level=5 --raid-devices=3 /dev/sda /dev/sdb /dev/sdc  
+
+⬆️       ️ ⬆️⬆️     ⬆️     ⬆️    ⬆️⬆️                                ⬆️      ⬆️⬆️     ⬆️⬆️
+tool
+
+
+
+
+mdadm: Defaulting to version 1.2 metadata
+mdadm: array /dev/md0 started.
+
+
+---------------------------
+to see what happend in creating the array :
+
+watch cat /proc/mdstat
+
+Every 2.0s: cat /proc/mdstat
+Personalities .
+[ raid6J [raid5J [raid41
+md0 : active raid5 sdd[3] sdc [11 sdb[01
+41910272 blocks super 1.2 level 5,
+recovery
+unused devices: <none>
+Tue Sep
+512k chunk, at orithm 2 (3/21 (Ut-1
+= 31.8% (6673664/20955136) finish—I. Imin speed=207991K/sec
+
+--------------------------------------------
+
+NOTE : to make that array of RAID disks must be empty no file system in just MBR
+
+After making the array of RAID5 :
+
+-now we will make file system into the RAID device 
+command:
+
+mkfs.ext4 /dev/md0
+
+[root@server mkfs.ext4 /dev/md0
+mke2fs 1.42.9 (28-Dec-2013)
+Filesystem label=
+OS type: Linux
+Block size=4096 (Iog=2)
+Fraynent size=4096 (tog=2)
+Stride=128 blocks, Stripe width=256 blocks
+2621440 inodes, 10477568 blocks
+523878 blocks (5.00%) reserved for the super user
+First data block—0
+Maximum filesystem blocks=2157969408
+320 block groups
+32768 blocks per group, 32768 fragnents per group
+8192 inodes per group
+Superblock backups stored on blocks:
+32768, 98304, 163840, 229376, 294912, 819200,
+884736,
+1605632,
+2654208 ,
+4096000, 7962624
+Allocating group tables: done
+Writing inode tables: done
+Creating jou rnat (32768 blocks) :done
+Writing superblocks and filesystem accounting information: done
+
+
+-----------------------------------------------------
+
+
+- now we can mount the RAID device :
+
+mount /dev/md0 /media/
+
+------------------------------------------------------------------------
+Every 2.0s: cat /proc/mdstat
+Personalities .
+[raid61 [raid51 [raid41
+md0 : active raid5 sdd[31 sdc [1] sdb[01
+1.2 level 5,
+41910272 blocks su
+unused devices:
+512k chunk,
+algorithm 2 (3/3) IUUUI
+                    the three disks now is up as it give uuu
+
+--------------------------------------------------------------------------------------------------------------------
+
+ if any disk has failed we will see that in the file (/proc/mdstat)
+
+as
+
+root@server # cat /proc/m stat
+ersonalities .
+[ raid61 [raid5J [raid4J
+d0 : active raid5 sdb[0] sdc [31
+41910272 blocks super 1.2 level 5,
+nused devices: <none>
+512k chunk,
+algorithm 2 [3/2] IU_UI < it tells us that disk has failed
+
+-NOTE: it still can write as RAID5 allow that
+
+--------------------------------------------------------
+
+now we will add another disk to the RAID array:
+
+mdadm /dev/md0 --add /dev/sdd
+
+[ root@server ] mdadm /dev/md0 -a /dev/sdd
+mdadn: added /dev/sdd
+
+- now it will rebuild the array and see the data written and parity after rebuild it will write the data again and the parity
+
+regenerat mising data
+
+---------------------------------------------------------------------------------------------------------------
+
+
+-to stop using that RAID array we can umount the RAID device
+
+
+command: umount /media/
+--------------------------
+
+-to stop RAID device :
+
+mdadm --stop /dev/md0
+
+[ root@server mdadn - -stop /dev/md0
+mdaån: stopped /dev/md0
+
+NOTE :data still exist after that
+
+so we can start it again
+----------------------------------------------
+to start it again :
+
+mdadm --assemble --scan
+
+to scan and compine disks again
+
+[ root@server ] mdadm --assemble --scan
+mdadm: /dev/md/O has been started with 3 drives.
+
+
+
+now we can mount it again :
+
+mount /dev/md0  /media/
+
+NOTE:no data removed after re mount it we can find all our data
+-----------------------------------------------------------------------------------------------------------------------
+
+we can but into file /etc/fstab to mount the array every time we reboot 
+
+---------------------------------------------------------
+
+-to remove all things in the RAID array :
+
+we can do that by using option --zero-superblock to each disk one by one
+
+NOTE: in practical we must stop the RAID device we created to can remove disks array
+
+command: mdadm --stop /dev/md0
+
+
+[root@fedora medo]# mdadm --stop /dev/md0
+
+mdadm: stopped /dev/md0
+
+
+mdadm --zero-superblock /dev/sdb
+mdadm --zero-superblock /dev/sdc
+mdadm --zero-superblock /dev/sdd
+
+NOTE: option --zero-superblock 
+
+when creating the RAID array mdadm write an suberblocks in the disks to tell them that they are connected with RAID device and work in an array 
+
+when make scan it search for that suberblocks
+
+so the option --zero-suberblock remove that suberblocks from each disk
+
+
+
+
+
+
+
+
+
