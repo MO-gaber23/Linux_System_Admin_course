@@ -72,4 +72,7 @@ NOTE: note the name of grub file some times it chang
 
 
 if we reinstall grub or another version of it it will override the conf-file 
+<<<<<<< HEAD
 end of that file
+=======
+>>>>>>> 87a1572 (initial commit)
