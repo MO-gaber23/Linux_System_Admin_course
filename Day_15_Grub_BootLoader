@@ -72,3 +72,4 @@ NOTE: note the name of grub file some times it chang
 
 
 if we reinstall grub or another version of it it will override the conf-file 
+end of that file
